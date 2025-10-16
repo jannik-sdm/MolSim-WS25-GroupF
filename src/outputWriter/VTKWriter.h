@@ -6,6 +6,7 @@
  */
 
 #pragma once
+#ifdef ENABLE_VTK_OUTPUT
 
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
@@ -39,3 +40,4 @@ class VTKWriter {
 };
 
 }  // namespace outputWriter
+#endif
