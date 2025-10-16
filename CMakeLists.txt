@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
+# Enable C++17. You may raise the standard if you want
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # define project name, version
 project(PSEMolDyn VERSION 0.0.1 LANGUAGES CXX)
-
-# Finds the xerces-c library on your system
-# on linux: apt install libxerces-c-dev
-# on macOS: brew install xerces-c
-find_package(XercesC REQUIRED)
 
 # let ccmake and cmake-gui offer the default build type options
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug;Release;RelWithDebInfo;MinSizeRel")
@@ -27,25 +26,9 @@ file(GLOB_RECURSE MY_SRC
 # create make target
 add_executable(MolSim ${MY_SRC})
 
-# You may raise the C++ standard if you want
-# Note, the bundled libxsd uses std::auto_ptr which was deprecated in C++11 and removed in C++17
-# Hence, some compilers (e.g. Apple Clang) refuse to compile with C++17, but e.g. not GNU GCC
-target_compile_features(MolSim
-        PRIVATE
-            cxx_std_17
-)
-
 target_include_directories(MolSim
-        PUBLIC
-            ${CMAKE_CURRENT_SOURCE_DIR}/libs/libxsd
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-target_link_libraries(MolSim
-        # stuff that is used in headers and source files
-        PUBLIC
-            XercesC::XercesC
 )
 
 # activate all compiler warnings. Clean up your code :P
@@ -57,6 +40,8 @@ target_compile_options(MolSim
             $<$<CXX_COMPILER_ID:Intel>:-w3 -wd383,981,1418,1572,2259>
 )
 
+# add additional modules
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
+include(vtk)
 include(doxygen)
