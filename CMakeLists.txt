@@ -44,4 +44,5 @@ target_compile_options(MolSim
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 include(vtk)
+include(clang-format)
 include(doxygen)

@@ -10,10 +10,10 @@
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
 
-#include "Particle.h"
-
-#include <string>
 #include <list>
+#include <string>
+
+#include "Particle.h"
 
 namespace outputWriter {
 
@@ -22,13 +22,13 @@ namespace outputWriter {
  * particles using the official VTK library.
  */
 class VTKWriter {
-public:
+ public:
   VTKWriter() = default;
   ~VTKWriter() = default;
 
   // Delete copy constructor and assignment operator
-  VTKWriter(const VTKWriter&) = delete;
-  VTKWriter& operator=(const VTKWriter&) = delete;
+  VTKWriter(const VTKWriter &) = delete;
+  VTKWriter &operator=(const VTKWriter &) = delete;
 
   /**
    * Add a particle's data to the output.
@@ -36,7 +36,6 @@ public:
    * @param p Particle to add to the output
    */
   void plotParticles(std::list<Particle> particles, const std::string &filename, int iteration);
-
 };
 
-} // namespace outputWriter
+}  // namespace outputWriter

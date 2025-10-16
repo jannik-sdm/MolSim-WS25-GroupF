@@ -11,8 +11,7 @@
 #include <string>
 
 class Particle {
-
-private:
+ private:
   /**
    * Position of the particle
    */
@@ -44,7 +43,7 @@ private:
    */
   int type;
 
-public:
+ public:
   explicit Particle(int type = 0);
 
   Particle(const Particle &other);
@@ -52,8 +51,7 @@ public:
   Particle(
       // for visualization, we need always 3 coordinates
       // -> in case of 2d, we use only the first and the second
-      std::array<double, 3> x_arg, std::array<double, 3> v_arg, double m_arg,
-      int type = 0);
+      std::array<double, 3> x_arg, std::array<double, 3> v_arg, double m_arg, int type = 0);
 
   virtual ~Particle();
 
