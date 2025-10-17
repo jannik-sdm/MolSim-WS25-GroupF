@@ -4,98 +4,73 @@
  *  Created on: 01.03.2010
  *      Author: eckhardw
  */
+#ifdef ENABLE_VTK_OUTPUT
 
 #include "VTKWriter.h"
 
-#include <cstdlib>
-#include <fstream>
+#include <vtkCellArray.h>
+#include <vtkDoubleArray.h>
+#include <vtkFloatArray.h>
+#include <vtkIntArray.h>
+#include <vtkPointData.h>
+#include <vtkXMLUnstructuredGridWriter.h>
+
 #include <iomanip>
-#include <iostream>
-#include <string>
+#include <sstream>
 
 namespace outputWriter {
 
-VTKWriter::VTKWriter() = default;
+void VTKWriter::plotParticles(std::list<Particle> particles, const std::string &filename, int iteration) {
+  // Initialize points
+  auto points = vtkSmartPointer<vtkPoints>::New();
 
-VTKWriter::~VTKWriter() = default;
+  // Create and configure data arrays
+  vtkNew<vtkFloatArray> massArray;
+  massArray->SetName("mass");
+  massArray->SetNumberOfComponents(1);
 
-void VTKWriter::initializeOutput(int numParticles) {
+  vtkNew<vtkFloatArray> velocityArray;
+  velocityArray->SetName("velocity");
+  velocityArray->SetNumberOfComponents(3);
 
-  vtkFile = new VTKFile_t("UnstructuredGrid");
+  vtkNew<vtkFloatArray> forceArray;
+  forceArray->SetName("force");
+  forceArray->SetNumberOfComponents(3);
 
-  // per point, we add type, position, velocity and force
-  PointData pointData;
-  DataArray_t mass(type::Float32, "mass", 1);
-  DataArray_t velocity(type::Float32, "velocity", 3);
-  DataArray_t forces(type::Float32, "force", 3);
-  DataArray_t type(type::Int32, "type", 1);
-  pointData.DataArray().push_back(mass);
-  pointData.DataArray().push_back(velocity);
-  pointData.DataArray().push_back(forces);
-  pointData.DataArray().push_back(type);
+  vtkNew<vtkIntArray> typeArray;
+  typeArray->SetName("type");
+  typeArray->SetNumberOfComponents(1);
 
-  CellData cellData; // we don't have cell data => leave it empty
+  for (auto &p : particles) {
+    points->InsertNextPoint(p.getX().data());
+    massArray->InsertNextValue(static_cast<float>(p.getM()));
+    velocityArray->InsertNextTuple(p.getV().data());
+    forceArray->InsertNextTuple(p.getF().data());
+    typeArray->InsertNextValue(p.getType());
+  }
 
-  // 3 coordinates
-  Points points;
-  DataArray_t pointCoordinates(type::Float32, "points", 3);
-  points.DataArray().push_back(pointCoordinates);
+  // Set up the grid
+  auto grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  grid->SetPoints(points);
 
-  Cells cells; // we don't have cells, => leave it empty
-  // for some reasons, we have to add a dummy entry for paraview
-  DataArray_t cells_data(type::Float32, "types", 0);
-  cells.DataArray().push_back(cells_data);
+  // Add arrays to the grid
+  grid->GetPointData()->AddArray(massArray);
+  grid->GetPointData()->AddArray(velocityArray);
+  grid->GetPointData()->AddArray(forceArray);
+  grid->GetPointData()->AddArray(typeArray);
 
-  PieceUnstructuredGrid_t piece(pointData, cellData, points, cells,
-                                numParticles, 0);
-  UnstructuredGrid_t unstructuredGrid(piece);
-  vtkFile->UnstructuredGrid(unstructuredGrid);
-}
-
-void VTKWriter::writeFile(const std::string &filename, int iteration) {
+  // Create filename with iteration number
   std::stringstream strstr;
   strstr << filename << "_" << std::setfill('0') << std::setw(4) << iteration << ".vtu";
 
-  std::ofstream file(strstr.str().c_str());
-  VTKFile(file, *vtkFile);
-  delete vtkFile;
+  // Create writer and set data
+  vtkNew<vtkXMLUnstructuredGridWriter> writer;
+  writer->SetFileName(strstr.str().c_str());
+  writer->SetInputData(grid);
+  writer->SetDataModeToAscii();
+
+  // Write the file
+  writer->Write();
 }
-
-void VTKWriter::plotParticle(Particle &p) {
-  if (vtkFile->UnstructuredGrid().present()) {
-    std::cout << "UnstructuredGrid is present" << std::endl;
-  } else {
-    std::cout << "ERROR: No UnstructuredGrid present" << std::endl;
-  }
-
-  PointData::DataArray_sequence &pointDataSequence =
-      vtkFile->UnstructuredGrid()->Piece().PointData().DataArray();
-  PointData::DataArray_iterator dataIterator = pointDataSequence.begin();
-
-  dataIterator->push_back(p.getM());
-  // cout << "Appended mass data in: " << dataIterator->Name();
-
-  dataIterator++;
-  dataIterator->push_back(p.getV()[0]);
-  dataIterator->push_back(p.getV()[1]);
-  dataIterator->push_back(p.getV()[2]);
-  // cout << "Appended velocity data in: " << dataIterator->Name();
-
-  dataIterator++;
-  dataIterator->push_back(p.getOldF()[0]);
-  dataIterator->push_back(p.getOldF()[1]);
-  dataIterator->push_back(p.getOldF()[2]);
-  // cout << "Appended force data in: " << dataIterator->Name();
-
-  dataIterator++;
-  dataIterator->push_back(p.getType());
-
-  Points::DataArray_sequence &pointsSequence =
-      vtkFile->UnstructuredGrid()->Piece().Points().DataArray();
-  Points::DataArray_iterator pointsIterator = pointsSequence.begin();
-  pointsIterator->push_back(p.getX()[0]);
-  pointsIterator->push_back(p.getX()[1]);
-  pointsIterator->push_back(p.getX()[2]);
-}
-
-} // namespace outputWriter
+}  // namespace outputWriter
+#endif

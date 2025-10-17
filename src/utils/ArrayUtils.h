@@ -34,7 +34,8 @@ namespace is_container_impl {
  * Default case: T is not a container.
  * @tparam T
  */
-template <typename T> struct is_container : std::false_type {};
+template <typename T>
+struct is_container : std::false_type {};
 /**
  * Specialization to allow std::array.
  * @tparam T
@@ -66,15 +67,15 @@ struct is_container<std::set<Args...>> : std::true_type {};
  */
 template <typename... Args>
 struct is_container<std::unordered_set<Args...>> : std::true_type {};
-} // namespace is_container_impl
+}  // namespace is_container_impl
 
 /**
  * Type trait to check if a given type is a container.
  * @tparam T Type to check.
  */
-template <typename T> struct is_container {
-  static constexpr bool const value =
-      is_container_impl::is_container<std::decay_t<T>>::value;
+template <typename T>
+struct is_container {
+  static constexpr bool const value = is_container_impl::is_container<std::decay_t<T>>::value;
 };
 
 /**
@@ -88,9 +89,8 @@ template <typename T> struct is_container {
  * @return String representation of container.
  */
 template <class Container>
-[[nodiscard]] std::string
-to_string(const Container &container, const std::string &delimiter = ", ",
-          const std::array<std::string, 2> &surround = {"[", "]"}) {
+[[nodiscard]] std::string to_string(const Container &container, const std::string &delimiter = ", ",
+                                    const std::array<std::string, 2> &surround = {"[", "]"}) {
   auto iter = std::cbegin(container);
   const auto end = std::cend(container);
   if (iter == end) {
@@ -119,8 +119,7 @@ to_string(const Container &container, const std::string &delimiter = ", ",
  * @return Element wise F(lhs, rhs).
  */
 template <class Container, class F>
-inline Container elementWisePairOp(const Container &lhs, const Container &rhs,
-                                   F binaryFunction) {
+inline Container elementWisePairOp(const Container &lhs, const Container &rhs, F binaryFunction) {
   Container ret = lhs;
   auto retIter = std::begin(ret);
   auto lhsIter = std::cbegin(lhs);
@@ -128,8 +127,7 @@ inline Container elementWisePairOp(const Container &lhs, const Container &rhs,
   auto rhsIter = std::cbegin(rhs);
   const auto rhsEnd = std::cend(rhs);
 
-  for (; lhsIter != lhsEnd and rhsIter != rhsEnd;
-       ++lhsIter, ++rhsIter, ++retIter) {
+  for (; lhsIter != lhsEnd and rhsIter != rhsEnd; ++lhsIter, ++rhsIter, ++retIter) {
     *retIter = binaryFunction(*lhsIter, *rhsIter);
   }
 
@@ -148,8 +146,7 @@ inline Container elementWisePairOp(const Container &lhs, const Container &rhs,
  * @return Element wise F(lhs, rhs).
  */
 template <class Scalar, class Container, class F>
-inline Container elementWiseScalarOp(const Scalar &lhs, const Container &rhs,
-                                     F binaryFunction) {
+inline Container elementWiseScalarOp(const Scalar &lhs, const Container &rhs, F binaryFunction) {
   Container ret = rhs;
   auto retIter = std::begin(ret);
   auto rhsIter = std::cbegin(rhs);
@@ -168,12 +165,11 @@ inline Container elementWiseScalarOp(const Scalar &lhs, const Container &rhs,
  * @param c
  * @return sqrt(sum_i(c[i]*c[i])).
  */
-template <class Container> auto L2Norm(const Container &c) {
-  return std::sqrt(std::accumulate(std::cbegin(c), std::cend(c), 0.0,
-                                   [](auto a, auto b) { return a + b * b; }));
+template <class Container>
+auto L2Norm(const Container &c) {
+  return std::sqrt(std::accumulate(std::cbegin(c), std::cend(c), 0.0, [](auto a, auto b) { return a + b * b; }));
 }
-} // namespace ArrayUtils
-
+}  // namespace ArrayUtils
 
 /**
  * Stream operator for containers.
@@ -186,8 +182,8 @@ template <class Container> auto L2Norm(const Container &c) {
  * @return
  */
 template <class Container>
-std::enable_if_t<ArrayUtils::is_container<Container>::value, std::ostream &>
-operator<<(std::ostream &os, const Container &container) {
+std::enable_if_t<ArrayUtils::is_container<Container>::value, std::ostream &> operator<<(std::ostream &os,
+                                                                                        const Container &container) {
   os << ArrayUtils::to_string(container);
   return os;
 }
@@ -200,8 +196,8 @@ operator<<(std::ostream &os, const Container &container) {
  * @return For all i lhs[i] + rhs[i].
  */
 template <class Container>
-std::enable_if_t<ArrayUtils::is_container<Container>::value, Container>
-operator+(const Container &lhs, const Container &rhs) {
+std::enable_if_t<ArrayUtils::is_container<Container>::value, Container> operator+(const Container &lhs,
+                                                                                  const Container &rhs) {
   return ArrayUtils::elementWisePairOp(lhs, rhs, std::plus<>());
 }
 
@@ -213,8 +209,8 @@ operator+(const Container &lhs, const Container &rhs) {
  * @return For all i lhs[i] - rhs[i].
  */
 template <class Container>
-std::enable_if_t<ArrayUtils::is_container<Container>::value, Container>
-operator-(const Container &lhs, const Container &rhs) {
+std::enable_if_t<ArrayUtils::is_container<Container>::value, Container> operator-(const Container &lhs,
+                                                                                  const Container &rhs) {
   return ArrayUtils::elementWisePairOp(lhs, rhs, std::minus<>());
 }
 
@@ -226,8 +222,8 @@ operator-(const Container &lhs, const Container &rhs) {
  * @return For all i lhs[i] * rhs[i].
  */
 template <class Container>
-std::enable_if_t<ArrayUtils::is_container<Container>::value, Container>
-operator*(const Container &lhs, const Container &rhs) {
+std::enable_if_t<ArrayUtils::is_container<Container>::value, Container> operator*(const Container &lhs,
+                                                                                  const Container &rhs) {
   return ArrayUtils::elementWisePairOp(lhs, rhs, std::multiplies<>());
 }
 
@@ -239,8 +235,8 @@ operator*(const Container &lhs, const Container &rhs) {
  * @return For all i lhs * rhs[i].
  */
 template <class Scalar, class Container>
-std::enable_if_t<ArrayUtils::is_container<Container>::value, Container>
-operator*(const Scalar &lhs, const Container &rhs) {
+std::enable_if_t<ArrayUtils::is_container<Container>::value, Container> operator*(const Scalar &lhs,
+                                                                                  const Container &rhs) {
   return ArrayUtils::elementWiseScalarOp(lhs, rhs, std::multiplies<>());
 }
 
@@ -253,8 +249,8 @@ operator*(const Scalar &lhs, const Container &rhs) {
  * and in the same order.
  */
 template <class Container>
-std::enable_if_t<ArrayUtils::is_container<Container>::value, bool>
-operator==(const Container &lhs, const Container &rhs) {
+std::enable_if_t<ArrayUtils::is_container<Container>::value, bool> operator==(const Container &lhs,
+                                                                              const Container &rhs) {
   if (lhs.size() != rhs.size()) {
     return false;
   }

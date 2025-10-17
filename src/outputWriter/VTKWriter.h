@@ -6,48 +6,39 @@
  */
 
 #pragma once
+#ifdef ENABLE_VTK_OUTPUT
 
-#include "Particle.h"
-#include "outputWriter/vtk-unstructured.h"
+#include <vtkSmartPointer.h>
+#include <vtkUnstructuredGrid.h>
 
 #include <list>
+#include <string>
+
+#include "Particle.h"
 
 namespace outputWriter {
 
 /**
  * This class implements the functionality to generate vtk output from
- * particles.
+ * particles using the official VTK library.
  */
 class VTKWriter {
+ public:
+  VTKWriter() = default;
+  ~VTKWriter() = default;
 
-public:
-  VTKWriter();
-
-  virtual ~VTKWriter();
-
-  /**
-   * set up internal data structures and prepare to plot a particle.
-   */
-  void initializeOutput(int numParticles);
+  // Delete copy constructor and assignment operator
+  VTKWriter(const VTKWriter &) = delete;
+  VTKWriter &operator=(const VTKWriter &) = delete;
 
   /**
-   * plot type, mass, position, velocity and force of a particle.
-   *
-   * @note: initializeOutput() must have been called before.
+   * Write VTK output of particles.
+   * @param particles Particles to add to the output
+   * @param filename Output filename
+   * @param iteration Current iteration number
    */
-  void plotParticle(Particle &p);
-
-  /**
-   * writes the final output file.
-   *
-   * @param filename the base name of the file to be written.
-   * @param iteration the number of the current iteration,
-   *        which is used to generate an unique filename
-   */
-  void writeFile(const std::string &filename, int iteration);
-
-private:
-  VTKFile_t *vtkFile;
+  void plotParticles(std::list<Particle> particles, const std::string &filename, int iteration);
 };
 
-} // namespace outputWriter
+}  // namespace outputWriter
+#endif
