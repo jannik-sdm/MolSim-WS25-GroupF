@@ -32,9 +32,10 @@ class VTKWriter {
   VTKWriter &operator=(const VTKWriter &) = delete;
 
   /**
-   * Add a particle's data to the output.
-   * @note initializeOutput() must be called before this method.
-   * @param p Particle to add to the output
+   * Write VTK output of particles.
+   * @param particles Particles to add to the output
+   * @param filename Output filename
+   * @param iteration Current iteration number
    */
   void plotParticles(std::list<Particle> particles, const std::string &filename, int iteration);
 };
