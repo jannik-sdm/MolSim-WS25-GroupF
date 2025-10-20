@@ -1,4 +1,4 @@
-MolSim-GropF
+MolSim-GroupF
 ===
 
 The Molecular Dynamics teaching code.
