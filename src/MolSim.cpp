@@ -28,6 +28,12 @@ void calculateV();
  */
 void plotParticles(int iteration);
 
+/**
+ * Calculates the euclidian norm for a vector
+ * \f$∥v∥₂ = \sqrt{x² + y² + z²}\f$
+ */
+double norm(const std::array<double, 3> &v);
+
 constexpr double start_time = 0;
 constexpr double end_time = 1000;
 constexpr double delta_t = 0.014;
@@ -76,26 +82,45 @@ void calculateF() {
   iterator = particles.begin();
 
   for (auto &p1 : particles) {
+    std::array<double, 3> Σ = {0,0,0};
+
     for (auto &p2 : particles) {
-      // @TODO: insert calculation of forces here!
+      // @TODO: insert calculation of force
+      if (p1 == p2) continue;
+
+      const double a = 1 / pow(norm(p1.getX() - p2.getX()),3);
+      auto f = a * p1.getM() * p2.getM() * (p2.getX() - p1.getX());
+
+      Σ = Σ + f;
     }
+
+    p1.setF(Σ);
   }
+}
+//
+double norm(const std::array<double, 3> &v) {
+  return sqrt(pow(v[0], 2)+pow(v[1], 2)+pow(v[2], 2));
 }
 
 void calculateX() {
   for (auto &p : particles) {
     // @TODO: insert calculation of position updates here!
+    const double a = 1 / (2 * p.getM());
+    p.setX(p.getX() + delta_t * p.getV() + pow(delta_t, 2) * a * p.getF());
   }
 }
 
 void calculateV() {
   for (auto &p : particles) {
-    // @TODO: insert calculation of veclocity updates here!
+    // @TODO: insert calculation of velocity updates here!
+    const double a = 1 / (2 * p.getM());
+    p.setV(p.getV() + delta_t * a * (p.getOldF() + p.getF()));
   }
 }
 
 void plotParticles(int iteration) {
   std::string out_name("MD_vtk");
+
 
   outputWriter::XYZWriter writer;
   writer.plotParticles(particles, out_name, iteration);
