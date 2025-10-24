@@ -34,7 +34,7 @@ void plotParticles(int iteration);
  */
 double norm(const std::array<double, 3> &v);
 
-double start_time = 0;
+constexpr double start_time = 0;
 double end_time = 1000;
 double delta_t = 0.014;
 
