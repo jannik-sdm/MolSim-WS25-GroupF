@@ -4,6 +4,7 @@
 
 #include "FileReader.h"
 #include "outputWriter/XYZWriter.h"
+#include "outputWriter/VTKWriter.h"
 #include "utils/ArrayUtils.h"
 
 /**** forward declaration of the calculation functions ****/
@@ -122,6 +123,6 @@ void plotParticles(int iteration) {
   std::string out_name("MD_vtk");
 
 
-  outputWriter::XYZWriter writer;
+  outputWriter::VTKWriter writer;
   writer.plotParticles(particles, out_name, iteration);
 }
