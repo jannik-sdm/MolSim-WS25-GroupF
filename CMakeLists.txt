@@ -39,6 +39,9 @@ target_compile_options(MolSim
             # disable some spam warnings for icpc...
             $<$<CXX_COMPILER_ID:Intel>:-w3 -wd383,981,1418,1572,2259>
 )
+if(ENABLE_VTK_OUTPUT)
+    target_compile_definitions(MolSim PRIVATE ENABLE_VTK_OUTPUT)
+endif()
 
 # add additional modules
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
