@@ -8,7 +8,8 @@ if(ENABLE_DOXYGEN_TARGET)
         message(STATUS "found doxygen command")
         # TODO: Add a custom target for building the documentation.
         add_custom_target(doc_doxygen
-            COMMAND ${DOXYGEN} ..
+            COMMAND ${DOXYGEN} Doxyfile
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             COMMENT "Generate a Doxygen documentation with make doc_doxygen"
         )
     else()
