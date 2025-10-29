@@ -30,12 +30,6 @@ void calculateV();
  */
 void plotParticles(int iteration);
 
-/**
- * Calculates the euclidian norm for a vector
- * \f$∥v∥₂ = \sqrt{x² + y² + z²}\f$
- */
-double norm(const std::array<double, 3> &v);
-
 constexpr double start_time = 0;
 double end_time = 1000;
 double delta_t = 0.014;
@@ -106,16 +100,12 @@ void calculateF() {
   for (auto it = particleContainer.pairs_begin(); it != particleContainer.pairs_end(); ++it) {
     auto [p1, p2] = *it;
 
-    const double a = 1 / pow(norm(p1.getX() - p2.getX()), 3);
+    const double a = 1 / pow(ArrayUtils::L2Norm(p1.getX() - p2.getX()), 3);
     auto f = a * p1.getM() * p2.getM() * (p2.getX() - p1.getX());
 
     p1.addF(f);
     p2.subF(f);
   }
-}
-//
-double norm(const std::array<double, 3> &v) {
-  return sqrt(pow(v[0], 2)+pow(v[1], 2)+pow(v[2], 2));
 }
 
 void calculateX() {
