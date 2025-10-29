@@ -8,11 +8,14 @@ if(ENABLE_DOXYGEN_TARGET)
 
     IF(DOXYGEN_FOUND)
         message(STATUS "found doxygen Package")
-        # TODO: Add a custom target for building the documentation.
 
+        #This sets the Flags for the Doxyfile
+
+        #Do not build the Documentation in the build Folder. Make a new one
         set(DOXYGEN_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/doxys_documentation)
+        # Set the README as mainpage
         set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
-
+        # TODO: Add a custom target for building the documentation.
         doxygen_add_docs(
                 doc_doxygen
                 src/ README.md
