@@ -127,7 +127,10 @@ void calculateV() {
 void plotParticles(int iteration) {
   std::string out_name("MD_vtk");
 
-
+#ifdef ENABLE_VTK_OUTPUT
+  outputWriter::VTKWriter writer;
+#else
   outputWriter::XYZWriter writer;
+#endif
   writer.plotParticles(particleContainer.particles, out_name, iteration);
 }
