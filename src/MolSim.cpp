@@ -35,18 +35,41 @@ void plotParticles(int iteration);
 double norm(const std::array<double, 3> &v);
 
 constexpr double start_time = 0;
-constexpr double end_time = 1000;
-constexpr double delta_t = 0.014;
+double end_time = 1000;
+double delta_t = 0.014;
 
 // TODO: what data structure to pick?
 std::list<Particle> particles;
 
 int main(int argc, char *argsv[]) {
   std::cout << "Hello from MolSim for PSE!" << std::endl;
-  if (argc != 2) {
+
+  // should only work if filename is passed, or optional endtime AND delta_t is passed
+  if (!(argc == 2 || argc == 4)) {
     std::cout << "Erroneous programme call! " << std::endl;
-    std::cout << "./molsym filename" << std::endl;
+    std::cout << "Usage: " << std::endl;
+    std::cout << "./Molsym <filename>" << std::endl;
+    std::cout << "./Molsym <filename> <end_time> <delta_t>" << std::endl;
+    std::cout << "default: endtime = " << end_time << "; delta_t = " << delta_t << std::endl;
+    return -1;
   }
+
+  // parse endtime and delta_t
+  if (argc == 4) {
+    try {
+      end_time = std::stod(argsv[2]);
+      delta_t = std::stod(argsv[3]);
+    } catch (std::invalid_argument &e) {
+      std::cout << "Error: could not parse arguments!" << std::endl;
+      std::cout << "expected: double" << std::endl;
+      return -1;
+    }
+  }
+
+  // use given parameters, or default endtime = 1000 delta_t = 0.014
+  std::cout << "Starting simulation with parameters:" << std::endl
+               << "endtime = " << end_time << std::endl
+              << "delta_t = " << delta_t << std::endl;
 
   FileReader fileReader;
   fileReader.readFile(particles, argsv[1]);
