@@ -3,6 +3,7 @@
 #include <list>
 
 #include "FileReader.h"
+#include "ParticleContainer.h"
 #include "outputWriter/XYZWriter.h"
 #include "utils/ArrayUtils.h"
 
@@ -38,8 +39,7 @@ constexpr double start_time = 0;
 double end_time = 1000;
 double delta_t = 0.014;
 
-// TODO: what data structure to pick?
-std::list<Particle> particles;
+ParticleContainer particleContainer;
 
 int main(int argc, char *argsv[]) {
   std::cout << "Hello from MolSim for PSE!" << std::endl;
@@ -72,7 +72,7 @@ int main(int argc, char *argsv[]) {
               << "delta_t = " << delta_t << std::endl;
 
   FileReader fileReader;
-  fileReader.readFile(particles, argsv[1]);
+  fileReader.readFile(particleContainer.particles, argsv[1]);
 
   double current_time = start_time;
 
@@ -101,23 +101,15 @@ int main(int argc, char *argsv[]) {
 }
 
 void calculateF() {
-  std::list<Particle>::iterator iterator;
-  iterator = particles.begin();
+  for (auto &p : particleContainer) p.setF({0, 0, 0});
+  for (auto it = particleContainer.pairs_begin(); it != particleContainer.pairs_end(); ++it) {
+    auto [p1, p2] = *it;
 
-  for (auto &p1 : particles) {
-    std::array<double, 3> Σ = {0,0,0};
+    const double a = 1 / pow(norm(p1.getX() - p2.getX()), 3);
+    auto f = a * p1.getM() * p2.getM() * (p2.getX() - p1.getX());
 
-    for (auto &p2 : particles) {
-      // @TODO: insert calculation of force
-      if (p1 == p2) continue;
-
-      const double a = 1 / pow(norm(p1.getX() - p2.getX()),3);
-      auto f = a * p1.getM() * p2.getM() * (p2.getX() - p1.getX());
-
-      Σ = Σ + f;
-    }
-
-    p1.setF(Σ);
+    p1.addF(f);
+    p2.subF(f);
   }
 }
 //
@@ -126,7 +118,7 @@ double norm(const std::array<double, 3> &v) {
 }
 
 void calculateX() {
-  for (auto &p : particles) {
+  for (auto &p : particleContainer) {
     // @TODO: insert calculation of position updates here!
     const double a = 1 / (2 * p.getM());
     p.setX(p.getX() + delta_t * p.getV() + pow(delta_t, 2) * a * p.getF());
@@ -134,7 +126,7 @@ void calculateX() {
 }
 
 void calculateV() {
-  for (auto &p : particles) {
+  for (auto &p : particleContainer) {
     // @TODO: insert calculation of velocity updates here!
     const double a = 1 / (2 * p.getM());
     p.setV(p.getV() + delta_t * a * (p.getOldF() + p.getF()));
@@ -146,5 +138,5 @@ void plotParticles(int iteration) {
 
 
   outputWriter::XYZWriter writer;
-  writer.plotParticles(particles, out_name, iteration);
+  writer.plotParticles(particleContainer.particles, out_name, iteration);
 }

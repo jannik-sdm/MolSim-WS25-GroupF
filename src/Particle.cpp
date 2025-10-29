@@ -49,6 +49,11 @@ void Particle::setF(const std::array<double, 3> &new_f) {
   this->old_f = this->f;
   this->f = new_f;
 }
+
+void Particle::addF(const std::array<double, 3> &partial_f) { this->f = this->f + partial_f; }
+
+void Particle::subF(const std::array<double, 3> &partial_f) { this->f = this->f - partial_f; }
+
 void Particle::setX(const std::array<double, 3> &new_x) { this->x = new_x; }
 
 void Particle::setV(const std::array<double, 3> &new_v) { this->v = new_v; }
