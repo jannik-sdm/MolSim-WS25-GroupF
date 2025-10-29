@@ -9,6 +9,9 @@
 #include "utils/ArrayUtils.h"
 
 /**** forward declaration of the calculation functions ****/
+/**
+ * @file MolSim.cpp
+ */
 
 /**
  * calculate the force for all particles
