@@ -8,7 +8,7 @@
 #pragma once
 
 #include <fstream>
-#include <vector>
+#include <list>
 
 #include "Particle.h"
 
@@ -20,7 +20,7 @@ class XYZWriter {
 
   virtual ~XYZWriter();
 
-  void plotParticles(std::vector<Particle> particles, const std::string &filename, int iteration);
+  void plotParticles(std::vector<Particle> &particles, const std::string &filename, int iteration);
 };
 
 }  // namespace outputWriter

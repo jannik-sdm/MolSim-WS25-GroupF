@@ -5,6 +5,7 @@
 #include "FileReader.h"
 #include "ParticleContainer.h"
 #include "outputWriter/XYZWriter.h"
+#include "outputWriter/VTKWriter.h"
 #include "utils/ArrayUtils.h"
 
 /**** forward declaration of the calculation functions ****/
