@@ -16,6 +16,8 @@ if(ENABLE_DOXYGEN_TARGET)
         set(DOXYGEN_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/doxys_documentation)
         # Set the README as mainpage
         set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
+        #Exclude the Folder outputWriter and utils from Doxygen -> This line might be unnecessary in the future
+        set(DOXYGEN_EXCLUDE_PATTERNS */outputWriter/* */utils/*)
         # TODO: Add a custom target for building the documentation.
         doxygen_add_docs(
                 doc_doxygen
