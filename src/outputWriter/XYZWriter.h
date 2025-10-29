@@ -8,7 +8,7 @@
 #pragma once
 
 #include <fstream>
-#include <list>
+#include <vector>
 
 #include "Particle.h"
 

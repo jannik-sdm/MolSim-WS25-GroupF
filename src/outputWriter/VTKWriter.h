@@ -11,8 +11,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
 
-#include <list>
 #include <string>
+#include <vector>
 
 #include "Particle.h"
 
@@ -37,7 +37,7 @@ class VTKWriter {
    * @param filename Output filename
    * @param iteration Current iteration number
    */
-  void plotParticles(std::list<Particle> &particles, const std::string &filename, int iteration);
+  void plotParticles(std::vector<Particle> &particles, const std::string &filename, int iteration);
 };
 
 }  // namespace outputWriter
