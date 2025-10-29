@@ -4,6 +4,7 @@ find_package(Doxygen REQUIRED)
 option(ENABLE_DOXYGEN_TARGET "Enable doxygen Target" ON)
 if(ENABLE_DOXYGEN_TARGET)
     message(STATUS "doxygen Target is enabled")
+    #https://cmake.org/cmake/help/latest/module/FindDoxygen.html
     find_package(Doxygen REQUIRED)
 
     IF(DOXYGEN_FOUND)
