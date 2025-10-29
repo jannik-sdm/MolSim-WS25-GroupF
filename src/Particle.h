@@ -65,6 +65,10 @@ class Particle {
 
   void setF(const std::array<double, 3> &new_f);
 
+  void addF(const std::array<double, 3> &partial_f);
+
+  void subF(const std::array<double, 3> &partial_f);
+
   void setX(const std::array<double, 3> &new_x);
 
   void setV(const std::array<double, 3> &new_v);
