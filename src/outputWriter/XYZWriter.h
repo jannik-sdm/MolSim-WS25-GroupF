@@ -1,5 +1,5 @@
-/*
- * XYZWriter.h
+/**
+ * @file XYZWriter.h
  *
  *  Created on: 01.03.2010
  *      Author: eckhardw

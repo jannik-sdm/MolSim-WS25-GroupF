@@ -3,6 +3,9 @@
 #include <vector>
 
 #include "Particle.h"
+/**
+ * @file ParticleContainer.h
+ */
 
 class ParticleContainer {
   using iterator = std::vector<Particle>::iterator;

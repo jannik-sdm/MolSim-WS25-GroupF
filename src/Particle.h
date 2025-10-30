@@ -1,5 +1,5 @@
-/*
- * Particle.h
+/**
+ * @file Particle.h
  *
  *  Created on: 23.02.2010
  *      Author: eckhardw
@@ -9,6 +9,9 @@
 
 #include <array>
 #include <string>
+/**
+ * Objects of this class represent a Particle
+ */
 
 class Particle {
  private:

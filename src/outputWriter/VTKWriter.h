@@ -1,5 +1,5 @@
-/*
- * VTKWriter.h
+/** 
+ * @file VTKWriter.h
  *
  *  Created on: 01.03.2010
  *      Author: eckhardw
@@ -19,6 +19,7 @@
 namespace outputWriter {
 
 /**
+ * @class VTKWriter
  * This class implements the functionality to generate vtk output from
  * particles using the official VTK library.
  */
