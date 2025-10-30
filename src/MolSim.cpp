@@ -1,43 +1,45 @@
 /**
  * @file MolSim.cpp
- * 
+ *
  */
 #include <iostream>
 #include <list>
 
 #include "FileReader.h"
 #include "ParticleContainer.h"
-#include "outputWriter/XYZWriter.h"
 #include "outputWriter/VTKWriter.h"
+#include "outputWriter/XYZWriter.h"
 #include "utils/ArrayUtils.h"
 
 /**** forward declaration of the calculation functions ****/
 
 /**
  * @brief calculate the force for all particles
- * 
- * For each pair of disjunct particles this function calculates the force f: \f$ F_{ij} = \frac{m_im_j}{(||x_i-x_j||_2)^3}(x_j-x_i)\f$
+ *
+ * For each pair of disjunct particles this function calculates the force f: \f$ F_{ij} =
+ * \frac{m_im_j}{(||x_i-x_j||_2)^3}(x_j-x_i)\f$
  */
 void calculateF();
 
 /**
  * @brief calculate the position for all particles
- * 
- * For each particle i this function calculates the position x: \f$ x_i(t_{n+1}) = x_i(t_n)+\Delta t \cdot v_i(t_n) + (\Delta t)^2
- * \frac{F_i(t_n)}{2m_i}\f$
+ *
+ * For each particle i this function calculates the position x: \f$ x_i(t_{n+1}) = x_i(t_n)+\Delta t \cdot v_i(t_n) +
+ * (\Delta t)^2 \frac{F_i(t_n)}{2m_i}\f$
  */
 void calculateX();
 
 /**
  * @brief calculate the Velocity for all particles
- * 
- * For each particle i this function calculates the Velocity v: \f$ v_i(t_{n+1}) = v_i(t_n)+\Delta t \frac{F_i(t_n)+F_i(t_{n+1})}{2m_i}\f$
+ *
+ * For each particle i this function calculates the Velocity v: \f$ v_i(t_{n+1}) = v_i(t_n)+\Delta t
+ * \frac{F_i(t_n)+F_i(t_{n+1})}{2m_i}\f$
  */
 void calculateV();
 
 /**
  * @brief plot the particles to a xyz-file or to a vtk-file.
- * 
+ *
  * If ENABLE_VTK_OUTPUT is set, this function creates a vtk-file. Otherwise it creates a xyz-file
  */
 void plotParticles(int iteration);
@@ -75,8 +77,8 @@ int main(int argc, char *argsv[]) {
 
   // use given parameters, or default endtime = 1000 delta_t = 0.014
   std::cout << "Starting simulation with parameters:" << std::endl
-               << "endtime = " << end_time << std::endl
-              << "delta_t = " << delta_t << std::endl;
+            << "endtime = " << end_time << std::endl
+            << "delta_t = " << delta_t << std::endl;
 
   FileReader fileReader;
   fileReader.readFile(particleContainer.particles, argsv[1]);

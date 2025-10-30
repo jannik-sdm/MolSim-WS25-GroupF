@@ -54,7 +54,8 @@ class Particle {
   Particle(
       // for visualization, we need always 3 coordinates
       // -> in case of 2d, we use only the first and the second
-      const std::array<double, 3> &x_arg, const std::array<double, 3> &v_arg, const double m_arg, const int type_arg = 0);
+      const std::array<double, 3> &x_arg, const std::array<double, 3> &v_arg, const double m_arg,
+      const int type_arg = 0);
 
   virtual ~Particle();
 
@@ -78,15 +79,13 @@ class Particle {
 
   const std::array<double, 3> &getOldF() const;
 
-    /**
+  /**
    * @return Mass of this particle
    */
 
   double getM() const;
 
   int getType() const;
-
-
 
   /**
    * @brief Sets new effective Force and updates Old Force to the current Force
@@ -124,7 +123,6 @@ class Particle {
   void setV(const std::array<double, 3> &new_v);
 
   bool operator==(Particle &other);
-
 
   std::string toString() const;
 };
