@@ -1,5 +1,5 @@
-/*
- * XYZWriter.h
+/**
+ * @file XYZWriter.h
  *
  *  Created on: 01.03.2010
  *      Author: eckhardw
@@ -8,7 +8,7 @@
 #pragma once
 
 #include <fstream>
-#include <list>
+#include <vector>
 
 #include "Particle.h"
 
@@ -20,7 +20,7 @@ class XYZWriter {
 
   virtual ~XYZWriter();
 
-  void plotParticles(std::list<Particle> particles, const std::string &filename, int iteration);
+  void plotParticles(std::vector<Particle> &particles, const std::string &filename, int iteration);
 };
 
 }  // namespace outputWriter
