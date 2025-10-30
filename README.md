@@ -7,7 +7,7 @@ The Molecular Dynamics teaching code.
 ```
 cmake -B build -S .
 cd build
-make
+make -j <number-of-threads-used-for-compilation>
 ```
 # Run
 ```
