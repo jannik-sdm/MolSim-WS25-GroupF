@@ -60,25 +60,68 @@ class Particle {
 
   const std::array<double, 3> &getX() const;
 
+  /**
+   * @return Velocity of the particle
+   */
+
   const std::array<double, 3> &getV() const;
+
+  /**
+   * @return Force effective on this particle
+   */
 
   const std::array<double, 3> &getF() const;
 
+  /**
+   * @return Force which was effective on this particle \f$ \Delta t \f$ ago
+   */
+
   const std::array<double, 3> &getOldF() const;
 
-  void setF(const std::array<double, 3> &new_f);
-
-  void addF(const std::array<double, 3> &partial_f);
-
-  void subF(const std::array<double, 3> &partial_f);
-
-  void setX(const std::array<double, 3> &new_x);
-
-  void setV(const std::array<double, 3> &new_v);
+    /**
+   * @return Mass of this particle
+   */
 
   double getM() const;
 
   int getType() const;
+
+
+
+  /**
+   * @brief Sets new effective Force and updates Old Force to the current Force
+   * @tparam new_f new Force - 3D-"Vector" (std::array<double, 3>)
+   */
+
+  void setF(const std::array<double, 3> &new_f);
+
+  /**
+   * @brief Adds the Parameter to the current Force and does NOT update old Force
+   * @tparam partial_f \f$ \Delta F\f$ - 3D-"Vector" (std::array<double, 3>)
+   */
+
+  void addF(const std::array<double, 3> &partial_f);
+
+  /**
+   * @brief Adds the Parameter to the current Force and does NOT update old Force
+   * @tparam partial_f \f$ \Delta F\f$ - 3D-"Vector" (std::array<double, 3>)
+   */
+
+  void subF(const std::array<double, 3> &partial_f);
+
+  /**
+   * @brief Sets the Position
+   * @tparam new_x new Position - 3D-"Vector" (std::array<double, 3>)
+   */
+
+  void setX(const std::array<double, 3> &new_x);
+
+  /**
+   * @brief Sets the Velocity
+   * @tparam new_v new Velocity - 3D-"Vector" (std::array<double, 3>)
+   */
+
+  void setV(const std::array<double, 3> &new_v);
 
   bool operator==(Particle &other);
 
