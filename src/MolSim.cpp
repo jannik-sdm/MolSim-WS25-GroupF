@@ -81,8 +81,7 @@ int main(int argc, char *argsv[]) {
             << "endtime = " << end_time << std::endl
             << "delta_t = " << delta_t << std::endl;
 
-  FileReader fileReader;
-  fileReader.readFile(particleContainer.particles, argsv[1]);
+  FileReader<CuboidReader>::readFile(particleContainer.particles, argsv[1]);
 
   double current_time = start_time;
 
