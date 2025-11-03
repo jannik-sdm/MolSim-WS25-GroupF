@@ -1,0 +1,15 @@
+#
+# file format:
+# Lines of comment start with '#' and are only allowed at the beginning of the file
+# Empty lines are not allowed.
+#
+# Every line generates a cuboid of molecules, with:
+# * xyz-coordinates of the lower left corner (3 doubles)
+# * number of particles per dimension (3 uints)
+# * distance of particles (1 double)
+# * mass of one particle (1 double)
+# * velocities (3 doubles)
+#
+# xyz-coord     n.o.particles   distance    mass    velocity
+15.0 15.0 0.0   8 8 1           1.1225      1.0     0.0 -10.0 0.0
+0.0 0.0 0.0     40 8 1          1.1225      1.0     0.0 0.0 0.0
