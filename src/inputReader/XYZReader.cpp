@@ -1,44 +1,34 @@
-/*
- * FileReader.cpp
- *
- *  Created on: 23.02.2010
- *      Author: eckhardw
- */
-
-#include "FileReader.h"
+#include "XYZReader.h"
 
 #include <cstdlib>
-#include <fstream>
 #include <iostream>
 #include <sstream>
+#include <vector>
 
-FileReader::FileReader() = default;
-
-FileReader::~FileReader() = default;
-
-void FileReader::readFile(std::vector<Particle> &particles, char *filename) {
+void XYZReader::parse(std::vector<Particle> &particles, std::ifstream &file) {
   std::array<double, 3> x;
   std::array<double, 3> v;
   double m;
   int num_particles = 0;
 
-  std::ifstream input_file(filename);
   std::string tmp_string;
 
-  if (input_file.is_open()) {
-    getline(input_file, tmp_string);
+  if (file.is_open()) {
+    getline(file, tmp_string);
     std::cout << "Read line: " << tmp_string << std::endl;
 
     while (tmp_string.empty() or tmp_string[0] == '#') {
-      getline(input_file, tmp_string);
+      getline(file, tmp_string);
       std::cout << "Read line: " << tmp_string << std::endl;
     }
 
     std::istringstream numstream(tmp_string);
     numstream >> num_particles;
     std::cout << "Reading " << num_particles << "." << std::endl;
-    getline(input_file, tmp_string);
+    getline(file, tmp_string);
     std::cout << "Read line: " << tmp_string << std::endl;
+
+    particles.reserve(num_particles);
 
     for (int i = 0; i < num_particles; i++) {
       std::istringstream datastream(tmp_string);
@@ -56,11 +46,11 @@ void FileReader::readFile(std::vector<Particle> &particles, char *filename) {
       datastream >> m;
       particles.emplace_back(x, v, m);
 
-      getline(input_file, tmp_string);
+      getline(file, tmp_string);
       std::cout << "Read line: " << tmp_string << std::endl;
     }
   } else {
-    std::cout << "Error: could not open file " << filename << std::endl;
+    std::cout << "Error: could not open file " << std::endl;
     exit(-1);
   }
 }
