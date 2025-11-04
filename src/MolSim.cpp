@@ -4,6 +4,7 @@
  */
 #include <iostream>
 #include <list>
+#include <getopt.h>
 
 #include "FileReader.h"
 #include "ParticleContainer.h"
@@ -12,6 +13,14 @@
 #include "utils/ArrayUtils.h"
 
 /**** forward declaration of the calculation functions ****/
+
+/**
+ *@brief Parses the Arguments
+ *@tparam argc number of commandline arguments
+ *@tparam argv[] commandline arguments
+ *@return 0 successful, -1 otherwise
+ */
+int parseArgs(int argc, char *argv[]);
 
 /**
  * @brief calculate the force for all particles
@@ -48,41 +57,21 @@ void plotParticles(int iteration);
 constexpr double start_time = 0;
 double end_time = 1000;
 double delta_t = 0.014;
+double brown_motion_mean = 1.1264; //Some default Value. Please set this value right later?
+FileReader fileReader;
 
 ParticleContainer particleContainer;
 
 int main(int argc, char *argsv[]) {
-  std::cout << "Hello from MolSim for PSE!" << std::endl;
-
-  // should only work if filename is passed, or optional endtime AND delta_t is passed
-  if (!(argc == 2 || argc == 4)) {
-    std::cout << "Erroneous programme call! " << std::endl;
-    std::cout << "Usage: " << std::endl;
-    std::cout << "./Molsym <filename>" << std::endl;
-    std::cout << "./Molsym <filename> <end_time> <delta_t>" << std::endl;
-    std::cout << "default: endtime = " << end_time << "; delta_t = " << delta_t << std::endl;
-    return -1;
-  }
-
-  // parse endtime and delta_t
-  if (argc == 4) {
-    try {
-      end_time = std::stod(argsv[2]);
-      delta_t = std::stod(argsv[3]);
-    } catch (std::invalid_argument &e) {
-      std::cout << "Error: could not parse arguments!" << std::endl;
-      std::cout << "expected: double" << std::endl;
-      return -1;
-    }
-  }
+  if (parseArgs(argc, argsv) != 0) return -1;
 
   // use given parameters, or default endtime = 1000 delta_t = 0.014
-  std::cout << "Starting simulation with parameters:" << std::endl
+  std::cout << "Parsed Arguments\n Starting simulation with parameters:" << std::endl
             << "endtime = " << end_time << std::endl
-            << "delta_t = " << delta_t << std::endl;
+            << "delta_t = " << delta_t << std::endl
+            << "brown_motion_mean = " << brown_motion_mean << std::endl;
 
-  FileReader fileReader;
-  fileReader.readFile(particleContainer.particles, argsv[1]);
+
 
   double current_time = start_time;
 
@@ -109,6 +98,79 @@ int main(int argc, char *argsv[]) {
   std::cout << "output written. Terminating..." << std::endl;
   return 0;
 }
+/**
+ * @brief Prints Help Message to the Commandline
+ *
+ */
+void PrintHelp() {
+  std::cout <<
+    "Usage: ./MolSim\n\n"
+    "Simulates Molecules. For detailed Description see README.md\n\n"
+    "Options:\n"
+    "-h, --help             shows this Text end terminates the program\n"
+    "-e, --t_end=DOUBLE     sets t_end (default 1000)\n"
+    "-d, --delta_t=DOUBLE   sets delta_t (default 0.014)\n"
+    "-f, --file=FILE        reads particles from the file\n"
+    "-b, --BrownMotionMean  sets the mean for the Brown motion\n\n"
+    "Example:\n"
+    "./MolSim -e 100.0 -f ../input/eingabe-sonne.txt"<<std::endl;
+}
+
+  int parseArgs(int argc, char *argv[]) {
+    const char* const short_opts = "e:d:f:b:h";
+    const option long_opts[] = {
+      {"t_end", required_argument, nullptr, 'e'},
+      {"delta_t", required_argument, nullptr, 'd'},
+      {"file", required_argument, nullptr, 'f'},
+      {"BrownMotionMean", required_argument, nullptr, 'b'},
+      {"help", no_argument, nullptr, 'h'},
+      {nullptr, no_argument, nullptr, 0}
+    };
+
+    while (true)
+    {
+      try{
+      const auto opt = getopt_long(argc, argv, short_opts, long_opts, nullptr);
+
+      if (-1 == opt)
+        break;
+
+      switch (opt) {
+        case 'e':
+          end_time = std::stod(optarg);
+          std::cout << "endtime set to: " << end_time << std::endl;
+          break;
+
+        case 'd':
+          delta_t = std::stod(optarg);
+          std::cout << "delta_t set to: " << delta_t << std::endl;
+          break;
+
+        case 'f':
+          std::cout << "Reading File" << std::endl;
+          fileReader.readFile(particleContainer.particles, optarg);
+          break;
+
+        case 'b':
+          brown_motion_mean = std::stod(optarg);
+          std::cout << "brown_motion_mean set to:" << std::endl;
+          break;
+
+        case 'h': // -h or --help
+        case '?': // Unrecognized option
+        default:
+          PrintHelp();
+          return -1;
+      }
+      }catch(const std::invalid_argument& e) {
+        std::cout << "Error: could not parse arguments!\n"
+                     "Is the Type of the Arguments correct?" << std::endl;
+        std::cout << e.what() << '\n';
+        return -1;
+      }
+    }
+  return 0;
+  }
 
 void calculateF() {
   for (auto &p : particleContainer) p.setF({0, 0, 0});
