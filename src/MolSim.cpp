@@ -36,7 +36,7 @@ ParticleContainer particleContainer;
 
 int main(int argc, char *argsv[]) {
   if (parseArgs(argc, argsv) != 0) return -1;
-
+  //@TODO: Check if there is Data in the particle Container
   // use given parameters, or default endtime = 1000 delta_t = 0.014
   std::cout << "Parsed Arguments\n Starting simulation with parameters:" << std::endl
             << "endtime = " << end_time << std::endl
@@ -72,7 +72,7 @@ int main(int argc, char *argsv[]) {
  * @brief Prints Help Message to the Commandline
  *
  */
-void PrintHelp() {
+void printHelp() {
   std::cout <<
     "Usage: ./MolSim\n\n"
     "Simulates Molecules. For detailed Description see README.md\n\n"
@@ -87,6 +87,7 @@ void PrintHelp() {
 }
 
   int parseArgs(int argc, char *argv[]) {
+
     const char* const short_opts = "e:d:f:b:h";
     const option long_opts[] = {
       {"t_end", required_argument, nullptr, 'e'},
@@ -116,10 +117,12 @@ void PrintHelp() {
           std::cout << "delta_t set to: " << delta_t << std::endl;
           break;
 
-        case 'f':
+        case 'f': {
+          FileReader fileReader;
           std::cout << "Reading File" << std::endl;
   FileReader<CuboidReader>::readFile(particleContainer.particles, optarg);
           break;
+        }
 
         case 'b':
           brown_motion_mean = std::stod(optarg);
@@ -129,7 +132,7 @@ void PrintHelp() {
         case 'h': // -h or --help
         case '?': // Unrecognized option
         default:
-          PrintHelp();
+          printHelp();
           return -1;
       }
       }catch(const std::invalid_argument& e) {
