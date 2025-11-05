@@ -6,6 +6,7 @@
 #include <list>
 #include <getopt.h>
 
+#include "spdlog/spdlog.h"
 #include "FileReader.h"
 #include "ParticleContainer.h"
 #include "outputWriter/VTKWriter.h"
