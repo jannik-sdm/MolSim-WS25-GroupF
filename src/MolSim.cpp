@@ -123,6 +123,7 @@ void printHelp() {
     "./MolSim -e 100.0 -f ../input/eingabe-sonne.txt"<<std::endl;
 }
 
+ // Source: https://gist.github.com/ashwin/d88184923c7161d368a9
   int parseArgs(int argc, char *argv[]) {
 
     const char* const short_opts = "e:d:f:b:ho:";
