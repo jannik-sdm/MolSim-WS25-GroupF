@@ -11,5 +11,15 @@ make -j <number-of-threads-used-for-compilation>
 ```
 # Run
 ```
-./MolSim <input-file>
+./MolSim -f <input-file> [Options]
 ```
+
+### Options
+
+| Short | Long | Argument | Description |
+|:------|:------|:----------|:-------------|
+| `-f` | `--file` | *FILE* | Reads particles from the specified file. |
+| `-e` | `--t_end` | *DOUBLE* | Sets `t_end` (default: **1000**). |
+| `-d` | `--delta_t` | *DOUBLE* | Sets `delta_t` (default: **0.014**). |
+| `-b` | `--BrownMotionMean` | *DOUBLE* | Sets the mean for the Brownian motion. |
+| `-h` | `--help` | — | Shows this text and terminates the program. |

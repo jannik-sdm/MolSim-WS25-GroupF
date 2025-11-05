@@ -111,11 +111,11 @@ void printHelp() {
     "Usage: ./MolSim\n\n"
     "Simulates Molecules. For detailed Description see README.md\n\n"
     "Options:\n"
-    "-h, --help             shows this Text end terminates the program\n"
+    "-f, --file=FILE        reads particles from the file\n"
     "-e, --t_end=DOUBLE     sets t_end (default 1000)\n"
     "-d, --delta_t=DOUBLE   sets delta_t (default 0.014)\n"
-    "-f, --file=FILE        reads particles from the file\n"
-    "-b, --BrownMotionMean  sets the mean for the Brown motion\n\n"
+    "-b, --BrownMotionMean  sets the mean for the Brown motion\n"
+    "-h, --help             shows this Text end terminates the program\n\n"
     "Example:\n"
     "./MolSim -e 100.0 -f ../input/eingabe-sonne.txt"<<std::endl;
 }
@@ -171,7 +171,7 @@ void printHelp() {
       }catch(const std::invalid_argument& e) {
         std::cout << "Error: could not parse arguments!\n"
                      "Is the Type of the Arguments correct?" << std::endl;
-        std::cout << e.what() << '\n\n';
+        std::cout << e.what() << "\n \n";
         return -1;
       }
     }
