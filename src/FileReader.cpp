@@ -12,6 +12,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "spdlog/spdlog.h"
+
 FileReader::FileReader() = default;
 
 FileReader::~FileReader() = default;
@@ -27,18 +29,18 @@ void FileReader::readFile(std::vector<Particle> &particles, char *filename) {
 
   if (input_file.is_open()) {
     getline(input_file, tmp_string);
-    std::cout << "Read line: " << tmp_string << std::endl;
+    spdlog::info("Read first line: {}", tmp_string); //Könnte Sinvoll sein, deshalb auf info
 
     while (tmp_string.empty() or tmp_string[0] == '#') {
       getline(input_file, tmp_string);
-      std::cout << "Read line: " << tmp_string << std::endl;
+      spdlog::debug("Read line: {}",tmp_string); //Muss nicht den output zumüllen
     }
 
     std::istringstream numstream(tmp_string);
     numstream >> num_particles;
-    std::cout << "Reading " << num_particles << "." << std::endl;
+    spdlog::debug("Reading {}.", num_particles);
     getline(input_file, tmp_string);
-    std::cout << "Read line: " << tmp_string << std::endl;
+    spdlog::info("Read line: {}",tmp_string); //gibt guten Überblick
 
     for (int i = 0; i < num_particles; i++) {
       std::istringstream datastream(tmp_string);
@@ -50,17 +52,17 @@ void FileReader::readFile(std::vector<Particle> &particles, char *filename) {
         datastream >> vj;
       }
       if (datastream.eof()) {
-        std::cout << "Error reading file: eof reached unexpectedly reading from line " << i << std::endl;
+        spdlog::error("Error reading file: eof reached unexpectedly reading from line {}",i);
         exit(-1);
       }
       datastream >> m;
       particles.emplace_back(x, v, m);
 
       getline(input_file, tmp_string);
-      std::cout << "Read line: " << tmp_string << std::endl;
+      spdlog::debug("Read line: {}",tmp_string);
     }
   } else {
-    std::cout << "Error: could not open file " << filename << std::endl;
+    spdlog::error("could not open file {}",filename);
     exit(-1);
   }
 }

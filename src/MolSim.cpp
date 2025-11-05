@@ -70,16 +70,19 @@ std::string out_name("MD_vtk");
 ParticleContainer particleContainer;
 
 int main(int argc, char *argsv[]) {
+  spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
+  spdlog::set_level(spdlog::level::info); //set default
   if (parseArgs(argc, argsv) != 0 || particleContainer.particles.empty()){
     printHelp();
     return -1;
   }
   // use given parameters, or default endtime = 1000 delta_t = 0.014
-  std::cout << "Parsed Arguments\n Starting simulation with parameters:" << std::endl
-            << "endtime = " << end_time << std::endl
-            << "delta_t = " << delta_t << std::endl
-            << "brown_motion_mean = " << brown_motion_mean << std::endl
-            << "output path/name = " << out_name << std::endl;
+  spdlog::info("Parsed Arguments:");
+  spdlog::info("Starting simulation with parameters:");
+  spdlog::info("endtime = {}",end_time);
+  spdlog::info("delta_t = {}", delta_t);
+  spdlog::info("brown_motion_mean = {}", brown_motion_mean);
+  spdlog::info("output path/name = {}",out_name);
 
 
 
@@ -100,12 +103,12 @@ int main(int argc, char *argsv[]) {
     if (iteration % 10 == 0) {
       plotParticles(iteration);
     }
-    std::cout << "Iteration " << iteration << " finished." << std::endl;
+    spdlog::trace("Iteration {} finished.", iteration);
 
     current_time += delta_t;
   }
 
-  std::cout << "output written. Terminating..." << std::endl;
+  spdlog::info("output written. Terminating...");
   return 0;
 }
 
@@ -114,12 +117,13 @@ void printHelp() {
     "Usage: ./MolSim\n\n"
     "Simulates Molecules. For detailed Description see README.md\n\n"
     "Options:\n"
-    "-f, --file=FILE        reads particles from the file\n"
-    "-o, --out=FILE         path and name of the output files. Path has to exist! (default: MD_vtk)\n"
-    "-e, --t_end=DOUBLE     sets t_end (default 1000)\n"
-    "-d, --delta_t=DOUBLE   sets delta_t (default 0.014)\n"
-    "-b, --BrownMotionMean  sets the mean for the Brown motion\n"
-    "-h, --help             shows this Text end terminates the program\n\n"
+    "-f, --file=FILE          reads particles from the file\n"
+    "-o, --out=FILE           path and name of the output files. Path has to exist! (default: MD_vtk)\n"
+    "-e, --t_end=DOUBLE       sets t_end (default 1000)\n"
+    "-d, --delta_t=DOUBLE     sets delta_t (default 0.014)\n"
+    "-b, --BrownMotionMean    sets the mean for the Brown motion\n"
+    "-l, --logLevel=LOGLEVEL  sets the Level of logging. (ERROR, WARNING, INFO (default), DEBUG, TRACE)\n"
+    "-h, --help               shows this Text end terminates the program\n\n"
     "Example:\n"
     "./MolSim -e 100.0 -f ../input/eingabe-sonne.txt"<<std::endl;
 }
@@ -127,7 +131,7 @@ void printHelp() {
  // Source: https://gist.github.com/ashwin/d88184923c7161d368a9
   int parseArgs(int argc, char *argv[]) {
 
-    const char* const short_opts = "e:d:f:b:ho:";
+    const char* const short_opts = "e:d:f:b:ho:l:";
     const option long_opts[] = {
       {"t_end", required_argument, nullptr, 'e'},
       {"delta_t", required_argument, nullptr, 'd'},
@@ -135,6 +139,7 @@ void printHelp() {
       {"BrownMotionMean", required_argument, nullptr, 'b'},
       {"help", no_argument, nullptr, 'h'},
       {"out", required_argument, nullptr, 'o'},
+      {"logLevel", required_argument, nullptr, 'l'},
       {nullptr, no_argument, nullptr, 0}
     };
 
@@ -146,40 +151,63 @@ void printHelp() {
       if (-1 == opt)
         break;
 
+        //getopt schreibt evtl noch etwas auf stderr.
       switch (opt) {
         case 'e':
           end_time = std::stod(optarg);
-          std::cout << "endtime set to: " << end_time << std::endl;
+          spdlog::debug("endtime set to: {}", end_time);
           break;
 
         case 'd':
           delta_t = std::stod(optarg);
-          std::cout << "delta_t set to: " << delta_t << std::endl;
+          spdlog::debug("delta_t set to: {}",delta_t);
           break;
 
         case 'f': {
           FileReader fileReader;
-          std::cout << "Reading File" << std::endl;
+          spdlog::debug("Reading File");
           fileReader.readFile(particleContainer.particles, optarg);
           break;
         }
 
         case 'b':
           brown_motion_mean = std::stod(optarg);
-          std::cout << "brown_motion_mean set to:" << std::endl;
+          spdlog::debug("brown_motion_mean set to: {}", brown_motion_mean);
           break;
         case 'o':
           out_name = optarg;
           break;
-        case 'h': // -h or --help
-        case '?': // Unrecognized option
+        case 'l': {
+          std::string logLevel(optarg);
+          //kein switch-case, weil das nur auf integern geht
+          if (logLevel == "ERROR") {
+            spdlog::set_level(spdlog::level::err);
+          }else if ( logLevel == "WARN") {
+            spdlog::set_level(spdlog::level::warn);
+          }else if ( logLevel == "INFO") {
+            spdlog::set_level(spdlog::level::info);
+          }else if ( logLevel == "DEBUG") {
+            spdlog::set_level(spdlog::level::debug);
+          }else if (logLevel == "TRACE") {
+            spdlog::set_level(spdlog::level::trace);
+          }else {
+            spdlog::error("Typo in logLevel? This LogLevel doesn't exist");
+            return -1;
+          }
+          break;
+        }
+        case 'h':
+          return -1;
+        case '?':
+          spdlog::error("Unknown option: {}", static_cast<char>(optopt));
+          return -1;
         default:
+          spdlog::error("An error occurred while passing the arguments.");
           return -1;
       }
       }catch(const std::invalid_argument& e) {
-        std::cout << "Error: could not parse arguments!\n"
-                     "Is the Type of the Arguments correct?" << std::endl;
-        std::cout << e.what() << "\n \n";
+        spdlog::error("Error: could not parse arguments!");
+        spdlog::error("Is the Type of the Arguments correct?");
         return -1;
       }
     }
