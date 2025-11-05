@@ -37,6 +37,7 @@ constexpr double start_time = 0;
 double end_time = 1000;
 double delta_t = 0.014;
 double brown_motion_mean = 1.1264; //Some default Value. Please set this value right later?
+std::string out_name("MD_vtk");
 
 ParticleContainer particleContainer;
 
@@ -49,7 +50,8 @@ int main(int argc, char *argsv[]) {
   std::cout << "Parsed Arguments\n Starting simulation with parameters:" << std::endl
             << "endtime = " << end_time << std::endl
             << "delta_t = " << delta_t << std::endl
-            << "brown_motion_mean = " << brown_motion_mean << std::endl;
+            << "brown_motion_mean = " << brown_motion_mean << std::endl
+            << "output path/name = " << out_name << std::endl;
 
 
 
@@ -83,6 +85,7 @@ void printHelp() {
     "Simulates Molecules. For detailed Description see README.md\n\n"
     "Options:\n"
     "-f, --file=FILE        reads particles from the file\n"
+    "-o, --out=FILE         path and name of the output files. Path has to exist! (default: MD_vtk)\n"
     "-e, --t_end=DOUBLE     sets t_end (default 1000)\n"
     "-d, --delta_t=DOUBLE   sets delta_t (default 0.014)\n"
     "-b, --BrownMotionMean  sets the mean for the Brown motion\n"
@@ -93,13 +96,14 @@ void printHelp() {
 
   int parseArgs(int argc, char *argv[]) {
 
-    const char* const short_opts = "e:d:f:b:h";
+    const char* const short_opts = "e:d:f:b:ho:";
     const option long_opts[] = {
       {"t_end", required_argument, nullptr, 'e'},
       {"delta_t", required_argument, nullptr, 'd'},
       {"file", required_argument, nullptr, 'f'},
       {"BrownMotionMean", required_argument, nullptr, 'b'},
       {"help", no_argument, nullptr, 'h'},
+      {"out", required_argument, nullptr, 'o'},
       {nullptr, no_argument, nullptr, 0}
     };
 
@@ -133,7 +137,9 @@ void printHelp() {
           brown_motion_mean = std::stod(optarg);
           std::cout << "brown_motion_mean set to:" << std::endl;
           break;
-
+        case 'o':
+          out_name = optarg;
+          break;
         case 'h': // -h or --help
         case '?': // Unrecognized option
         default:
@@ -150,7 +156,7 @@ void printHelp() {
   }
 
 void plotParticles(int iteration) {
-  std::string out_name("MD_vtk");
+
 
 #ifdef ENABLE_VTK_OUTPUT
   outputWriter::VTKWriter writer;
