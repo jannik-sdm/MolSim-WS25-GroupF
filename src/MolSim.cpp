@@ -27,6 +27,12 @@ int parseArgs(int argc, char *argv[]);
  */
 void plotParticles(int iteration);
 
+/**
+ * @brief Prints Help Message to the Commandline
+ *
+ */
+void printHelp();
+
 constexpr double start_time = 0;
 double end_time = 1000;
 double delta_t = 0.014;
@@ -35,8 +41,10 @@ double brown_motion_mean = 1.1264; //Some default Value. Please set this value r
 ParticleContainer particleContainer;
 
 int main(int argc, char *argsv[]) {
-  if (parseArgs(argc, argsv) != 0) return -1;
-  //@TODO: Check if there is Data in the particle Container
+  if (parseArgs(argc, argsv) != 0 || particleContainer.particles.empty()){
+    printHelp();
+    return -1;
+  }
   // use given parameters, or default endtime = 1000 delta_t = 0.014
   std::cout << "Parsed Arguments\n Starting simulation with parameters:" << std::endl
             << "endtime = " << end_time << std::endl
@@ -68,10 +76,7 @@ int main(int argc, char *argsv[]) {
   std::cout << "output written. Terminating..." << std::endl;
   return 0;
 }
-/**
- * @brief Prints Help Message to the Commandline
- *
- */
+
 void printHelp() {
   std::cout <<
     "Usage: ./MolSim\n\n"
@@ -132,13 +137,12 @@ void printHelp() {
         case 'h': // -h or --help
         case '?': // Unrecognized option
         default:
-          printHelp();
           return -1;
       }
       }catch(const std::invalid_argument& e) {
         std::cout << "Error: could not parse arguments!\n"
                      "Is the Type of the Arguments correct?" << std::endl;
-        std::cout << e.what() << '\n';
+        std::cout << e.what() << '\n\n';
         return -1;
       }
     }
