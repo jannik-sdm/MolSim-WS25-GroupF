@@ -20,6 +20,7 @@ Run the program
 | Short | Long | Argument | Description |
 |:------|:------|:----------|:-------------|
 | `-f` | `--file` | *FILE* | Reads particles from the specified file. |
+| `-o` | `--out` | *FILE* | path and name of the output files. Path has to exist! (default: MD_vtk) |
 | `-e` | `--t_end` | *DOUBLE* | Sets `t_end` (default: **1000**). |
 | `-d` | `--delta_t` | *DOUBLE* | Sets `delta_t` (default: **0.014**). |
 | `-b` | `--BrownMotionMean` | *DOUBLE* | Sets the mean for the Brownian motion. |
