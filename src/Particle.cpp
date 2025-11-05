@@ -34,7 +34,7 @@ Particle::Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_ar
   spdlog::info("Particle generated!");
 }
 
-Particle::~Particle() { spdlog::debug("Particle destructed!"); }
+Particle::~Particle()=default; //hier kein logging, damit keine Probleme entstehen, falls main den logger vor den particeln killed.
 
 const Vector3 &Particle::getX() const { return x; }
 

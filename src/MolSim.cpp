@@ -165,7 +165,6 @@ void printHelp() {
 
         case 'f': {
           FileReader fileReader;
-          spdlog::debug("Reading File");
           fileReader.readFile(particleContainer.particles, optarg);
           break;
         }
