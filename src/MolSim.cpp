@@ -7,6 +7,8 @@
 
 #include "FileReader.h"
 #include "ParticleContainer.h"
+#include "PlanetSimulation.h"
+#include "Simulation.h"
 #include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
 #include "utils/ArrayUtils.h"
@@ -84,20 +86,18 @@ int main(int argc, char *argsv[]) {
   FileReader fileReader;
   fileReader.readFile(particleContainer.particles, argsv[1]);
 
+  // select simulation
+  PlanetSimulation simulation = PlanetSimulation(particleContainer, end_time, delta_t);
   double current_time = start_time;
 
   int iteration = 0;
 
   // for this loop, we assume: current x, current f and current v are known
   while (current_time < end_time) {
-    // calculate new x
-    calculateX();
-    // calculate new f
-    calculateF();
-    // calculate new v
-    calculateV();
 
+    simulation.iteration();
     iteration++;
+
     if (iteration % 10 == 0) {
       plotParticles(iteration);
     }
@@ -108,35 +108,6 @@ int main(int argc, char *argsv[]) {
 
   std::cout << "output written. Terminating..." << std::endl;
   return 0;
-}
-
-void calculateF() {
-  for (auto &p : particleContainer) p.setF({0, 0, 0});
-  for (auto it = particleContainer.pairs_begin(); it != particleContainer.pairs_end(); ++it) {
-    auto [p1, p2] = *it;
-
-    const double a = 1 / pow(ArrayUtils::L2Norm(p1.getX() - p2.getX()), 3);
-    auto f = a * p1.getM() * p2.getM() * (p2.getX() - p1.getX());
-
-    p1.addF(f);
-    p2.subF(f);
-  }
-}
-
-void calculateX() {
-  for (auto &p : particleContainer) {
-    // @TODO: insert calculation of position updates here!
-    const double a = 1 / (2 * p.getM());
-    p.setX(p.getX() + delta_t * p.getV() + pow(delta_t, 2) * a * p.getF());
-  }
-}
-
-void calculateV() {
-  for (auto &p : particleContainer) {
-    // @TODO: insert calculation of velocity updates here!
-    const double a = 1 / (2 * p.getM());
-    p.setV(p.getV() + delta_t * a * (p.getOldF() + p.getF()));
-  }
 }
 
 void plotParticles(int iteration) {
