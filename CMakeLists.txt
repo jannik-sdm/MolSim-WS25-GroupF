@@ -23,13 +23,22 @@ file(GLOB_RECURSE MY_SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
 )
 
-# create make target
-add_executable(MolSim ${MY_SRC}
+#Exclude main(). Otherwise the tester would try to execute the main function
+list(REMOVE_ITEM MY_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/MolSim.cpp")
+#Für den Tester
+add_library(MolSimLib ${MY_SRC})
+target_include_directories(MolSimLib
+        PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_include_directories(MolSim
-        PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/src
+# create make target
+add_executable(MolSim ${CMAKE_CURRENT_SOURCE_DIR}/src/MolSim.cpp
+)
+
+target_link_libraries(
+        MolSim
+        MolSimLib
 )
 
 # activate all compiler warnings. Clean up your code :P
