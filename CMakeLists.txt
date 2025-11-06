@@ -24,7 +24,8 @@ file(GLOB_RECURSE MY_SRC
 )
 
 # create make target
-add_executable(MolSim ${MY_SRC})
+add_executable(MolSim ${MY_SRC}
+)
 
 target_include_directories(MolSim
         PRIVATE
@@ -46,3 +47,4 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(vtk)
 include(clang-format)
 include(doxygen)
+include(google-test)
