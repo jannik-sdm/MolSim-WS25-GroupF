@@ -28,6 +28,7 @@ add_executable(MolSimTester ${MY_TEST})
 
 target_link_libraries(
         MolSimTester
+        MolSimLib
         GTest::gtest_main
 )
 
