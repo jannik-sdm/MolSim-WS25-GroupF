@@ -11,6 +11,7 @@ public:
   virtual ~Simulation() = default;
 
   virtual void iteration() = 0;
+
 };
 
 #endif  // MOLSIM_WS25_GROUPF_SIMULATION_H
