@@ -1,7 +1,5 @@
 #include "ParticleContainer.h"
 
-#include <iostream>
-
 std::pair<Particle &, Particle &> ParticleContainer::PairIterator::operator*() { return {particles[i], particles[j]}; }
 
 ParticleContainer::PairIterator &ParticleContainer::PairIterator::operator++() {
