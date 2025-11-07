@@ -18,40 +18,31 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 # collect all cpp files
 file(GLOB_RECURSE MY_SRC
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-    # header don't need to be included but this might be necessary for some IDEs
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
-)
-
-#Exclude main(). Otherwise the tester would try to execute the main function
-list(REMOVE_ITEM MY_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/MolSim.cpp")
-#Necessary for Tester
-add_library(MolSimLib ${MY_SRC})
-target_include_directories(MolSimLib
-        PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+        # header don't need to be included but this might be necessary for some IDEs
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
 )
 
 # create make target
-add_executable(MolSim ${CMAKE_CURRENT_SOURCE_DIR}/src/MolSim.cpp
-)
+add_executable(MolSim ${MY_SRC})
 
-target_link_libraries(
-        MolSim
-        MolSimLib
+target_include_directories(MolSim
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 # activate all compiler warnings. Clean up your code :P
 # depending on the compiler different flags are used
 target_compile_options(MolSim
         PRIVATE
-            $<$<CXX_COMPILER_ID:GNU>:-Wall>
-            # disable some spam warnings for icpc...
-            $<$<CXX_COMPILER_ID:Intel>:-w3 -wd383,981,1418,1572,2259>
+        $<$<CXX_COMPILER_ID:GNU>:-Wall>
+        # disable some spam warnings for icpc...
+        $<$<CXX_COMPILER_ID:Intel>:-w3 -wd383,981,1418,1572,2259>
 )
 
 # add additional modules
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
+
 
 include(vtk)
 include(clang-format)

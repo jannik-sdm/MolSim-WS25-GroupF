@@ -2,15 +2,18 @@
  * @file MolSim.cpp
  *
  */
-#include <iostream>
 #include <getopt.h>
-#include "inputReader/FileReader.h"
-#include "inputReader/CuboidReader.h"
-#include "spdlog/spdlog.h"
+
+#include <iostream>
+
 #include "ParticleContainer.h"
 #include "PlanetSimulation.h"
+#include "inputReader/CuboidReader.h"
+#include "inputReader/FileReader.h"
+#include "inputReader/XYZReader.h"
 #include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
+#include "spdlog/spdlog.h"
 
 /**** forward declaration of the calculation functions ****/
 
@@ -145,8 +148,7 @@ void printHelp() {
           break;
 
         case 'f': {
-          FileReader fileReader;
-          fileReader.readFile(particleContainer.particles, optarg);
+          FileReader<XYZReader>::readFile(particleContainer.particles, optarg);
           break;
         }
 

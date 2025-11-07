@@ -17,24 +17,17 @@ if (ENABLE_TEST_TARGET)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(googletest)
 
+    #Exclude main(). Otherwise the tester would try to execute the main function
+    list(REMOVE_ITEM MY_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/MolSim.cpp")
+    #Necessary for Tester
+    add_library(MolSimLib ${MY_SRC})
+    target_include_directories(MolSimLib
+            PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/src
+    )
+
     # Now simply link against gtest or gtest_main as needed. Eg
     target_link_libraries(MolSim gtest_main)
-    #add_test(NAME example_test COMMAND example)
-    enable_testing()
-
-    file(GLOB_RECURSE MY_TEST
-            "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
-    )
-
-    add_executable(MolSimTester ${MY_TEST})
-
-    target_link_libraries(
-            MolSimTester
-            MolSimLib
-            GTest::gtest_main
-    )
-
-    include(GoogleTest)
-    gtest_discover_tests(MolSimTester)
+    add_test(NAME MolSimTester COMMAND ${CMAKE_PROJECT_NAME})
 endif()
 
