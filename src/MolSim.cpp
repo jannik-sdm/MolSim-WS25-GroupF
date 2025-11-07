@@ -2,24 +2,20 @@
  * @file MolSim.cpp
  *
  */
-#include <iostream>
 #include <getopt.h>
 
-#include "spdlog/spdlog.h"
-#include "FileReader.h"
+#include <iostream>
+
 #include "ParticleContainer.h"
+#include "PlanetSimulation.h"
+#include "inputReader/CuboidReader.h"
+#include "inputReader/FileReader.h"
+#include "inputReader/XYZReader.h"
 #include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
+#include "spdlog/spdlog.h"
 
 /**** forward declaration of the calculation functions ****/
-
-/**
- *@brief Parses the Arguments
- *@tparam argc number of commandline arguments
- *@tparam argv[] commandline arguments
- *@return 0 successful, -1 otherwise
- */
-int parseArgs(int argc, char *argv[]);
 
 /**
  * @brief calculate the force for all particles
@@ -31,20 +27,12 @@ int parseArgs(int argc, char *argv[]);
 void calculateF();
 
 /**
- * @brief calculate the position for all particles
- *
- * For each particle i this function calculates the position x: \f$ x_i(t_{n+1}) = x_i(t_n)+\Delta t \cdot v_i(t_n) +
- * (\Delta t)^2 \frac{F_i(t_n)}{2m_i}\f$
+ *@brief Parses the Arguments
+ *@tparam argc number of commandline arguments
+ *@tparam argv[] commandline arguments
+ *@return 0 successful, -1 otherwise
  */
-void calculateX();
-
-/**
- * @brief calculate the Velocity for all particles
- *
- * For each particle i this function calculates the Velocity v: \f$ v_i(t_{n+1}) = v_i(t_n)+\Delta t
- * \frac{F_i(t_n)+F_i(t_{n+1})}{2m_i}\f$
- */
-void calculateV();
+int parseArgs(int argc, char *argv[]);
 
 /**
  * @brief plot the particles to a xyz-file or to a vtk-file.
@@ -84,20 +72,18 @@ int main(int argc, char *argsv[]) {
 
 
 
+  // select simulation
+  PlanetSimulation simulation = PlanetSimulation(particleContainer, end_time, delta_t);
   double current_time = start_time;
 
   int iteration = 0;
 
   // for this loop, we assume: current x, current f and current v are known
   while (current_time < end_time) {
-    // calculate new x
-    calculateX();
-    // calculate new f
-    calculateF();
-    // calculate new v
-    calculateV();
 
+    simulation.iteration();
     iteration++;
+
     if (iteration % 10 == 0) {
       plotParticles(iteration);
     }
@@ -162,8 +148,7 @@ void printHelp() {
           break;
 
         case 'f': {
-          FileReader fileReader;
-          fileReader.readFile(particleContainer.particles, optarg);
+          FileReader<XYZReader>::readFile(particleContainer.particles, optarg);
           break;
         }
 
@@ -210,35 +195,6 @@ void printHelp() {
     }
   return 0;
   }
-
-void calculateF() {
-  for (auto &p : particleContainer) p.setF({0, 0, 0});
-  for (auto it = particleContainer.pairs_begin(); it != particleContainer.pairs_end(); ++it) {
-    auto [p1, p2] = *it;
-
-    const double a = 1 / pow(ArrayUtils::L2Norm(p1.getX() - p2.getX()), 3);
-    auto f = a * p1.getM() * p2.getM() * (p2.getX() - p1.getX());
-
-    p1.addF(f);
-    p2.subF(f);
-  }
-}
-
-void calculateX() {
-  for (auto &p : particleContainer) {
-    // @TODO: insert calculation of position updates here!
-    const double a = 1 / (2 * p.getM());
-    p.setX(p.getX() + delta_t * p.getV() + pow(delta_t, 2) * a * p.getF());
-  }
-}
-
-void calculateV() {
-  for (auto &p : particleContainer) {
-    // @TODO: insert calculation of velocity updates here!
-    const double a = 1 / (2 * p.getM());
-    p.setV(p.getV() + delta_t * a * (p.getOldF() + p.getF()));
-  }
-}
 
 void plotParticles(int iteration) {
 
