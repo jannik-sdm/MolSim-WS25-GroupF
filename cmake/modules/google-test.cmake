@@ -17,9 +17,6 @@ if (ENABLE_TEST_TARGET)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(googletest)
 
-    # Now simply link against gtest or gtest_main as needed. Eg
-    target_link_libraries(MolSim gtest_main)
-    #add_test(NAME example_test COMMAND example)
     enable_testing()
 
     file(GLOB_RECURSE MY_TEST
