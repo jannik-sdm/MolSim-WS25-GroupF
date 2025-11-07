@@ -3,15 +3,12 @@
  *
  */
 #include <iostream>
-#include <list>
-
-#include "FileReader.h"
+#include "inputReader/FileReader.h"
+#include "inputReader/CuboidReader.h"
 #include "ParticleContainer.h"
 #include "PlanetSimulation.h"
-#include "Simulation.h"
 #include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
-#include "utils/ArrayUtils.h"
 
 
 
