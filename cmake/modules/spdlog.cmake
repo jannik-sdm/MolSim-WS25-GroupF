@@ -14,4 +14,4 @@ if(NOT TARGET spdlog_FOUND)
     FetchContent_MakeAvailable(spdlog)
 endif()
 
-target_link_libraries(MolSim spdlog::spdlog)
+target_link_libraries(MolSimLib spdlog::spdlog)

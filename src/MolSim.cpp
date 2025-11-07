@@ -50,7 +50,7 @@ void printHelp();
 constexpr double start_time = 0;
 double end_time = 1000;
 double delta_t = 0.014;
-double brown_motion_mean = 1.1264; //Some default Value. Please set this value right later?
+double brown_motion_mean = 0.1;
 std::string out_name("MD_vtk");
 
 ParticleContainer particleContainer;
