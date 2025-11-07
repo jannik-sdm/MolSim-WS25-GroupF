@@ -18,15 +18,6 @@
 /**** forward declaration of the calculation functions ****/
 
 /**
- * @brief calculate the force for all particles
- *
- * For each pair of disjunct particles this function calculates the force f with the Formula: \f$ F_{ij} =
- * \frac{m_im_j}{(||x_i-x_j||_2)^3}(x_j-x_i)\f$.
- * Then this function sums up all forces for one particle to calculate the effective force of each particle
- */
-void calculateF();
-
-/**
  *@brief Parses the Arguments
  *@tparam argc number of commandline arguments
  *@tparam argv[] commandline arguments
