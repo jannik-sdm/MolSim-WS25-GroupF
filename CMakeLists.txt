@@ -25,7 +25,7 @@ file(GLOB_RECURSE MY_SRC
 
 #Exclude main(). Otherwise the tester would try to execute the main function
 list(REMOVE_ITEM MY_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/MolSim.cpp")
-#Für den Tester
+#Necessary for Tester
 add_library(MolSimLib ${MY_SRC})
 target_include_directories(MolSimLib
         PUBLIC
