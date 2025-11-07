@@ -3,7 +3,6 @@
  *
  */
 #include <iostream>
-#include <list>
 #include <getopt.h>
 #include "inputReader/FileReader.h"
 #include "inputReader/CuboidReader.h"
@@ -12,7 +11,6 @@
 #include "PlanetSimulation.h"
 #include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
-#include "utils/ArrayUtils.h"
 
 /**** forward declaration of the calculation functions ****/
 
