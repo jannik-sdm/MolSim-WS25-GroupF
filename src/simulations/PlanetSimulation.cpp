@@ -3,9 +3,10 @@
 //
 
 #include "PlanetSimulation.h"
+
+#include "../ParticleContainer.h"
+#include "../utils/ArrayUtils.h"
 #include "Simulation.h"
-#include "ParticleContainer.h"
-#include "utils/ArrayUtils.h"
 
 PlanetSimulation::PlanetSimulation(ParticleContainer &container, const double end_time, const double delta_t) :
   particleContainer(container), end_time(end_time), delta_t(delta_t) {
