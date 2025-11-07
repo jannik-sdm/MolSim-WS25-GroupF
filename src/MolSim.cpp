@@ -3,7 +3,6 @@
  *
  */
 #include <iostream>
-#include <list>
 #include <getopt.h>
 
 #include "spdlog/spdlog.h"
@@ -11,7 +10,6 @@
 #include "ParticleContainer.h"
 #include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
-#include "utils/ArrayUtils.h"
 
 /**** forward declaration of the calculation functions ****/
 
