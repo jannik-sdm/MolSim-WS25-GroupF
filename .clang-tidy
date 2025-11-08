@@ -1,0 +1,27 @@
+---
+Checks:          '
+  # Enable all checks except those matching the following patterns:
+  -*,
+  
+  # Recommended modern C++ and general checks
+  modernize-*,
+  readability-*,
+  performance-*,
+  cppcoreguidelines-*,
+  
+  # Basic checks for correctness
+  bugprone-*,
+  clang-analyzer-*,
+
+  # Exclude specific checks that might be too strict or annoying for your project
+  -modernize-use-trailing-return-type,
+  -cppcoreguidelines-pro-type-member-init,
+  -readability-isolate-declaration
+'
+WarningsAsErrors: '*' 
+HeaderFilterRegex: '.*'
+InlinedConfig:
+  # naming conventions
+  readability-identifier-naming.NamespaceCase: CamelCase
+  readability-identifier-naming.VariableCase: lower_case
+...
