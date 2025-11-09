@@ -29,7 +29,7 @@ jobs:
 
       # configure CMake to generate compile_commands.json
       - name: Configure CMake for Clang-Tidy
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DENABLE_DOXYGEN_TARGET=OFF
 
       # run Clang-Tidy (replace 'my_project_target' with your actual target name or use a script)
       - name: Run Clang-Tidy
