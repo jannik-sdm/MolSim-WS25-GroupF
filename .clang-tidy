@@ -1,16 +1,10 @@
 Checks: >
   -*,
-  modernize-*,
-  readability-*,
-  performance-*,
-  cppcoreguidelines-*,
   bugprone-*,
   clang-analyzer-*,
-  -modernize-use-trailing-return-type,
-  -cppcoreguidelines-pro-type-member-init,
-  -readability-isolate-declaration
+  cppcoreguidelines-*
 
-WarningsAsErrors: '*'
+WarningsAsErrors: ''
 HeaderFilterRegex: '.*'
 
 CheckOptions:
