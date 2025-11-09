@@ -40,10 +40,12 @@ void plotParticles(int iteration);
 void printHelp();
 
 constexpr double start_time = 0;
-double end_time = 1000;
-double delta_t = 0.014;
+double end_time = 5;
+double delta_t = 0.0002;
 double brown_motion_mean = 0.1;
 std::string out_name("MD_vtk");
+
+unsigned int week = 2;
 
 ParticleContainer particleContainer;
 
@@ -63,14 +65,26 @@ int main(int argc, char *argsv[]) {
   spdlog::info("output path/name = {}", out_name);
 
   // select simulation
-  CollisionSimulation simulation = CollisionSimulation(particleContainer, end_time, delta_t);
+  std::unique_ptr<Simulation> simulation = nullptr;
+
+  switch (week) {
+    case 1:
+      simulation = std::make_unique<PlanetSimulation>(particleContainer, end_time, delta_t);
+      break;
+
+    case 2:
+    default:
+      simulation = std::make_unique<CollisionSimulation>(particleContainer, end_time, delta_t);
+      break;
+  };
+
   double current_time = start_time;
 
   int iteration = 0;
 
   // for this loop, we assume: current x, current f and current v are known
   while (current_time < end_time) {
-    simulation.iteration();
+    simulation->iteration();
     iteration++;
 
     if (iteration % 10 == 0) {
@@ -89,7 +103,9 @@ void printHelp() {
   std::cout << "Usage: ./MolSim\n\n"
                "Simulates Molecules. For detailed Description see README.md\n\n"
                "Options:\n"
-               "-f, --file=FILE          reads particles from the file\n"
+               "-w, --week=UINT          select which week's simulation to run (default: 2)\n"
+               "-f, --file=FILE          reads particles from the file in xyz format\n"
+               "-c, --cuboid=FILE        reads particles from the file in cuboid format\n"
                "-o, --out=FILE           path and name of the output files. Path has to exist! (default: MD_vtk)\n"
                "-e, --t_end=DOUBLE       sets t_end (default 1000)\n"
                "-d, --delta_t=DOUBLE     sets delta_t (default 0.014)\n"
@@ -103,10 +119,11 @@ void printHelp() {
 
 // Source: https://gist.github.com/ashwin/d88184923c7161d368a9
 int parseArgs(int argc, char *argv[]) {
-  const char *const short_opts = "e:d:f:b:ho:l:";
+  const char *const short_opts = "e:d:w:f:c:b:ho:l:";
   const option long_opts[] = {
       {"t_end", required_argument, nullptr, 'e'},    {"delta_t", required_argument, nullptr, 'd'},
-      {"file", required_argument, nullptr, 'f'},     {"BrownMotionMean", required_argument, nullptr, 'b'},
+      {"week", required_argument, nullptr, 'w'},     {"file", required_argument, nullptr, 'f'},
+      {"cuboid", required_argument, nullptr, 'c'},   {"BrownMotionMean", required_argument, nullptr, 'b'},
       {"help", no_argument, nullptr, 'h'},           {"out", required_argument, nullptr, 'o'},
       {"logLevel", required_argument, nullptr, 'l'}, {nullptr, no_argument, nullptr, 0}};
 
@@ -128,10 +145,18 @@ int parseArgs(int argc, char *argv[]) {
           spdlog::debug("delta_t set to: {}", delta_t);
           break;
 
-        case 'f': {
+        case 'w':
+          week = std::stoul(optarg);
+          spdlog::debug("week set to: {}", week);
+          break;
+
+        case 'f':
           FileReader<XYZReader>::readFile(particleContainer.particles, optarg);
           break;
-        }
+
+        case 'c':
+          FileReader<CuboidReader>::readFile(particleContainer.particles, optarg);
+          break;
 
         case 'b':
           brown_motion_mean = std::stod(optarg);
