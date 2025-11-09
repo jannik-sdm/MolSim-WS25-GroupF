@@ -119,7 +119,6 @@ class Particle {
    * @brief Sets the Velocity
    * @tparam new_v new Velocity - 3D-"Vector" (std::array<double, 3>)
    */
-
   void setV(const std::array<double, 3> &new_v);
 
   bool operator==(Particle &other);
