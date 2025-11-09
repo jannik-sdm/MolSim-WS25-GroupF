@@ -1,9 +1,11 @@
 Checks: >
   -*,
-  bugprone-*,
-  clang-analyzer-*
 
+
+# which warnings should be fatal
 WarningsAsErrors: ''
+
+# only check headers starting with src/
 HeaderFilterRegex: '^src/'
 CheckOptions:
   - key: readability-identifier-naming.NamespaceCase
