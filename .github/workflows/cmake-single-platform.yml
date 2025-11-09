@@ -35,8 +35,7 @@ jobs:
       - name: Run Clang-Tidy
         # working directory is root as default
         run: |
-          find ${{github.workspace}}/src -name "*.cpp" | xargs clang-tidy -p ${{github.workspace}}/build -config-file=.clang-tidy -warnings-as-errors='*'
-        
+          find ${{github.workspace}}/src -name "*.cpp" | xargs clang-tidy -p ${{github.workspace}}/build -config-file=.clang-tidy -warnings-as-errors='*' --quiet
       
   build-and-test:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
