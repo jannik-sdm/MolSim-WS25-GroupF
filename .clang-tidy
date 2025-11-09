@@ -1,6 +1,6 @@
 Checks: >
   -*,
-
+  performance-unnecessary-copy-initialization
 
 # which warnings should be fatal
 WarningsAsErrors: ''
