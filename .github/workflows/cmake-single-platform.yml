@@ -35,7 +35,7 @@ jobs:
       - name: Run Clang-Tidy
         # working directory is root as default
         run: |
-          find ${{github.workspace}}/ -name "*.cpp" | xargs clang-tidy -p ${{github.workspace}}/build -config-file=.clang-tidy -warnings-as-errors='*'
+          find ${{github.workspace}}/src -name "*.cpp" | xargs clang-tidy -p ${{github.workspace}}/build -config-file=.clang-tidy -warnings-as-errors='*'
         
       
   build-and-test:
