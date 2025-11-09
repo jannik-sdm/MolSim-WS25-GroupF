@@ -1,3 +1,4 @@
+
 # make doc_doxygen optional if someone does not have / like doxygen
 # TODO: create CMake build option for the target.
 option(ENABLE_DOXYGEN_TARGET "Enable doxygen Target" ON)
