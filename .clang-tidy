@@ -13,15 +13,15 @@ Checks:          '
   bugprone-*,
   clang-analyzer-*,
 
-  # Exclude specific checks that might be too strict or annoying for your project
+  # Exclude specific checks that might be too strict or annoying for the project
   -modernize-use-trailing-return-type,
   -cppcoreguidelines-pro-type-member-init,
   -readability-isolate-declaration
 '
 WarningsAsErrors: '*' 
 HeaderFilterRegex: '.*'
-InlinedConfig:
-  # naming conventions
-  readability-identifier-naming.NamespaceCase: CamelCase
-  readability-identifier-naming.VariableCase: lower_case
+
+# naming conventions
+readability-identifier-naming.NamespaceCase: CamelCase
+readability-identifier-naming.VariableCase: lower_case
 ...
