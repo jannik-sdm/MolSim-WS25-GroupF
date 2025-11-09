@@ -30,7 +30,7 @@ class ParticleContainer {
     PairIterator(std::vector<Particle> &particles, size_t i, size_t j) : particles(particles), i(i), j(j){};
     std::pair<Particle &, Particle &> operator*();
     /**
-     * This iterator only iterates over pairwise distinct values ​​and returns each combination of particles only
+     * This iterator only iterates over pairwise distinct values and returns each combination of particles only
      * once.
      */
     PairIterator &operator++();
