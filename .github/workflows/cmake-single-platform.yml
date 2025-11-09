@@ -24,9 +24,14 @@ jobs:
       # install Clang-Tidy (and clang)
       - name: Install Clang-Tidy
         run: |
-          sudo apt-get update
-          sudo apt-get install -y clang-tidy
-
+          if ! command -v clang-tidy &> /dev/null; then
+            echo "clang-tidy not found. Installing..."
+            sudo apt-get update
+            sudo apt-get install -y clang-tidy
+          else
+            echo "clang-tidy already installed."
+            clang-tidy --version
+          fi
       # configure CMake to generate compile_commands.json
       - name: Configure CMake for Clang-Tidy
         run: cmake -B ${{github.workspace}}/build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DENABLE_DOXYGEN_TARGET=OFF
