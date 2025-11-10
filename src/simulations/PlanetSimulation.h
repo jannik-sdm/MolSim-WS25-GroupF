@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "ParticleContainer.h"
+#include "../ParticleContainer.h"
 #include "Simulation.h"
 
 class PlanetSimulation : public Simulation {
@@ -15,7 +15,7 @@ public:
     */
   void iteration() override;
 
-private:
+protected:
   ParticleContainer &particleContainer;
   const double end_time;
   const double delta_t;
@@ -27,7 +27,7 @@ private:
  * \frac{m_im_j}{(||x_i-x_j||_2)^3}(x_j-x_i)\f$.
  * Then this function sums up all forces for one particle to calculate the effective force of each particle
  */
-  void calculateF();
+  virtual void calculateF();
 
   /**
    * @brief calculate the position for all particles
@@ -35,7 +35,7 @@ private:
    * For each particle i this function calculates the position x: \f$ x_i(t_{n+1}) = x_i(t_n)+\Delta t \cdot v_i(t_n) +
    * (\Delta t)^2 \frac{F_i(t_n)}{2m_i}\f$
    */
-  void calculateX();
+  virtual void calculateX();
 
   /**
    * @brief calculate the Velocity for all particles
@@ -43,6 +43,6 @@ private:
    * For each particle i this function calculates the Velocity v: \f$ v_i(t_{n+1}) = v_i(t_n)+\Delta t
    * \frac{F_i(t_n)+F_i(t_{n+1})}{2m_i}\f$
    */
-  void calculateV();
+  virtual void calculateV();
 };
 

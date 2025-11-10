@@ -2,8 +2,7 @@
 // Created by jannik on 11/6/25.
 //
 
-#ifndef MOLSIM_WS25_GROUPF_SIMULATION_H
-#define MOLSIM_WS25_GROUPF_SIMULATION_H
+#pragma once
 
 class Simulation {
 public:
@@ -14,4 +13,3 @@ public:
 
 };
 
-#endif  // MOLSIM_WS25_GROUPF_SIMULATION_H
