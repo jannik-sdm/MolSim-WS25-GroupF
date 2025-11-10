@@ -9,7 +9,7 @@ if(ENABLE_VTK_OUTPUT)
             IOXML
     )
     #Generates the Macro ENABLE_VTK_OUTPUT, which makes VTKWriter.* visible to the rest of the Project
-    target_compile_definitions(MolSimLib PRIVATE ENABLE_VTK_OUTPUT)
+    target_compile_definitions(MolSimLib PUBLIC ENABLE_VTK_OUTPUT)
 
     if(VTK_FOUND)
         message (STATUS "Found VTK Version: ${VTK_VERSION}")
