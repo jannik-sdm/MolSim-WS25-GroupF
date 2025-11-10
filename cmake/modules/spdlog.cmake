@@ -1,7 +1,7 @@
 find_package(spdlog QUIET)
 
 # Wenn kein Target existiert, FetchContent als Fallback
-if(NOT TARGET spdlog_FOUND)
+if(NOT TARGET spdlog::spdlog)
     message(STATUS "spdlog not found — using FetchContent...")
     #https://cmake.org/cmake/help/latest/module/FetchContent.html
     include(FetchContent)
