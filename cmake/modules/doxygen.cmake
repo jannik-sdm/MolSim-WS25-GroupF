@@ -17,10 +17,7 @@ if(ENABLE_DOXYGEN_TARGET)
         set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
         #Generating LATEX
         set(DOXYGEN_GENERATE_LATEX YES)
-        #Makes VTKWriter a part of the Documentation, if it is activated
-        IF(ENABLE_VTK_OUTPUT)
-            set(DOXYGEN_PREDEFINED ENABLE_VTK_OUTPUT)
-        endif()
+
         # TODO: Add a custom target for building the documentation.
         doxygen_add_docs(
                 doc_doxygen
