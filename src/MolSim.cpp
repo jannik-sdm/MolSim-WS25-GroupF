@@ -3,6 +3,7 @@
  *
  */
 #include <getopt.h>
+#include <spdlog/sinks/stdout_color_sinks-inl.h>
 
 #include <iostream>
 
@@ -12,6 +13,8 @@
 #include "inputReader/XYZReader.h"
 #include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
+#include "spdlog/async.h"
+#include "spdlog/sinks/basic_file_sink.h"
 #include "simulations/CollisionSimulation.h"
 #include "simulations/PlanetSimulation.h"
 #include "spdlog/spdlog.h"
@@ -50,6 +53,9 @@ unsigned int week = 2;
 ParticleContainer particleContainer;
 
 int main(int argc, char *argsv[]) {
+  spdlog::init_thread_pool(8192, 1); // queue with 8k items and 1 backing thread.
+  auto async_logger = spdlog::stdout_color_mt<spdlog::async_factory>("async_logger");
+  spdlog::set_default_logger(async_logger);
   spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
   spdlog::set_level(spdlog::level::info);  // set default
   if (parseArgs(argc, argsv) != 0 || particleContainer.particles.empty()) {
@@ -63,6 +69,8 @@ int main(int argc, char *argsv[]) {
   spdlog::info("delta_t = {}", delta_t);
   spdlog::info("brown_motion_mean = {}", brown_motion_mean);
   spdlog::info("output path/name = {}", out_name);
+
+
 
   // select simulation
   std::unique_ptr<Simulation> simulation = nullptr;
