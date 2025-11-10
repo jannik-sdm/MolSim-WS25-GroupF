@@ -103,26 +103,26 @@ void printHelp() {
   std::cout << "Usage: ./MolSim\n\n"
                "Simulates Molecules. For detailed Description see README.md\n\n"
                "Options:\n"
-               "-w, --week=UINT          select which week's simulation to run (default: 2)\n"
-               "-f, --file=FILE          reads particles from the file in xyz format\n"
+               "-w, --week=UINT          select which week's simulation to run (1=PlanetSimulation, 2=Collision Simulation (Default))\n"
+                "-s, --single=FILE       reads single particles from the file in xyz format\n"
                "-c, --cuboid=FILE        reads particles from the file in cuboid format\n"
                "-o, --out=FILE           path and name of the output files. Path has to exist! (default: MD_vtk)\n"
                "-e, --t_end=DOUBLE       sets t_end (default 1000)\n"
                "-d, --delta_t=DOUBLE     sets delta_t (default 0.014)\n"
                "-b, --BrownMotionMean    sets the mean for the Brown motion\n"
-               "-l, --logLevel=LOGLEVEL  sets the Level of logging. (ERROR, WARNING, INFO (default), DEBUG, TRACE)\n"
+               "-l, --logLevel=STRING  sets the Level of logging. (ERROR, WARNING, INFO (default), DEBUG, TRACE)\n"
                "-h, --help               shows this Text end terminates the program\n\n"
                "Example:\n"
-               "./MolSim -e 100.0 -f ../input/eingabe-sonne.txt"
+               "./MolSim -e 100.0 -p ../input/eingabe-cuboid.txt"
             << std::endl;
 }
 
 // Source: https://gist.github.com/ashwin/d88184923c7161d368a9
 int parseArgs(int argc, char *argv[]) {
-  const char *const short_opts = "e:d:w:f:c:b:ho:l:";
+  const char *const short_opts = "e:d:w:s:c:b:ho:l:";
   const option long_opts[] = {
       {"t_end", required_argument, nullptr, 'e'},    {"delta_t", required_argument, nullptr, 'd'},
-      {"week", required_argument, nullptr, 'w'},     {"file", required_argument, nullptr, 'f'},
+      {"week", required_argument, nullptr, 'w'},     {"single", required_argument, nullptr, 's'},
       {"cuboid", required_argument, nullptr, 'c'},   {"BrownMotionMean", required_argument, nullptr, 'b'},
       {"help", no_argument, nullptr, 'h'},           {"out", required_argument, nullptr, 'o'},
       {"logLevel", required_argument, nullptr, 'l'}, {nullptr, no_argument, nullptr, 0}};
@@ -150,7 +150,7 @@ int parseArgs(int argc, char *argv[]) {
           spdlog::debug("week set to: {}", week);
           break;
 
-        case 'f':
+        case 's':
           FileReader<XYZReader>::readFile(particleContainer.particles, optarg);
           break;
 

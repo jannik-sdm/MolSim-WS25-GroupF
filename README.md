@@ -17,16 +17,16 @@ Run the program
 
 ### Options
 
-| Short | Long                | Argument | Description                                                             |
-|:------|:--------------------|:---------|:------------------------------------------------------------------------|
-| `-w`  | `--week`            | *UINT*   | Select which week's simulation to run (default: 2).                     |
-| `-f`  | `--file`            | *FILE*   | Reads particles from the specified file in xyz format.                  |
-| `-c`  | `--cuboid`          | *FILE*   | Reads particles from the specified file in cuboid format.               |
-| `-o`  | `--out`             | *FILE*   | path and name of the output files. Path has to exist! (default: MD_vtk) |
-| `-e`  | `--t_end`           | *DOUBLE* | Sets `t_end` (default: **1000**).                                       |
-| `-d`  | `--delta_t`         | *DOUBLE* | Sets `delta_t` (default: **0.014**).                                    |
-| `-b`  | `--BrownMotionMean` | *DOUBLE* | Sets the mean for the Brownian motion.                                  |
-| `-h`  | `--help`            | —        | Shows this text and terminates the program.                             |
+| Short | Long                | Argument | Description                                                                                   |
+|:------|:--------------------|:---------|:----------------------------------------------------------------------------------------------|
+| `-w`  | `--week`            | *UINT*   | select which week's simulation to run (1=PlanetSimulation, 2=Collision Simulation (Default))  |
+| `-s`  | `--single`          | *FILE*   | Reads single particles from the specified file in xyz format.                                 |
+| `-c`  | `--cuboid`          | *FILE*   | Reads particles from the specified file in cuboid format.                                     |
+| `-o`  | `--out`             | *FILE*   | path and name of the output files. Path has to exist! (default: MD_vtk)                       |
+| `-e`  | `--t_end`           | *DOUBLE* | Sets `t_end` (default: **1000**).                                                             |
+| `-d`  | `--delta_t`         | *DOUBLE* | Sets `delta_t` (default: **0.014**).                                                          |
+| `-b`  | `--BrownMotionMean` | *DOUBLE* | Sets the mean for the Brownian motion.                                                        |
+| `-h`  | `--help`            | —        | Shows this text and terminates the program.                                                   |
 
 Format the Code
 ```
