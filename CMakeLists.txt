@@ -53,6 +53,13 @@ target_compile_options(MolSim
 # add additional modules
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
+option(ENABLE_TIME_MEASURE "Enable Time Measure" OFF)
+if(ENABLE_TIME_MEASURE)
+    set(ITERATIONS 1 CACHE STRING "Number of iterations in main, to get statistical significant time measure")
+        #https://stackoverflow.com/a/9017635
+target_compile_definitions(MolSimLib PUBLIC ENABLE_TIME_MEASURE=${ITERATIONS})
+endif ()
+
 include(vtk)
 include(clang-format)
 include(doxygen)
