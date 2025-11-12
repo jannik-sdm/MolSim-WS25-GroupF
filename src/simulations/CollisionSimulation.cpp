@@ -15,11 +15,8 @@ CollisionSimulation::CollisionSimulation(ParticleContainer &container, const dou
 
 }
 void CollisionSimulation::calculateF() {
-
   for (auto &p : particleContainer) p.setF({0, 0, 0});
-  for (auto it = particleContainer.pairs_begin(); it != particleContainer.pairs_end(); ++it) {
-    auto [p1, p2] = *it;
-
+  for (auto [p1, p2] : particleContainer.pairs()) {
     // force calculation
     const double norm = ArrayUtils::L2Norm(p1.getX() - p2.getX());
     const double a = pow(sigma / norm, 6) - 2 * pow(sigma / norm, 12);
