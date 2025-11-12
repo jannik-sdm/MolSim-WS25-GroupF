@@ -26,6 +26,6 @@ class ParticleGenerator {
    * @param[in] mass Default Mass for each particle
    * @param[in] v Default Velocity for each particle
    */
-  static void cuboid(std::vector<Particle> &particles, Vector3 x, std::array<unsigned int, 3> n, double distance,
-                     double mass, Vector3 v);
+  static void cuboid(std::vector<Particle> &particles, const Vector3 x, const std::array<unsigned int, 3> n,
+                     const double distance, const double mass, Vector3 v);
 };
