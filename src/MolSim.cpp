@@ -2,10 +2,11 @@
  * @file MolSim.cpp
  *
  */
+#define ENABLE_TIME_MEASURE 1
 #include <getopt.h>
-#include <spdlog/sinks/stdout_color_sinks-inl.h>
-
 #include <iostream>
+#include <chrono>
+#include <spdlog/sinks/stdout_color_sinks-inl.h>
 
 #include "ParticleContainer.h"
 #include "inputReader/CuboidReader.h"
@@ -13,11 +14,12 @@
 #include "inputReader/XYZReader.h"
 #include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
-#include "spdlog/async.h"
-#include "spdlog/sinks/basic_file_sink.h"
 #include "simulations/CollisionSimulation.h"
 #include "simulations/PlanetSimulation.h"
+#include "spdlog/async.h"
+#include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/spdlog.h"
+
 
 /**** forward declaration of the calculation functions ****/
 
@@ -53,11 +55,21 @@ unsigned int week = 2;
 ParticleContainer particleContainer;
 
 int main(int argc, char *argsv[]) {
-  spdlog::init_thread_pool(8192, 1); // queue with 8k items and 1 backing thread.
-  auto async_logger = spdlog::stdout_color_mt<spdlog::async_factory>("async_logger");
+
+  //https://github.com/gabime/spdlog
+  
+  spdlog::init_thread_pool(8192, 1);
+  //Create Sinks
+  auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt >();
+  auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/log.txt",true /*überschreibt File, falls schon existend*/);
+  // Create Logger
+  std::vector<spdlog::sink_ptr> sinks {stdout_sink, file_sink};
+  auto async_logger = std::make_shared<spdlog::async_logger>("async_logger", sinks.begin(), sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block);
+  //Set Defaults
   spdlog::set_default_logger(async_logger);
+  
   spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
-  spdlog::set_level(spdlog::level::info);  // set default
+  //spdlog::set_level(spdlog::level::err);  // set default
   if (parseArgs(argc, argsv) != 0 || particleContainer.particles.empty()) {
     printHelp();
     return -1;
@@ -69,41 +81,50 @@ int main(int argc, char *argsv[]) {
   spdlog::info("delta_t = {}", delta_t);
   spdlog::info("brown_motion_mean = {}", brown_motion_mean);
   spdlog::info("output path/name = {}", out_name);
+#ifdef ENABLE_TIME_MEASURE
+  // Source for duration measurement- https://stackoverflow.com/a/19312610
+  auto start_time_measure = std::chrono::high_resolution_clock::now();
+  for (int i = 0; i < ENABLE_TIME_MEASURE; i++) {
+#endif
 
+    // select simulation
+    std::unique_ptr<Simulation> simulation = nullptr;
 
+    switch (week) {
+      case 1:
+        simulation = std::make_unique<PlanetSimulation>(particleContainer, end_time, delta_t);
+        break;
 
-  // select simulation
-  std::unique_ptr<Simulation> simulation = nullptr;
+      case 2:
+      default:
+        simulation = std::make_unique<CollisionSimulation>(particleContainer, end_time, delta_t);
+        break;
+    };
 
-  switch (week) {
-    case 1:
-      simulation = std::make_unique<PlanetSimulation>(particleContainer, end_time, delta_t);
-      break;
+    double current_time = start_time;
 
-    case 2:
-    default:
-      simulation = std::make_unique<CollisionSimulation>(particleContainer, end_time, delta_t);
-      break;
-  };
+    int iteration = 0;
 
-  double current_time = start_time;
+    // for this loop, we assume: current x, current f and current v are known
+    while (current_time < end_time) {
+      simulation->iteration();
+      iteration++;
 
-  int iteration = 0;
+      if (iteration % 10 == 0) {
+        plotParticles(iteration);
+      }
+      spdlog::trace("Iteration {} finished.", iteration);
 
-  // for this loop, we assume: current x, current f and current v are known
-  while (current_time < end_time) {
-    simulation->iteration();
-    iteration++;
-
-    if (iteration % 10 == 0) {
-      plotParticles(iteration);
+      current_time += delta_t;
     }
-    spdlog::trace("Iteration {} finished.", iteration);
-
-    current_time += delta_t;
+#ifdef ENABLE_TIME_MEASURE
   }
+    spdlog::info("output written. Terminating...");
+    auto end_time_measure = std::chrono::high_resolution_clock::now();
 
-  spdlog::info("output written. Terminating...");
+    std::cout << "Program has been running for " << std::chrono::duration_cast<std::chrono::microseconds>((end_time_measure - start_time_measure)/ENABLE_TIME_MEASURE).count() << " milliseconds" << std::endl;
+#endif
+
   return 0;
 }
 
@@ -112,13 +133,13 @@ void printHelp() {
                "Simulates Molecules. For detailed Description see README.md\n\n"
                "Options:\n"
                "-w, --week=UINT          select which week's simulation to run (1=PlanetSimulation, 2=Collision Simulation (Default))\n"
-                "-s, --single=FILE       reads single particles from the file in xyz format\n"
+               "-s, --single=FILE        reads single particles from the file in xyz format\n"
                "-c, --cuboid=FILE        reads particles from the file in cuboid format\n"
                "-o, --out=FILE           path and name of the output files. Path has to exist! (default: MD_vtk)\n"
                "-e, --t_end=DOUBLE       sets t_end (default 1000)\n"
                "-d, --delta_t=DOUBLE     sets delta_t (default 0.014)\n"
                "-b, --BrownMotionMean    sets the mean for the Brown motion\n"
-               "-l, --logLevel=STRING  sets the Level of logging. (ERROR, WARNING, INFO (default), DEBUG, TRACE)\n"
+               "-l, --logLevel=STRING    sets the Level of logging. (OFF, ERROR, WARNING, INFO (default), DEBUG, TRACE)\n"
                "-h, --help               shows this Text end terminates the program\n\n"
                "Example:\n"
                "./MolSim -e 100.0 -p ../input/eingabe-cuboid.txt"
@@ -176,7 +197,9 @@ int parseArgs(int argc, char *argv[]) {
         case 'l': {
           std::string logLevel(optarg);
           // kein switch-case, weil das nur auf integern geht
-          if (logLevel == "ERROR") {
+          if (logLevel == "OFF") {
+            spdlog::set_level(spdlog::level::off);
+          }else if (logLevel == "ERROR") {
             spdlog::set_level(spdlog::level::err);
           } else if (logLevel == "WARN") {
             spdlog::set_level(spdlog::level::warn);
