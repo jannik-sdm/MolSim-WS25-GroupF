@@ -37,3 +37,35 @@ TEST_F(TestParticleContainer, IterationWorks) {
   }
 }
 
+/**
+ * @test PairIteration
+ *
+ * This test case checks wether the pair iteration works.
+ * For a given vector, it should iterate over all unique pairs,
+ * e.g
+ * ```
+ * (0, 1, 2, 3) -> [0, 1] [0, 2] [0, 3] [1, 2] [1, 3] [2, 3]
+ * ```
+ */
+TEST_F(TestParticleContainer, PairIterationWorks) {
+  constexpr unsigned int n = TestParticleContainer::NUM_PARTICLES;
+  constexpr unsigned int N = (n * (n - 1)) / 2;
+
+  std::vector<std::pair<int, int>> arr;
+  arr.reserve(N);
+  for (int i = 0; i < n; i++) {
+    for (int j = i + 1; j < n; j++) {
+      arr.emplace_back(i, j);
+    }
+  }
+
+  int i = 0;
+  for (auto [p1, p2] : container.pairs()) {
+    EXPECT_EQ(p1.getType(), arr[i].first);
+    EXPECT_EQ(p2.getType(), arr[i].second);
+
+    if (i++ >= N) {
+      FAIL();
+    }
+  }
+}
