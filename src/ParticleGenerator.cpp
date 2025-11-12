@@ -5,8 +5,8 @@
 #include "Particle.h"
 #include "utils/ArrayUtils.h"
 
-void ParticleGenerator::cuboid(std::vector<Particle> &particles, Vector3 pos, std::array<unsigned int, 3> n,
-                               double distance, double mass, Vector3 v) {
+void ParticleGenerator::cuboid(std::vector<Particle> &particles, const Vector3 pos, const std::array<unsigned int, 3> n,
+                               const double distance, const double mass, const Vector3 v) {
   // Reserve space for new particles
   particles.reserve(particles.size() + n[0] * n[1] * n[2]);
 
