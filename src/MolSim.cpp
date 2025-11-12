@@ -2,7 +2,6 @@
  * @file MolSim.cpp
  *
  */
-#define ENABLE_TIME_MEASURE 1
 #include <getopt.h>
 #include <iostream>
 #include <chrono>
@@ -69,7 +68,7 @@ int main(int argc, char *argsv[]) {
   spdlog::set_default_logger(async_logger);
   
   spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
-  //spdlog::set_level(spdlog::level::err);  // set default
+  spdlog::set_level(spdlog::level::info);  // set default
   if (parseArgs(argc, argsv) != 0 || particleContainer.particles.empty()) {
     printHelp();
     return -1;
@@ -122,7 +121,7 @@ int main(int argc, char *argsv[]) {
     spdlog::info("output written. Terminating...");
     auto end_time_measure = std::chrono::high_resolution_clock::now();
 
-    std::cout << "Program has been running for " << std::chrono::duration_cast<std::chrono::microseconds>((end_time_measure - start_time_measure)/ENABLE_TIME_MEASURE).count() << " milliseconds" << std::endl;
+    spdlog::info("Program has been running for {} ms", std::chrono::duration_cast<std::chrono::microseconds>((end_time_measure - start_time_measure)/ENABLE_TIME_MEASURE).count());
 #endif
 
   return 0;
