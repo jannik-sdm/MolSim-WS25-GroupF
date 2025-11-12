@@ -22,9 +22,7 @@ void PlanetSimulation::iteration() {
 
 void PlanetSimulation::calculateF() {
   for (auto &p : particleContainer) p.setF({0, 0, 0});
-  for (auto it = particleContainer.pairs_begin(); it != particleContainer.pairs_end(); ++it) {
-    auto [p1, p2] = *it;
-
+  for (auto [p1, p2] : particleContainer.pairs()) {
     const double a = 1 / pow(ArrayUtils::L2Norm(p1.getX() - p2.getX()), 3);
     auto f = a * p1.getM() * p2.getM() * (p2.getX() - p1.getX());
 
