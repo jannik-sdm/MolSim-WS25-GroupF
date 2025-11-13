@@ -20,5 +20,5 @@
  */
 class XYZReader : public FileReader<XYZReader> {
  public:
-  static void parse(std::vector<Particle> &particles, std::ifstream &file);
+  static void parse(std::vector<Particle> &particles, std::istream &file);
 };
