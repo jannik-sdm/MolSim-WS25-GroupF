@@ -121,7 +121,7 @@ int main(int argc, char *argsv[]) {
     spdlog::info("output written. Terminating...");
     auto end_time_measure = std::chrono::high_resolution_clock::now();
 
-    spdlog::info("Program has been running for {} ms", std::chrono::duration_cast<std::chrono::microseconds>((end_time_measure - start_time_measure)/ENABLE_TIME_MEASURE).count());
+    spdlog::info("Program has been running for {} ms", std::chrono::duration_cast<std::chrono::milliseconds>((end_time_measure - start_time_measure)/ENABLE_TIME_MEASURE).count());
 #endif
 
   return 0;
