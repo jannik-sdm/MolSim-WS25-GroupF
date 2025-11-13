@@ -37,7 +37,7 @@ class FileReader {
   static void readFile(std::vector<Particle> &particles, const std::filesystem::path filepath) {
     std::ifstream file(filepath);
     if (!file.is_open()) {
-      spdlog::error("Error opening {}", filepath);
+      spdlog::error("Error opening {}", filepath.string());
       exit(-1);
     }
 
