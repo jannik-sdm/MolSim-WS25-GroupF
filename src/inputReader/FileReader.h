@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "../Particle.h"
+#include "spdlog/spdlog.h"
 
 /**
  * @class FileReader
@@ -36,7 +37,7 @@ class FileReader {
   static void readFile(std::vector<Particle> &particles, const std::filesystem::path filepath) {
     std::ifstream file(filepath);
     if (!file.is_open()) {
-      std::cout << "Error opening \"" << filepath << "\"" << std::endl;
+      spdlog::error("Error opening {}", filepath.string());
       exit(-1);
     }
 
