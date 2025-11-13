@@ -21,5 +21,5 @@
  */
 class CuboidReader : public FileReader<CuboidReader> {
  public:
-  static void parse(std::vector<Particle> &particles, std::ifstream &file);
+  static void parse(std::vector<Particle> &particles, std::istream &file);
 };

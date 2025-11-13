@@ -8,7 +8,7 @@
 
 #include "../ParticleGenerator.h"
 
-void CuboidReader::parse(std::vector<Particle> &particles, std::ifstream &file) {
+void CuboidReader::parse(std::vector<Particle> &particles, std::istream &file) {
   Vector3 x;
   std::array<unsigned int, 3> n;
   Vector3 v;
@@ -16,11 +16,6 @@ void CuboidReader::parse(std::vector<Particle> &particles, std::ifstream &file) 
   double mass;
 
   std::string current_line;
-
-  if (!file.is_open()) {
-    std::cout << "File no longer open" << std::endl;
-    exit(-1);
-  }
 
   while (std::getline(file, current_line)) {
     if (current_line.empty() || current_line[0] == '#') continue;
