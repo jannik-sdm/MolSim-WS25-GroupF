@@ -1,49 +1,88 @@
-
+/**
+ * @file MolSim.cpp
+ *
+ */
 #include <iostream>
 #include <list>
 
 #include "FileReader.h"
+#include "ParticleContainer.h"
+#include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
 #include "utils/ArrayUtils.h"
 
 /**** forward declaration of the calculation functions ****/
 
 /**
- * calculate the force for all particles
+ * @brief calculate the force for all particles
+ *
+ * For each pair of disjunct particles this function calculates the force f with the Formula: \f$ F_{ij} =
+ * \frac{m_im_j}{(||x_i-x_j||_2)^3}(x_j-x_i)\f$.
+ * Then this function sums up all forces for one particle to calculate the effective force of each particle
  */
 void calculateF();
 
 /**
- * calculate the position for all particles
+ * @brief calculate the position for all particles
+ *
+ * For each particle i this function calculates the position x: \f$ x_i(t_{n+1}) = x_i(t_n)+\Delta t \cdot v_i(t_n) +
+ * (\Delta t)^2 \frac{F_i(t_n)}{2m_i}\f$
  */
 void calculateX();
 
 /**
- * calculate the position for all particles
+ * @brief calculate the Velocity for all particles
+ *
+ * For each particle i this function calculates the Velocity v: \f$ v_i(t_{n+1}) = v_i(t_n)+\Delta t
+ * \frac{F_i(t_n)+F_i(t_{n+1})}{2m_i}\f$
  */
 void calculateV();
 
 /**
- * plot the particles to a xyz-file
+ * @brief plot the particles to a xyz-file or to a vtk-file.
+ *
+ * If ENABLE_VTK_OUTPUT is set, this function creates a vtk-file. Otherwise it creates a xyz-file
  */
 void plotParticles(int iteration);
 
 constexpr double start_time = 0;
-constexpr double end_time = 1000;
-constexpr double delta_t = 0.014;
+double end_time = 1000;
+double delta_t = 0.014;
 
-// TODO: what data structure to pick?
-std::list<Particle> particles;
+ParticleContainer particleContainer;
 
 int main(int argc, char *argsv[]) {
   std::cout << "Hello from MolSim for PSE!" << std::endl;
-  if (argc != 2) {
+
+  // should only work if filename is passed, or optional endtime AND delta_t is passed
+  if (!(argc == 2 || argc == 4)) {
     std::cout << "Erroneous programme call! " << std::endl;
-    std::cout << "./molsym filename" << std::endl;
+    std::cout << "Usage: " << std::endl;
+    std::cout << "./Molsym <filename>" << std::endl;
+    std::cout << "./Molsym <filename> <end_time> <delta_t>" << std::endl;
+    std::cout << "default: endtime = " << end_time << "; delta_t = " << delta_t << std::endl;
+    return -1;
   }
 
+  // parse endtime and delta_t
+  if (argc == 4) {
+    try {
+      end_time = std::stod(argsv[2]);
+      delta_t = std::stod(argsv[3]);
+    } catch (std::invalid_argument &e) {
+      std::cout << "Error: could not parse arguments!" << std::endl;
+      std::cout << "expected: double" << std::endl;
+      return -1;
+    }
+  }
+
+  // use given parameters, or default endtime = 1000 delta_t = 0.014
+  std::cout << "Starting simulation with parameters:" << std::endl
+            << "endtime = " << end_time << std::endl
+            << "delta_t = " << delta_t << std::endl;
+
   FileReader fileReader;
-  fileReader.readFile(particles, argsv[1]);
+  fileReader.readFile(particleContainer.particles, argsv[1]);
 
   double current_time = start_time;
 
@@ -72,31 +111,41 @@ int main(int argc, char *argsv[]) {
 }
 
 void calculateF() {
-  std::list<Particle>::iterator iterator;
-  iterator = particles.begin();
+  for (auto &p : particleContainer) p.setF({0, 0, 0});
+  for (auto it = particleContainer.pairs_begin(); it != particleContainer.pairs_end(); ++it) {
+    auto [p1, p2] = *it;
 
-  for (auto &p1 : particles) {
-    for (auto &p2 : particles) {
-      // @TODO: insert calculation of forces here!
-    }
+    const double a = 1 / pow(ArrayUtils::L2Norm(p1.getX() - p2.getX()), 3);
+    auto f = a * p1.getM() * p2.getM() * (p2.getX() - p1.getX());
+
+    p1.addF(f);
+    p2.subF(f);
   }
 }
 
 void calculateX() {
-  for (auto &p : particles) {
+  for (auto &p : particleContainer) {
     // @TODO: insert calculation of position updates here!
+    const double a = 1 / (2 * p.getM());
+    p.setX(p.getX() + delta_t * p.getV() + pow(delta_t, 2) * a * p.getF());
   }
 }
 
 void calculateV() {
-  for (auto &p : particles) {
-    // @TODO: insert calculation of veclocity updates here!
+  for (auto &p : particleContainer) {
+    // @TODO: insert calculation of velocity updates here!
+    const double a = 1 / (2 * p.getM());
+    p.setV(p.getV() + delta_t * a * (p.getOldF() + p.getF()));
   }
 }
 
 void plotParticles(int iteration) {
   std::string out_name("MD_vtk");
 
+#ifdef ENABLE_VTK_OUTPUT
+  outputWriter::VTKWriter writer;
+#else
   outputWriter::XYZWriter writer;
-  writer.plotParticles(particles, out_name, iteration);
+#endif
+  writer.plotParticles(particleContainer.particles, out_name, iteration);
 }

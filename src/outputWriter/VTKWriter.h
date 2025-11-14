@@ -1,5 +1,5 @@
-/*
- * VTKWriter.h
+/**
+ * @file VTKWriter.h
  *
  *  Created on: 01.03.2010
  *      Author: eckhardw
@@ -11,14 +11,15 @@
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
 
-#include <list>
 #include <string>
+#include <vector>
 
 #include "Particle.h"
 
 namespace outputWriter {
 
 /**
+ * @class VTKWriter
  * This class implements the functionality to generate vtk output from
  * particles using the official VTK library.
  */
@@ -37,7 +38,7 @@ class VTKWriter {
    * @param filename Output filename
    * @param iteration Current iteration number
    */
-  void plotParticles(std::list<Particle> particles, const std::string &filename, int iteration);
+  void plotParticles(std::vector<Particle> &particles, const std::string &filename, int iteration);
 };
 
 }  // namespace outputWriter
