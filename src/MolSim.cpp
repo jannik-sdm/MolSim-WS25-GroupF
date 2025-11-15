@@ -25,6 +25,7 @@
 void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder);
 
 
+
 /**
  * @brief Initialize spdlog
  *
@@ -119,18 +120,14 @@ int main(int argc, char *argsv[]) {
 
       current_time += settings.delta_t;
     }
+
+#ifdef ENABLE_TIME_MEASURE
+  }
     spdlog::info("output written. Terminating...");
     auto end_time_measure = std::chrono::high_resolution_clock::now();
     spdlog::info("Program has been running for {} ms",
                  std::chrono::duration_cast<std::chrono::milliseconds>(end_time_measure - start_time_measure).count());
 
-#ifdef ENABLE_TIME_MEASURE
-  }
-
-  auto total_end_time_measure = std::chrono::high_resolution_clock::now();
-  spdlog::info(
-      "Total runtime: {}ms",
-      std::chrono::duration_cast<std::chrono::milliseconds>(total_end_time_measure - total_start_time_measure).count());
 #endif
 
   return 0;
