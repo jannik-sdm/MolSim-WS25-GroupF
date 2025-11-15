@@ -14,4 +14,4 @@ PairIterator &PairIterator::operator++() {
 
 bool PairIterator::operator==(const PairIterator &other) const { return i == other.i && j == other.j; }
 
-bool PairIterator::operator!=(const PairIterator &other) const { return i < other.i || j < other.j; }
+bool PairIterator::operator!=(const PairIterator &other) const { return i != other.i || j != other.j; }

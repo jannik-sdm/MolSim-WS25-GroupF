@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <vector>
 
 #include "Particle.h"
@@ -38,7 +39,9 @@ class PairRange {
   PairRange(std::vector<Particle> &particles) : particles(particles) {};
 
   PairIterator begin() { return PairIterator(particles, 0, 1); }
-  PairIterator end() { return PairIterator(particles, particles.size() - 1, particles.size() - 1); }
+  PairIterator end() {
+    return PairIterator(particles, std::max(0UL, particles.size() - 2), std::max(1UL, particles.size() - 1));
+  }
 };
 
 class ParticleContainer {
