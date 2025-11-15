@@ -85,6 +85,7 @@ class PairRange {
    *
    * @return PairIterator at the end of the list of distinct pairs
    */
+
   PairIterator end() {
     return PairIterator(particles, std::max(0UL, particles.size() - 2), std::max(1UL, particles.size() - 1));
   }
