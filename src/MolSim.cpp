@@ -24,6 +24,7 @@
  */
 void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder);
 
+
 ParticleContainer particleContainer;
 
 int main(int argc, char *argsv[]) {

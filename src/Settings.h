@@ -34,6 +34,7 @@ class Settings {
   double brown_motion_avg_velocity = 0.1;
   /** @brief Cutoff radius for linked cell algorithm */
   double cutoff_radius = 3.0;
+
   /** @brief Domain */
   Vector3 domain = {1, 1, 1};
 
