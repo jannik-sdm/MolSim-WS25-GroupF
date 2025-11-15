@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <vector>
 
 #include "Particle.h"
@@ -84,7 +85,9 @@ class PairRange {
    *
    * @return PairIterator at the end of the list of distinct pairs
    */
-  PairIterator end() { return PairIterator(particles, particles.size() - 1, particles.size() - 1); }
+  PairIterator end() {
+    return PairIterator(particles, std::max(0UL, particles.size() - 2), std::max(1UL, particles.size() - 1));
+  }
 };
 
 /**
