@@ -83,8 +83,7 @@ int main(int argc, char *argsv[]) {
         break;
     };
 
-    double current_time = start_time;
-
+    double current_time = settings.start_time;
     int iteration = 0;
 
     // for this loop, we assume: current x, current f and current v are known
