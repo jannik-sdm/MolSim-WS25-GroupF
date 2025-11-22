@@ -4,41 +4,34 @@
 
 #include "LinkedCells.h"
 
-#include "spdlog/fmt/bundled/base.h"
+std::array<double, 3> LinkedCells::calculateCellSize(double cutoff) {
+  numCellsX = domain_size[0] / cutoff;
+  numCellsY = domain_size[1] / cutoff;
+  // numCellsZ = domain_size[2] / cutoff;
 
-LinkedCells::LinkedCells(Vector3 lower_left_front_corner) {
-   // @TODO
- }
+  // TODO: change z length from zero to real length
+  return {domain_size[0] / numCellsX, domain_size[1] / numCellsY, 0};
+}
+
 void LinkedCells::getNeighbourCells(int cellIndex, std::array<Cell, 9> &neighbourCells) {
-  std::array<int, 2> koordinates;
-  getCellKoordinates(cellIndex, koordinates);
+  std::array<int, 2> coordinates;
+  getCellCoordinates(cellIndex, coordinates);
   int index = 0;
   for (int i = -1; i < 2; i++) {
     for (int j = -1; j < 2; j++) {
-      int currentCellIndex = getCellIndex(koordinates[0]+i, koordinates[1] + j);
+      int currentCellIndex = getCellIndex(coordinates[0]+i, coordinates[1] + j, 0);
       neighbourCells[index] = cells[currentCellIndex];
       index++;
     }
   }
  }
 
-void LinkedCells::getCellKoordinates(int cellIndex, std::array<int, 2> koordinates) {
-  koordinates[0] = cellIndex % numCellsX;
-  koordinates[1] = cellIndex / numCellsX;
+void LinkedCells::getCellCoordinates(int cellIndex, std::array<int, 2> &coordinates) {
+  coordinates[0] = cellIndex % numCellsX;
+  coordinates[1] = cellIndex / numCellsX;
 }
 
-
-int LinkedCells::getCellIndex(int x, int y) {
-   return numCellsX * y + x; //Breite einer Zeile *  Anzahl der Zeilen über der aktuellen (wir fangen bei 0 an zu zählen) + die anzahl der Zellen in der aktuellen Zeile
+int LinkedCells::getCellIndex(double x, double y, double z) {
+  // number of cells per line * how many lines we skipped in y direction + index in x direction
+   return numCellsX * (y / cell_size[1]) + (x / cell_size[0]);
  }
-
-void LinkedCells::getNeighbours(int cellIndex, ParticleContainer &neighbourParticles) {
-  std::array<Cell, 9> neighbourCells;
-  getNeighbourCells(cellIndex, neighbourCells);
-  for (int i = 0; i < neighbourCells.size(); i++) {
-    neighbourParticles.particles.insert(neighbourParticles.particles.end(), neighbourCells[i].getParticleContainer().particles.begin(), neighbourCells[i].getParticleContainer().particles.end());
-  }
-}
-
-
-

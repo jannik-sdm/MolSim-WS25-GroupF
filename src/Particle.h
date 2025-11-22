@@ -58,6 +58,9 @@ class Particle {
   Particle(const Particle &other);
   Particle(Particle &&other) noexcept;
 
+  Particle& operator=(const Particle &other) = default;
+  Particle& operator=(Particle &&other) = default;
+
   // for visualization, we need always 3 coordinates
   // -> in case of 2d, we use only the first and the second
   Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_arg, const int type_arg = 0);

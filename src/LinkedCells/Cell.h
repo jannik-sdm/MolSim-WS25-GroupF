@@ -2,8 +2,8 @@
 // Created by jv_fedora on 19.11.25.
 //
 #pragma once
-#include "ParticleContainer.h"
-#include "Particle.h"
+#include "../ParticleContainer.h"
+#include "../Particle.h"
 /**
  * Cell Type
  * REGULAR = Cell
@@ -20,17 +20,20 @@ class Cell {
    * Data structure which contains all particles of this cell
    */
   ParticleContainer particleContainer;
+
    /**
-    * Describes, if it is a inner cell (regular) an edge cell or a ghost cell
+    * Describes, if it is an inner cell (regular), an edge cell or a ghost cell
     */
-cell_type particleType;
-  /**
-   * The lower left front corner of this cell to locate it
-   */
-Vector3 LowerLeftFrontCorner; //Vielleicht überhaupt nicht Notwendig
+  cell_type particleType;
+
 
 public:
-  Cell (ParticleContainer particleContainer, cell_type particleType, Vector3 lowerLeftFrontCorner);
+
+  Cell (ParticleContainer particleContainer, cell_type particleType);
+
+  // default constructur:
+  Cell() : particleType(REGULAR) {}
+
   cell_type getParticleType();
   ParticleContainer getParticleContainer ();
   bool inContainer(Particle particle);
