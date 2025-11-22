@@ -1,0 +1,14 @@
+Checks: >
+  -*,
+  performance-unnecessary-copy-initialization
+
+# which warnings should be fatal
+WarningsAsErrors: ''
+
+# only check headers starting with src/
+HeaderFilterRegex: '^src/'
+CheckOptions:
+  - key: readability-identifier-naming.NamespaceCase
+    value: CamelCase
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case

@@ -1,10 +1,8 @@
 #include "ParticleContainer.h"
 
-#include <iostream>
+std::pair<Particle &, Particle &> PairIterator::operator*() { return {particles[i], particles[j]}; }
 
-std::pair<Particle &, Particle &> ParticleContainer::PairIterator::operator*() { return {particles[i], particles[j]}; }
-
-ParticleContainer::PairIterator &ParticleContainer::PairIterator::operator++() {
+PairIterator &PairIterator::operator++() {
   j += 1;
   if (j >= particles.size()) {
     i += 1;
@@ -14,8 +12,6 @@ ParticleContainer::PairIterator &ParticleContainer::PairIterator::operator++() {
   return *this;
 }
 
-bool ParticleContainer::PairIterator::operator==(const PairIterator &other) const {
-  return i == other.i && j == other.j;
-}
+bool PairIterator::operator==(const PairIterator &other) const { return i == other.i && j == other.j; }
 
-bool ParticleContainer::PairIterator::operator!=(const PairIterator &other) const { return i < other.i || j < other.j; }
+bool PairIterator::operator!=(const PairIterator &other) const { return i < other.i || j < other.j; }

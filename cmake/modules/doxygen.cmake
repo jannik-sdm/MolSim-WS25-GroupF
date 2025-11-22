@@ -1,5 +1,4 @@
 # make doc_doxygen optional if someone does not have / like doxygen
-find_package(Doxygen REQUIRED)
 # TODO: create CMake build option for the target.
 option(ENABLE_DOXYGEN_TARGET "Enable doxygen Target" ON)
 if(ENABLE_DOXYGEN_TARGET)
@@ -18,7 +17,6 @@ if(ENABLE_DOXYGEN_TARGET)
         set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
         #Generating LATEX
         set(DOXYGEN_GENERATE_LATEX YES)
-        #Makes VTKWriter a part of the Documentation, if it is activated
         IF(ENABLE_VTK_OUTPUT)
             set(DOXYGEN_PREDEFINED ENABLE_VTK_OUTPUT)
         endif()
