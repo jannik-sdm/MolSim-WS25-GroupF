@@ -25,25 +25,33 @@
 void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder);
 
 
-ParticleContainer particleContainer;
-
-int main(int argc, char *argsv[]) {
-  // https://github.com/gabime/spdlog
-  /*
+/**
+ * @brief Initialize spdlog
+ *
+ * Sets some default options and enables async logging for spdlog
+ * @see https://github.com/gabime/spdlog
+ */
+void initializeLogging() {
   spdlog::init_thread_pool(8192, 1);
   // Create Sinks
   auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
   auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(
-      "logs/log.txt", true );
+      "logs/log.txt", true /*überschreibt File, falls schon existend*/);
   // Create Logger
   std::vector<spdlog::sink_ptr> sinks{stdout_sink, file_sink};
   auto async_logger = std::make_shared<spdlog::async_logger>(
       "async_logger", sinks.begin(), sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block);
   // Set Defaults
   spdlog::set_default_logger(async_logger);
-  */
 
   spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
+}
+
+ParticleContainer particleContainer;
+
+int main(int argc, char *argsv[]) {
+
+  initializeLogging();
   Settings settings = Settings(argc, argsv, particleContainer.particles);
 
   if (settings.isHelp()) {
