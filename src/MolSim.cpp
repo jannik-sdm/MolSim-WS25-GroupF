@@ -112,7 +112,7 @@ int main(int argc, char *argsv[]) {
       if (iteration % 10 == 0) {
         plotParticles(iteration);
       }
-      spdlog::trace("Iteration {} finished.", iteration);
+      spdlog::info("Iteration {} finished.", iteration);
 
       current_time += delta_t;
     }
