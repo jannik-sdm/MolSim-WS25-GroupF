@@ -8,6 +8,86 @@
  */
 
 /**
+ * @class PairIterator
+ * @brief Iterator over distinct pairs
+ *
+ * Provides an iterator to iterate over all distinct pairs in the container, equivalent to
+ * ```
+ * for (int i = 0; i < particleContainer.size(); i++){
+ *     for (int j = i + 1; j < particleContainer.size(); j++) {
+ *         // do something
+ *     }
+ * }
+ * ```
+ */
+class PairIterator {
+  std::vector<Particle> &particles;
+  /**
+   * @brief Index of the first member in the container
+   */
+  size_t i;
+  /**
+   * @brief Index of the second member in the container
+   */
+  size_t j;
+
+ public:
+  PairIterator(std::vector<Particle> &particles, size_t i, size_t j) : particles(particles), i(i), j(j) {};
+  std::pair<Particle &, Particle &> operator*();
+  /**
+   * Moves the iterator to the next distinct pair of particles
+   */
+  PairIterator &operator++();
+  /**
+   * @brief Check for equality between two PairIterators
+   *
+   * @param other Other PairIterator to compare to
+   * @return true if they are at the same pair,
+   * @return false if not
+   */
+  bool operator==(const PairIterator &other) const;
+  /**
+   * @brief Check for inequality between two PairIterators
+   *
+   * @param other Other PairIterator to compare to
+   * @return true if they are not at the same pair,
+   * @return false if they are
+   */
+  bool operator!=(const PairIterator &other) const;
+};
+
+/**
+ * @class PairRange
+ * @brief Provides a Range to iterate over *all* pairs in a vector
+ *
+ * This class enables the usage of the syntax
+ * ```cpp
+ * for (auto [p1, p2] : ParticleContainer.pairs())
+ * ```
+ * instead of having to use the iterator manually
+ */
+class PairRange {
+ private:
+  std::vector<Particle> &particles;
+
+ public:
+  PairRange(std::vector<Particle> &particles) : particles(particles) {};
+
+  /**
+   * @brief Begin iterating through distinct pairs
+   *
+   * @return PairIterator at the start of the list of distinct pairs
+   */
+  PairIterator begin() { return PairIterator(particles, 0, 1); }
+  /**
+   * @brief Stop iterating through distinct pairs
+   *
+   * @return PairIterator at the end of the list of distinct pairs
+   */
+  PairIterator end() { return PairIterator(particles, particles.size() - 1, particles.size() - 1); }
+};
+
+/**
  * @class ParticleContainer
  * @brief Container for storing particles
  *
@@ -55,65 +135,5 @@ class ParticleContainer {
    */
   const_iterator cend() const { return particles.cend(); }
 
-  /**
-   * @class PairIterator
-   * @brief Iterator over distinct pairs
-   *
-   * Provides an iterator to iterate over all distinct pairs in the container, equivalent to
-   * ```
-   * for (int i = 0; i < particleContainer.size(); i++){
-   *     for (int j = i + 1; j < particleContainer.size(); j++) {
-   *         // do something
-   *     }
-   * }
-   * ```
-   */
-  class PairIterator {
-    std::vector<Particle> &particles;
-    /**
-     * @brief Index of the first member in the container
-     */
-    size_t i;
-    /**
-     * @brief Index of the second member in the container
-     */
-    size_t j;
-
-   public:
-    PairIterator(std::vector<Particle> &particles, size_t i, size_t j) : particles(particles), i(i), j(j) {};
-    std::pair<Particle &, Particle &> operator*();
-    /**
-     * Moves the iterator to the next distinct pair of particles
-     */
-    PairIterator &operator++();
-    /**
-     * @brief Check for equality between two PairIterators
-     *
-     * @param other Other PairIterator to compare to
-     * @return true if they are at the same pair,
-     * @return false if not
-     */
-    bool operator==(const PairIterator &other) const;
-    /**
-     * @brief Check for inequality between two PairIterators
-     *
-     * @param other Other PairIterator to compare to
-     * @return true if they are not at the same pair,
-     * @return false if they are
-     */
-    bool operator!=(const PairIterator &other) const;
-  };
-
-  /**
-   * @brief Begin iterating through distinct pairs
-   *
-   * @return PairIterator at the start of the list of distinct pairs
-   */
-  PairIterator pairs_begin() { return PairIterator(particles, 0, 1); }
-  /**
-   * @brief Stop iterating through distinct pairs
-   *
-   * @return PairIterator at the end of the list of distinct pairs
-   */
-  PairIterator pairs_end() { return PairIterator(particles, particles.size() - 1, particles.size() - 1); }
+  PairRange pairs() { return PairRange(particles); }
 };
