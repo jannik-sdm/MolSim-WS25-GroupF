@@ -103,7 +103,7 @@ int main(int argc, char *argsv[]) {
       if (iteration % settings.frequency == 0) {
         plotParticles(plotted, iteration, settings.outputFolder);
       }
-      spdlog::trace("Iteration {} finished.", iteration);
+      spdlog::info("Iteration {} finished.", iteration);
 
       current_time += settings.delta_t;
     }
