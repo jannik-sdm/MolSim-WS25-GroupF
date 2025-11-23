@@ -1,12 +1,12 @@
 //
 // Created by jannik on 11/23/25.
 //
+#pragma once
 
 #pragma once
 
 
 #include "../LinkedCells/LinkedCells.h"
-#include "CollisionSimulation.h"
 
 #include "Simulation.h"
 

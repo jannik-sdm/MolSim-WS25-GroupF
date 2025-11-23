@@ -35,7 +35,7 @@ class Settings {
   /** @brief Cutoff radius for linked cell algorithm */
   double cutoff_radius = 3.0;
   /** @brief Domain */
-  std::array<unsigned int, 3> domain = {1, 1, 1};
+  Vector3 domain = {1, 1, 1};
 
   /** @brief Domain */
   Vector3 domain = {1, 1, 1};

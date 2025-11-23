@@ -26,7 +26,6 @@
 void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder);
 
 
-
 /**
  * @brief Initialize spdlog
  *
@@ -47,6 +46,7 @@ void initializeLogging() {
   spdlog::set_default_logger(async_logger);
 
   spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
+
 }
 
 ParticleContainer particleContainer;
@@ -100,7 +100,7 @@ int main(int argc, char *argsv[]) {
 
       case 3:
       default:
-       LinkedCells linked_cells = LinkedCells(std::move(particleContainer.particles), settings.domain, settings.cutoff_radius);
+ LinkedCells linked_cells = LinkedCells(std::move(particleContainer.particles), settings.domain, settings.cutoff_radius);
         plotted = linked_cells.particles;
         simulation = std::make_unique<CutoffSimulation>(linked_cells, settings.end_time, settings.delta_t, settings.cutoff_radius);
     };
