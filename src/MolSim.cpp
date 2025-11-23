@@ -16,6 +16,7 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks-inl.h"
 #include "spdlog/spdlog.h"
+#include "LinkedCells/LinkedCells.h"
 
 /**
  * @brief plot the particles to a xyz-file or to a vtk-file.
@@ -51,7 +52,6 @@ void initializeLogging() {
 ParticleContainer particleContainer;
 
 int main(int argc, char *argsv[]) {
-
   initializeLogging();
   Settings settings = Settings(argc, argsv, particleContainer.particles);
 
@@ -100,7 +100,7 @@ int main(int argc, char *argsv[]) {
 
       case 3:
       default:
-        LinkedCells linked_cells = LinkedCells(std::move(particleContainer.particles), settings.domain, settings.cutoff_radius);
+       LinkedCells linked_cells = LinkedCells(std::move(particleContainer.particles), settings.domain, settings.cutoff_radius);
         plotted = linked_cells.particles;
         simulation = std::make_unique<CutoffSimulation>(linked_cells, settings.end_time, settings.delta_t, settings.cutoff_radius);
     };
@@ -121,13 +121,18 @@ int main(int argc, char *argsv[]) {
       current_time += settings.delta_t;
     }
 
-#ifdef ENABLE_TIME_MEASURE
-  }
     spdlog::info("output written. Terminating...");
     auto end_time_measure = std::chrono::high_resolution_clock::now();
     spdlog::info("Program has been running for {} ms",
                  std::chrono::duration_cast<std::chrono::milliseconds>(end_time_measure - start_time_measure).count());
 
+#ifdef ENABLE_TIME_MEASURE
+  }
+
+  auto total_end_time_measure = std::chrono::high_resolution_clock::now();
+  spdlog::info(
+      "Total runtime: {}ms",
+      std::chrono::duration_cast<std::chrono::milliseconds>(total_end_time_measure - total_start_time_measure).count());
 #endif
 
   return 0;
