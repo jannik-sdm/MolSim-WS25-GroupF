@@ -22,7 +22,7 @@ class Settings {
   /** @brief Path to folder to write output files to */
   std::filesystem::path outputFolder;
   /** @brief Frequency of files writen \f$(iteration mod frequency = 0)\f$ */
-  unsigned int frequency;
+  unsigned int frequency = 10;
 
   /** @brief Time where the simulation starts */
   const double start_time = 0;
