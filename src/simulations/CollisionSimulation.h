@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "../Particle.h"
 #include "PlanetSimulation.h"
 
 class CollisionSimulation : public PlanetSimulation {

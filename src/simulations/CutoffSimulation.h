@@ -1,11 +1,10 @@
 //
 // Created by jannik on 11/23/25.
 //
+#pragma once
 
 #include "../LinkedCells/LinkedCells.h"
-#include "CollisionSimulation.h"
 
-#pragma once
 #include "Simulation.h"
 
 class CutoffSimulation : public Simulation {

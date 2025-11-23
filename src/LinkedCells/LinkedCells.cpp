@@ -6,11 +6,7 @@
 #include <spdlog/spdlog.h>
 
 
-LinkedCells::LinkedCells(double size_x, double size_y, double size_z, double cutoff) {
-  domain_size[0] = size_x;
-  domain_size[1] = size_y;
-  domain_size[2] = size_z;
-
+LinkedCells::LinkedCells(std::vector<Particle> &&particles, const Vector3 domain, const double cutoff) : particles(std::move(particles)), domain_size(domain) {
   // calculate number of cells
   numCellsX = (domain_size[0] + cutoff - 1) / cutoff;
   numCellsY = (domain_size[1] + cutoff - 1) / cutoff;
@@ -20,26 +16,32 @@ LinkedCells::LinkedCells(double size_x, double size_y, double size_z, double cut
   cellSizeX = domain_size[0] / numCellsX;
   cellSizeY = domain_size[1] / numCellsY;
   cellSizeZ = domain_size[2] / numCellsZ;
-  cell_size = {0,0,0 }; // TODO
+  cell_size = {cellSizeX, cellSizeY, cellSizeZ };
 
-  cells.resize((numCellsX + 2) * (numCellsY + 2) * (numCellsZ + 2));
+  // Reserve space for ghost cells
+  numCellsX += 2;
+  numCellsY += 2;
+  numCellsZ += 2;
+
+  cells.resize(numCellsX * numCellsY * numCellsZ);
 
   for (int i = 0; i < cells.size(); i++) {
     // check if cell should be ghost cell
     auto [x, y, z] = index1dToIndex3d(i);
-    if (x == 0 || y == 0 || z == 0 || x == numCellsX || y == numCellsY || z == numCellsZ) {
+    if (x == 0 || y == 0 || z == 0 || x == numCellsX - 1 || y == numCellsY - 1 || z == numCellsZ - 1) {
       cells[i].cell_type = CellType::GHOST;
     }
     // check if cell should be a border cell
-    else if (x == 1 || y == 1 || z == 1 || x == numCellsX - 1 || y == numCellsY - 1 || z == numCellsZ-1) {
+    else if (x == 1 || y == 1 || z == 1 || x == numCellsX - 2 || y == numCellsY - 2 || z == numCellsZ - 2) {
       cells[i].cell_type = CellType::BORDER;
     }
     // remaining cells are REGULAR by default
   }
 
   // add particles to the correct cell
-  for (auto p : particles) {
+  for (auto &p : this->particles) {
     auto [x, y, z] = p.getX();
+    spdlog::info("{} {} {}", x, y, z);
     const int cellIndex = coordinate3dToIndex1d(x, y, z);
 
     if (cellIndex < 0 || cellIndex >= cells.size()) {
@@ -47,6 +49,7 @@ LinkedCells::LinkedCells(double size_x, double size_y, double size_z, double cut
       continue;
     }
 
+    spdlog::info("Particle added to cell {}", cellIndex);
     cells[cellIndex].particles.push_back(&p);
   }
 }
@@ -62,7 +65,7 @@ std::array<int, 26> LinkedCells::getNeighbourCells(const int cellIndex) {
       for (int k = -1; k < 2; k++) {
         if (i == 0 && j == 0 && k == 0) continue;
 
-        int currentCellIndex = index3dToIndex1d(coordinates[0] + i, coordinates[1] + j, coordinates[2] + k);
+        const int currentCellIndex = index3dToIndex1d(coordinates[0] + i, coordinates[1] + j, coordinates[2] + k);
         result[index] = currentCellIndex;
         index++;
       }
@@ -83,13 +86,13 @@ std::array<int, 3> LinkedCells::index1dToIndex3d(const int cellIndex) {
   return coordinates;
 }
 
-int LinkedCells::index3dToIndex1d(const int x, const int y, const int z) { return x + numCellsY * y + numCellsX * numCellsY * z; }
+int LinkedCells::index3dToIndex1d(const int x, const int y, const int z) { return x + numCellsX * y + numCellsX * numCellsY * z; }
 
 std::array<int, 3> LinkedCells::coordinate3dToIndex3d(const double x, const double y, const double z) {
   std::array<int, 3> indexes;
-  indexes[0] = x / (numCellsX * cellSizeX);
-  indexes[1] = y / (numCellsY * cellSizeY);
-  indexes[2] = z / (numCellsZ * cellSizeZ);
+  indexes[0] = static_cast<int>(x / cellSizeX) + 1;
+  indexes[1] = static_cast<int>(y /cellSizeY) + 1;
+  indexes[2] = static_cast<int>(z / cellSizeZ) + 1;
   return indexes;
 }
 

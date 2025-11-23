@@ -22,24 +22,25 @@
  *
  * If ENABLE_VTK_OUTPUT is set, this function creates a vtk-file. Otherwise it creates a xyz-file
  */
-void plotParticles(int iteration, std::filesystem::path outputFolder);
+void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder);
 
 ParticleContainer particleContainer;
 
 int main(int argc, char *argsv[]) {
   // https://github.com/gabime/spdlog
-
+  /*
   spdlog::init_thread_pool(8192, 1);
   // Create Sinks
   auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
   auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(
-      "logs/log.txt", true /*überschreibt File, falls schon existend*/);
+      "logs/log.txt", true );
   // Create Logger
   std::vector<spdlog::sink_ptr> sinks{stdout_sink, file_sink};
   auto async_logger = std::make_shared<spdlog::async_logger>(
       "async_logger", sinks.begin(), sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block);
   // Set Defaults
   spdlog::set_default_logger(async_logger);
+  */
 
   spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
   Settings settings = Settings(argc, argsv, particleContainer.particles);
@@ -73,6 +74,7 @@ int main(int argc, char *argsv[]) {
 
     // select simulation
     std::unique_ptr<Simulation> simulation = nullptr;
+    std::vector<Particle> &plotted = particleContainer.particles;
 
     switch (settings.worksheet) {
       case 1:
@@ -85,8 +87,8 @@ int main(int argc, char *argsv[]) {
 
       case 3:
       default:
-        LinkedCells linked_cells = LinkedCells(settings.domain[0], settings.domain[1], settings.domain[2], settings.cutoff_radius);
-        linked_cells.particles = std::move(particleContainer.particles);
+        LinkedCells linked_cells = LinkedCells(std::move(particleContainer.particles), settings.domain, settings.cutoff_radius);
+        plotted = linked_cells.particles;
         simulation = std::make_unique<CutoffSimulation>(linked_cells, settings.end_time, settings.delta_t, settings.cutoff_radius);
     };
 
@@ -99,7 +101,7 @@ int main(int argc, char *argsv[]) {
       iteration++;
 
       if (iteration % settings.frequency == 0) {
-        plotParticles(iteration, settings.outputFolder);
+        plotParticles(plotted, iteration, settings.outputFolder);
       }
       spdlog::trace("Iteration {} finished.", iteration);
 
@@ -119,11 +121,11 @@ int main(int argc, char *argsv[]) {
   return 0;
 }
 
-void plotParticles(int iteration, std::filesystem::path outputFolder) {
+void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder) {
 #ifdef ENABLE_VTK_OUTPUT
   outputWriter::VTKWriter writer;
 #else
   outputWriter::XYZWriter writer;
 #endif
-  writer.plotParticles(particleContainer.particles, outputFolder, iteration);
+  writer.plotParticles(particles, outputFolder, iteration);
 }

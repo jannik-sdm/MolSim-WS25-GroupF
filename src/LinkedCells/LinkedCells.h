@@ -2,6 +2,8 @@
 // Created by jv_fedora on 19.11.25.
 //
 
+#pragma once
+
 #include <array>
 #include <vector>
 
@@ -50,14 +52,6 @@ Describes how many cells the overall structure has in Z-direction   */
   double cellSizeY;
   double cellSizeZ;
 
-  /**
-   * Determines the dimensions of one the cells in the simulation based on the cutoff radius
-   * and the domain size, such that the cells fit into the domain without a remainder.
-   * @param cutoff cutoff-radius set in the simulation
-   * @return array of size 3: <size_x, size_y, size_z>
-   */
-  std::array<double, 3> calculateCellSize(const double cutoff);
-
  public:
   /**
    * Initializes the variables and cells with their cell-type and adds the respective particles to the cell
@@ -66,7 +60,7 @@ Describes how many cells the overall structure has in Z-direction   */
    * @param size_z domain size in z direction
    * @param cutoff cutoff radius set in the simluation
    */
-  LinkedCells(double size_x, double size_y, double size_z, double cutoff);
+  LinkedCells(std::vector<Particle> &&particles, const Vector3 domain, const double cutoff);
   /**
    * Finds the neighbour-cells of the given cell and returns their cell-array indexes
    * @param cellIndex 1D cell index of the current cell
@@ -92,7 +86,7 @@ Describes how many cells the overall structure has in Z-direction   */
    */
   int coordinate3dToIndex1d(double x, double y, double z);
 
-  int coordinate3dToIndex1d(const Vector3 x) { return coordinate3dToIndex1d(x[0], x[1], x[2]); }
+  int coordinate3dToIndex1d(const Vector3 &x) { return coordinate3dToIndex1d(x[0], x[1], x[2]); }
 
   std::array<int, 3> coordinate3dToIndex3d(double x, double y, double z);
 };
