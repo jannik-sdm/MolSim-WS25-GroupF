@@ -76,10 +76,13 @@ int main(int argc, char *argsv[]) {
   spdlog::info("output path/name = {}", settings.outputFolder.string());
 
 #ifdef ENABLE_TIME_MEASURE
-  // Source for duration measurement- https://stackoverflow.com/a/19312610
-  auto start_time_measure = std::chrono::high_resolution_clock::now();
+  auto total_start_time_measure = std::chrono::high_resolution_clock::now();
+
   for (int i = 0; i < ENABLE_TIME_MEASURE; i++) {
 #endif
+
+    // Source for duration measurement- https://stackoverflow.com/a/19312610
+    auto start_time_measure = std::chrono::high_resolution_clock::now();
 
     // select simulation
     std::unique_ptr<Simulation> simulation = nullptr;
@@ -116,15 +119,18 @@ int main(int argc, char *argsv[]) {
 
       current_time += settings.delta_t;
     }
+    spdlog::info("output written. Terminating...");
+    auto end_time_measure = std::chrono::high_resolution_clock::now();
+    spdlog::info("Program has been running for {} ms",
+                 std::chrono::duration_cast<std::chrono::milliseconds>(end_time_measure - start_time_measure).count());
 
 #ifdef ENABLE_TIME_MEASURE
   }
-  spdlog::info("output written. Terminating...");
-  auto end_time_measure = std::chrono::high_resolution_clock::now();
 
-  spdlog::info("Program has been running for {} ms", std::chrono::duration_cast<std::chrono::milliseconds>(
-                                                         (end_time_measure - start_time_measure) / ENABLE_TIME_MEASURE)
-                                                         .count());
+  auto total_end_time_measure = std::chrono::high_resolution_clock::now();
+  spdlog::info(
+      "Total runtime: {}ms",
+      std::chrono::duration_cast<std::chrono::milliseconds>(total_end_time_measure - total_start_time_measure).count());
 #endif
 
   return 0;
