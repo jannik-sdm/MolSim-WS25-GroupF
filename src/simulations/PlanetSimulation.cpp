@@ -13,14 +13,14 @@ PlanetSimulation::PlanetSimulation(ParticleContainer &container, const double en
     : particleContainer(container), end_time(end_time), delta_t(delta_t) {}
 void PlanetSimulation::iteration() {
   // calculate new x
-  calculateX();
+  updateX();
   // calculate new f
-  calculateF();
+  updateF();
   // calculate new v
-  calculateV();
+  updateV();
 }
 
-void PlanetSimulation::calculateF() {
+void PlanetSimulation::updateF() {
   for (auto &p : particleContainer) p.setF({0, 0, 0});
   for (auto [p1, p2] : particleContainer.pairs()) {
     Vector3 f = Physics::planetForce(p1, p2);
@@ -30,13 +30,13 @@ void PlanetSimulation::calculateF() {
   }
 }
 
-void PlanetSimulation::calculateX() {
+void PlanetSimulation::updateX() {
   for (auto &p : particleContainer) {
     p.setX(Physics::calculateX(p, delta_t));
   }
 }
 
-void PlanetSimulation::calculateV() {
+void PlanetSimulation::updateV() {
   for (auto &p : particleContainer) {
     p.setV(Physics::calculateV(p, delta_t));
   }

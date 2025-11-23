@@ -8,34 +8,34 @@
  * Cell Type
  * REGULAR = Cell
  */
-enum cell_type {
+enum CellType {
   REGULAR,
-  EDGE,
+  BORDER,
   GHOST
 };
 
+// TODO: add enum for type of the cell to handle what happens when particle leaves the cell (outflow, reflectie, periodic)
+
 class Cell {
-  private:
-  /**
-   * Data structure which contains all particles of this cell
+public:
+    /**
+   * Vector that contains pointers to all particles currently in the cell
    */
-  ParticleContainer particleContainer;
+  std::vector<Particle*> particles;
 
    /**
     * Describes, if it is an inner cell (regular), an edge cell or a ghost cell
     */
-  cell_type particleType;
+  CellType cell_type;
 
 
-public:
-
-  Cell (ParticleContainer particleContainer, cell_type particleType);
+  Cell (ParticleContainer particleContainer, CellType type);
 
   // default constructur:
-  Cell() : particleType(REGULAR) {}
+  Cell() : cell_type(REGULAR) {}
 
-  cell_type getParticleType();
-  ParticleContainer getParticleContainer ();
+  CellType getCellType();
+  std::vector<Particle*> getParticles();
   bool inContainer(Particle particle);
 
 

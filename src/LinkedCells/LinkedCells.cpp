@@ -3,35 +3,97 @@
 //
 
 #include "LinkedCells.h"
+#include <spdlog/spdlog.h>
 
-std::array<double, 3> LinkedCells::calculateCellSize(double cutoff) {
-  numCellsX = domain_size[0] / cutoff;
-  numCellsY = domain_size[1] / cutoff;
-  // numCellsZ = domain_size[2] / cutoff;
 
-  // TODO: change z length from zero to real length
-  return {domain_size[0] / numCellsX, domain_size[1] / numCellsY, 0};
+LinkedCells::LinkedCells(double size_x, double size_y, double size_z, double cutoff) {
+  domain_size[0] = size_x;
+  domain_size[1] = size_y;
+  domain_size[2] = size_z;
+
+  // calculate number of cells
+  numCellsX = (domain_size[0] + cutoff - 1) / cutoff;
+  numCellsY = (domain_size[1] + cutoff - 1) / cutoff;
+  numCellsZ = (domain_size[2] + cutoff - 1) / cutoff;
+
+  // calculate cell-size dimensions
+  cellSizeX = domain_size[0] / numCellsX;
+  cellSizeY = domain_size[1] / numCellsY;
+  cellSizeZ = domain_size[2] / numCellsZ;
+  cell_size = {0,0,0 }; // TODO
+
+  cells.resize((numCellsX + 2) * (numCellsY + 2) * (numCellsZ + 2));
+
+  for (int i = 0; i < cells.size(); i++) {
+    // check if cell should be ghost cell
+    auto [x, y, z] = index1dToIndex3d(i);
+    if (x == 0 || y == 0 || z == 0 || x == numCellsX || y == numCellsY || z == numCellsZ) {
+      cells[i].cell_type = CellType::GHOST;
+    }
+    // check if cell should be a border cell
+    else if (x == 1 || y == 1 || z == 1 || x == numCellsX - 1 || y == numCellsY - 1 || z == numCellsZ-1) {
+      cells[i].cell_type = CellType::BORDER;
+    }
+    // remaining cells are REGULAR by default
+  }
+
+  // add particles to the correct cell
+  for (auto p : particles) {
+    auto [x, y, z] = p.getX();
+    const int cellIndex = coordinate3dToIndex1d(x, y, z);
+
+    if (cellIndex < 0 || cellIndex >= cells.size()) {
+      spdlog::error("Particle out of domain");
+      continue;
+    }
+
+    cells[cellIndex].particles.push_back(&p);
+  }
 }
 
-void LinkedCells::getNeighbourCells(int cellIndex, std::array<Cell, 9> &neighbourCells) {
-  std::array<int, 2> coordinates;
-  getCellCoordinates(cellIndex, coordinates);
+std::array<int, 26> LinkedCells::getNeighbourCells(const int cellIndex) {
+  std::array<int, 26> result;
+
+  const std::array<int, 3> coordinates = index1dToIndex3d(cellIndex);
+
   int index = 0;
   for (int i = -1; i < 2; i++) {
     for (int j = -1; j < 2; j++) {
-      int currentCellIndex = getCellIndex(coordinates[0]+i, coordinates[1] + j, 0);
-      neighbourCells[index] = cells[currentCellIndex];
-      index++;
+      for (int k = -1; k < 2; k++) {
+        if (i == 0 && j == 0 && k == 0) continue;
+
+        int currentCellIndex = index3dToIndex1d(coordinates[0] + i, coordinates[1] + j, coordinates[2] + k);
+        result[index] = currentCellIndex;
+        index++;
+      }
     }
   }
- }
 
-void LinkedCells::getCellCoordinates(int cellIndex, std::array<int, 2> &coordinates) {
-  coordinates[0] = cellIndex % numCellsX;
-  coordinates[1] = cellIndex / numCellsX;
+  return result;
 }
 
-int LinkedCells::getCellIndex(double x, double y, double z) {
-  // number of cells per line * how many lines we skipped in y direction + index in x direction
-   return numCellsX * (y / cell_size[1]) + (x / cell_size[0]);
- }
+std::array<int, 3> LinkedCells::index1dToIndex3d(const int cellIndex) {
+  std::array<int, 3> coordinates;
+  const int rem = cellIndex % (numCellsX * numCellsY);
+
+  coordinates[0] = rem % numCellsX;
+  coordinates[1] = rem / numCellsX;
+  coordinates[2] = cellIndex / (numCellsX * numCellsY);
+
+  return coordinates;
+}
+
+int LinkedCells::index3dToIndex1d(const int x, const int y, const int z) { return x + numCellsY * y + numCellsX * numCellsY * z; }
+
+std::array<int, 3> LinkedCells::coordinate3dToIndex3d(const double x, const double y, const double z) {
+  std::array<int, 3> indexes;
+  indexes[0] = x / (numCellsX * cellSizeX);
+  indexes[1] = y / (numCellsY * cellSizeY);
+  indexes[2] = z / (numCellsZ * cellSizeZ);
+  return indexes;
+}
+
+int LinkedCells::coordinate3dToIndex1d(const double x, const double y, const double z) {
+  std::array<int, 3> index3d = coordinate3dToIndex3d(x, y, z);
+  return index3dToIndex1d(index3d[0], index3d[1], index3d[2]);
+}

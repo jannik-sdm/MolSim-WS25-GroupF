@@ -17,7 +17,7 @@ CollisionSimulation::CollisionSimulation(ParticleContainer &container, const dou
   }
 }
 
-void CollisionSimulation::calculateF() {
+void CollisionSimulation::updateF() {
   for (auto &p : particleContainer) p.setF({0, 0, 0});
   for (auto [p1, p2] : particleContainer.pairs()) {
     Vector3 f = Physics::lennardJonesForce(p1, p2, sigma, epsilon);
