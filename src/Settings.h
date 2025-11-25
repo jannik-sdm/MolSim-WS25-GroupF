@@ -37,9 +37,6 @@ class Settings {
   /** @brief Domain */
   Vector3 domain = {1, 1, 1};
 
-  /** @brief Domain */
-  Vector3 domain = {1, 1, 1};
-
   /** @brief Log level for console/file output */
   spdlog::level::level_enum log_level = spdlog::level::info;
 
