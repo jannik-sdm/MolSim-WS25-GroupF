@@ -8,7 +8,7 @@
 
 class CollisionSimulation : public PlanetSimulation {
  public:
-  CollisionSimulation(ParticleContainer &container, double end_time, double delta_t);
+  CollisionSimulation(std::vector<Particle> &particles, double end_time, double delta_t);
   /**
    * @brief calculate the force for all particles
    *

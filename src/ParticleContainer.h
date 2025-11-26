@@ -112,7 +112,9 @@ class ParticleContainer {
   /**
    * Data structure for storing the particles
    */
-  std::vector<Particle> particles;
+  std::vector<Particle> &particles;
+
+  ParticleContainer(std::vector<Particle> &p) : particles(p) {}
 
   /**
    * @brief Proxy for `std::vector begin()`

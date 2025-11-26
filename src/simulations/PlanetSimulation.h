@@ -9,14 +9,14 @@
 
 class PlanetSimulation : public Simulation {
  public:
-  PlanetSimulation(ParticleContainer &container, double end_time, double delta_t);
+  PlanetSimulation(std::vector<Particle> &particles, double end_time, double delta_t);
   /**
    * Calculates one timestep of the simulation and applies the changes to the particles.
    */
   void iteration() override;
 
  protected:
-  ParticleContainer &particleContainer;
+  ParticleContainer particleContainer;
   const double end_time;
   const double delta_t;
 

@@ -6,7 +6,7 @@
 #include <spdlog/spdlog.h>
 
 
-LinkedCells::LinkedCells(std::vector<Particle> &&particles, const Vector3 domain, const double cutoff) : particles(std::move(particles)), domain_size(domain) {
+LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff) : particles(particles), domain_size(domain) {
   // calculate number of cells
   numCellsX = (domain_size[0] + cutoff - 1) / cutoff;
   numCellsY = (domain_size[1] + cutoff - 1) / cutoff;
@@ -39,7 +39,7 @@ LinkedCells::LinkedCells(std::vector<Particle> &&particles, const Vector3 domain
   }
 
   // add particles to the correct cell
-  for (auto &p : this->particles) {
+  for (auto &p : particles) {
     auto [x, y, z] = p.getX();
     spdlog::info("{} {} {}", x, y, z);
     const int cellIndex = coordinate3dToIndex1d(x, y, z);

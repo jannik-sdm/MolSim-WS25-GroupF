@@ -130,6 +130,8 @@ class Particle {
 
   void setV(const Vector3 &new_v);
 
+  void setType(int new_type) { type = new_type; }
+
   bool operator==(Particle &other);
 
   std::string toString() const;

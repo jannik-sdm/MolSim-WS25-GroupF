@@ -4,6 +4,7 @@
  */
 #include <chrono>
 #include <iostream>
+#include <memory>
 
 #include "ParticleContainer.h"
 #include "Settings.h"
@@ -49,11 +50,11 @@ void initializeLogging() {
 
 }
 
-ParticleContainer particleContainer;
-
 int main(int argc, char *argsv[]) {
   initializeLogging();
-  Settings settings = Settings(argc, argsv, particleContainer.particles);
+
+  std::vector<Particle> input_particles;
+  Settings settings = Settings(argc, argsv, input_particles);
 
   if (settings.isHelp()) {
     Settings::printHelp();
@@ -63,7 +64,7 @@ int main(int argc, char *argsv[]) {
     exit(EXIT_FAILURE);
   }
 
-  if (particleContainer.particles.empty()) {
+  if (input_particles.empty()) {
     spdlog::warn("No particles to simulate");
     exit(EXIT_SUCCESS);
   }
@@ -87,22 +88,19 @@ int main(int argc, char *argsv[]) {
 
     // select simulation
     std::unique_ptr<Simulation> simulation = nullptr;
-    std::vector<Particle> &plotted = particleContainer.particles;
 
     switch (settings.worksheet) {
       case 1:
-        simulation = std::make_unique<PlanetSimulation>(particleContainer, settings.end_time, settings.delta_t);
+        simulation = std::make_unique<PlanetSimulation>(input_particles, settings.end_time, settings.delta_t);
         break;
 
       case 2:
-        simulation = std::make_unique<CollisionSimulation>(particleContainer, settings.end_time, settings.delta_t);
+        simulation = std::make_unique<CollisionSimulation>(input_particles, settings.end_time, settings.delta_t);
         break;
 
       case 3:
       default:
- LinkedCells linked_cells = LinkedCells(std::move(particleContainer.particles), settings.domain, settings.cutoff_radius);
-        plotted = linked_cells.particles;
-        simulation = std::make_unique<CutoffSimulation>(linked_cells, settings.end_time, settings.delta_t, settings.cutoff_radius);
+        simulation = std::make_unique<CutoffSimulation>(input_particles, settings.domain, settings.end_time, settings.delta_t, settings.cutoff_radius);
     };
 
     double current_time = settings.start_time;
@@ -114,7 +112,7 @@ int main(int argc, char *argsv[]) {
       iteration++;
 
       if (iteration % settings.frequency == 0) {
-        plotParticles(plotted, iteration, settings.outputFolder);
+        plotParticles(input_particles, iteration, settings.outputFolder);
       }
       spdlog::info("Iteration {} finished.", iteration);
 
