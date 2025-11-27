@@ -51,7 +51,7 @@ void CutoffSimulation::updateF() {
   // Calculate forces with neighbour cells
   for (int i = 0; i < linkedCells.cells.size(); i++) {
     auto &c1 = linkedCells.cells[i];
-
+    //if (c1.cell_type == CellType::GHOST) continue;
     std::array<int, 26> neighbourCellsIndex = linkedCells.getNeighbourCells(i);
     for (const int j : neighbourCellsIndex) {
       if (j < i) continue; // Skip same pairs
@@ -102,8 +102,30 @@ void CutoffSimulation::moveParticles() {
 
       spdlog::trace("Moving particle from cell {} to cell {}", k, i);
       Cell &newCell = linkedCells.cells[k];
-      if (newCell.cell_type != CellType::GHOST)
+      if (newCell.cell_type != CellType::GHOST) {
         newCell.particles.push_back(p);
+        /*
+        if (newCell.cell_type == CellType::BORDER){
+          //Create Ghost Particles for every Particle in a Border Cell
+          for (int l = 0; l < 6; l++) {
+            if (newCell.borders[l] != REFLECTION) continue;
+
+            //X of ghost Particle
+            Vector3 ghostParticleX = cell.particles[j]->getX();
+            double deltaBorder = linkedCells.getBorderDistance(k, l, ghostParticleX);
+            ghostParticleX[l%3] += (l < 3) ? -deltaBorder: deltaBorder;
+            //V of ghost Particle
+            Vector3 ghostParticleV = cell.particles[j]->getV();
+            ghostParticleV[l%3] *= -1;
+            //Save ghost Particle
+            spdlog::debug("Added Ghost Particle with coordinates ({}, {}, {}) ", ghostParticleX[0], ghostParticleX[1], ghostParticleX[2]);
+            int ghostCellIndex1d = linkedCells.coordinate3dToIndex1d(ghostParticleX);
+            linkedCells.cells[ghostCellIndex1d].ghostParticles.push_back( Particle(ghostParticleX, ghostParticleV, cell.particles[j]->getM(), 0));
+            linkedCells.cells[ghostCellIndex1d].particles.push_back(&linkedCells.cells[j].ghostParticles.back());
+          }
+
+        }*/
+      }
       else
         p->setType(-1); // mark particle as dead
 

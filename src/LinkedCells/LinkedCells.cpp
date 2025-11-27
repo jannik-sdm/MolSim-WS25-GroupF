@@ -34,6 +34,25 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
     // check if cell should be a border cell
     else if (x == 1 || y == 1 || z == 1 || x == numCellsX - 2 || y == numCellsY - 2 || z == numCellsZ - 2) {
       cells[i].cell_type = CellType::BORDER;
+      if (x == 1) {
+        cells[i].borders[0] = REFLECTION;
+      }
+      if (y == 1) {
+        cells[i].borders[1] = REFLECTION;
+      }
+      if (z == 1) {
+        cells[i].borders[2] = REFLECTION;
+      }
+      if (x == numCellsX - 2) {
+        cells[i].borders[3] = REFLECTION;
+      }
+      if (y == numCellsY - 2) {
+        cells[i].borders[4] = REFLECTION;
+      }
+      if (z == numCellsZ - 2) {
+        cells[i].borders[5] = REFLECTION;
+      }
+
     }
     // remaining cells are REGULAR by default
   }
@@ -99,4 +118,12 @@ std::array<int, 3> LinkedCells::coordinate3dToIndex3d(const double x, const doub
 int LinkedCells::coordinate3dToIndex1d(const double x, const double y, const double z) {
   std::array<int, 3> index3d = coordinate3dToIndex3d(x, y, z);
   return index3dToIndex1d(index3d[0], index3d[1], index3d[2]);
+}
+
+double LinkedCells::getBorderDistance(const int cellIndex, const int border, Vector3 pos) {
+  std::array<int, 3> cellIndex3d = this->index1dToIndex3d(cellIndex);
+  double boarderWall = cellIndex3d[border%3]*cellIndex3d[border%3];
+  boarderWall += (border < 3) ? 0 : cell_size[border % 3];
+  return  std::abs(pos[border % 3]-boarderWall);
+
 }
