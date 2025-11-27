@@ -3,15 +3,20 @@
 //
 #include "CutoffSimulation.h"
 
+#include <spdlog/spdlog.h>
 #include <unistd.h>
 
-#include "Physics.h"
 #include "../utils/ArrayUtils.h"
 #include "../utils/MaxwellBoltzmannDistribution.h"
-#include <spdlog/spdlog.h>
+#include "Physics.h"
 
-CutoffSimulation::CutoffSimulation(std::vector<Particle> &particles, Vector3 dimension, double end_time, double delta_t, double cutoffRadius)
-    : end_time(end_time), delta_t(delta_t), cutoffRadius(cutoffRadius), linkedCells(particles, dimension, cutoffRadius), particles(particles) {
+CutoffSimulation::CutoffSimulation(std::vector<Particle> &particles, Vector3 dimension, double end_time, double delta_t,
+                                   double cutoffRadius)
+    : end_time(end_time),
+      delta_t(delta_t),
+      cutoffRadius(cutoffRadius),
+      linkedCells(particles, dimension, cutoffRadius),
+      particles(particles) {
   initializeBrownianMotion();
 }
 
@@ -36,17 +41,15 @@ void CutoffSimulation::updateF() {
 
         if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoffRadius) continue;
 
-        //spdlog::warn("{} <-> {}", p1->toString(), p2->toString());
+        // spdlog::warn("{} <-> {}", p1->toString(), p2->toString());
         Vector3 f = Physics::lennardJonesForce(*p1, *p2, sigma, epsilon);
-        //spdlog::warn("{} <-> {}", p1->toString(), p2->toString());
-        //spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
+        // spdlog::warn("{} <-> {}", p1->toString(), p2->toString());
+        // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
         p1->addF(f);
         p2->subF(f);
       }
     }
   }
-
-
 
   // Calculate forces with neighbour cells
   for (int i = 0; i < linkedCells.cells.size(); i++) {
@@ -54,16 +57,16 @@ void CutoffSimulation::updateF() {
 
     std::array<int, 26> neighbourCellsIndex = linkedCells.getNeighbourCells(i);
     for (const int j : neighbourCellsIndex) {
-      if (j < i) continue; // Skip same pairs
+      if (j < i) continue;  // Skip same pairs
 
       auto &c2 = linkedCells.cells[j];
 
       for (const auto p1 : c1.particles) {
-        for (const auto p2: c2.particles) {
+        for (const auto p2 : c2.particles) {
           if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoffRadius) continue;
 
           Vector3 f = Physics::lennardJonesForce(*p1, *p2, sigma, epsilon);
-          //spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
+          // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
           p1->addF(f);
           p2->subF(f);
         }
@@ -105,7 +108,7 @@ void CutoffSimulation::moveParticles() {
       if (newCell.cell_type != CellType::GHOST)
         newCell.particles.push_back(p);
       else
-        p->setType(-1); // mark particle as dead
+        p->setType(-1);  // mark particle as dead
 
       // erase p from cell[i]
       cell.particles[j] = cell.particles.back();
@@ -117,7 +120,7 @@ void CutoffSimulation::moveParticles() {
 }
 
 void CutoffSimulation::initializeBrownianMotion() {
-  for (auto &p: linkedCells.particles) {
+  for (auto &p : linkedCells.particles) {
     p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, 2));
   }
 }

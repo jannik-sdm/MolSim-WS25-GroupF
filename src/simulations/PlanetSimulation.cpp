@@ -10,8 +10,7 @@
 #include "Simulation.h"
 
 PlanetSimulation::PlanetSimulation(std::vector<Particle> &particles, const double end_time, const double delta_t)
-    : particleContainer(particles), end_time(end_time), delta_t(delta_t) {
-}
+    : particleContainer(particles), end_time(end_time), delta_t(delta_t) {}
 
 void PlanetSimulation::iteration() {
   // calculate new x

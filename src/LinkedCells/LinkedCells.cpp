@@ -3,10 +3,11 @@
 //
 
 #include "LinkedCells.h"
+
 #include <spdlog/spdlog.h>
 
-
-LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff) : particles(particles), domain_size(domain) {
+LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff)
+    : particles(particles), domain_size(domain) {
   // calculate number of cells
   numCellsX = (domain_size[0] + cutoff - 1) / cutoff;
   numCellsY = (domain_size[1] + cutoff - 1) / cutoff;
@@ -16,7 +17,7 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
   cellSizeX = domain_size[0] / numCellsX;
   cellSizeY = domain_size[1] / numCellsY;
   cellSizeZ = domain_size[2] / numCellsZ;
-  cell_size = {cellSizeX, cellSizeY, cellSizeZ };
+  cell_size = {cellSizeX, cellSizeY, cellSizeZ};
 
   // Reserve space for ghost cells
   numCellsX += 2;
@@ -86,12 +87,14 @@ std::array<int, 3> LinkedCells::index1dToIndex3d(const int cellIndex) {
   return coordinates;
 }
 
-int LinkedCells::index3dToIndex1d(const int x, const int y, const int z) { return x + numCellsX * y + numCellsX * numCellsY * z; }
+int LinkedCells::index3dToIndex1d(const int x, const int y, const int z) {
+  return x + numCellsX * y + numCellsX * numCellsY * z;
+}
 
 std::array<int, 3> LinkedCells::coordinate3dToIndex3d(const double x, const double y, const double z) {
   std::array<int, 3> indexes;
   indexes[0] = static_cast<int>(x / cellSizeX) + 1;
-  indexes[1] = static_cast<int>(y /cellSizeY) + 1;
+  indexes[1] = static_cast<int>(y / cellSizeY) + 1;
   indexes[2] = static_cast<int>(z / cellSizeZ) + 1;
   return indexes;
 }
