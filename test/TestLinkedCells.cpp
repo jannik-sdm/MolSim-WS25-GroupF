@@ -11,34 +11,18 @@
 
 #include "utils/ArrayUtils.h"
 
-// Define a Fixture to reduce code duplication
-TestLinkedCells::TestLinkedCells() {
-    // Helper to create a LinkedCells object with specific parameters
-    // Domain: 3.0 x 3.0 x 3.0
-    // Cutoff: 1.0
-    // Expected Inner Grid: 3x3x3
-    // Expected Total Grid (with ghosts): 5x5x5 = 125 cells
-    std::unique_ptr<LinkedCells> createTestContainer(std::vector<Particle> particles) {
-        Vector3 domain = {3.0, 3.0, 3.0};
-        double cutoff = 1.0;
-        return std::make_unique<LinkedCells>(std::move(particles), domain, cutoff);
-    }
-};
 
-/**
+
+/***
  * @brief Checks if the grid dimensions are calculated correctly including Ghost Layers.
  * Domain 3x3x3, Cutoff 1.0 -> 3 inner cells.
  * Ghost layers +2 -> 5 total cells per dimension.
  * Total cells = 5 * 5 * 5 = 125.
  */
-TEST_F(LinkedCellsTest, GridDimensionsCalculation) {
-    std::vector<Particle> particles;
-    auto container = createTestContainer(std::move(particles));
-
+TEST_F(TestLinkedCells, GridDimensionsCalculation) {
     EXPECT_EQ(container->cells.size(), 125);
 
-    // Check specific dimension variables if accessible
-    // EXPECT_EQ(container->numCellsX, 5);
+    EXPECT_EQ(container->numCellsX, 5);
 }
 
 /**
@@ -48,9 +32,7 @@ TEST_F(LinkedCellsTest, GridDimensionsCalculation) {
  * - 1 and 3 are BORDER
  * - 2 is REGULAR (Inner)
  */
-TEST_F(LinkedCellsTest, CellTypeAssignment) {
-    std::vector<Particle> particles;
-    auto container = createTestContainer(std::move(particles));
+TEST_F(TestLinkedCells, CellTypeAssignment) {
 
     // 1. Check a Ghost Cell (0, 0, 0)
     int ghostIdx = container->index3dToIndex1d(0, 0, 0);
@@ -73,10 +55,7 @@ TEST_F(LinkedCellsTest, CellTypeAssignment) {
  * @brief Tests the mapping from a Coordinate (double) to a 1D Index (int).
  * Critical for placing particles correctly.
  */
-TEST_F(LinkedCellsTest, CoordinateToIndexMapping) {
-    std::vector<Particle> particles;
-    auto container = createTestContainer(std::move(particles));
-
+TEST_F(TestLinkedCells, CoordinateToIndexMapping) {
     // Domain starts at 0.0. Cell size is 1.0.
     // Index 0 is Ghost. Index 1 is Real 0.0 to 1.0.
 
@@ -93,14 +72,11 @@ TEST_F(LinkedCellsTest, CoordinateToIndexMapping) {
     EXPECT_EQ(idx2, expected2);
 }
 
-/**
+/***
  * @brief Tests 3D to 1D index conversion arithmetic.
  * x + dimX*y + dimX*dimY*z
  */
-TEST_F(LinkedCellsTest, IndexArithmetic) {
-    std::vector<Particle> particles;
-    auto container = createTestContainer(std::move(particles));
-
+TEST_F(TestLinkedCells, IndexArithmetic) {
     // Stride X should be 5
     // Stride Y should be 5
     // Index (1, 2, 3) = 1 + (5*2) + (25*3) = 1 + 10 + 75 = 86
@@ -112,10 +88,7 @@ TEST_F(LinkedCellsTest, IndexArithmetic) {
  * @brief Tests the Loop logic within getNeighbourCells.
  * Ensure it retrieves 26 neighbours.
  */
-TEST_F(LinkedCellsTest, NeighborSearch) {
-    std::vector<Particle> particles;
-    auto container = createTestContainer(std::move(particles));
-
+TEST_F(TestLinkedCells, NeighborSearch) {
     // Pick the center cell (2, 2, 2)
     int centerIdx = container->index3dToIndex1d(2, 2, 2);
 
@@ -140,18 +113,7 @@ TEST_F(LinkedCellsTest, NeighborSearch) {
 /**
  * @brief Tests that particles passed to constructor end up in the vector of the correct cell.
  */
-TEST_F(LinkedCellsTest, ParticleBinning) {
-    std::vector<Particle> particles;
-    // P1 at 0.5 -> Cell (1,1,1)
-    Particle p1({0.5, 0.5, 0.5}, {0,0,0}, 1, 0);
-    // P2 at 2.5 -> Cell (3,3,3)
-    Particle p2({2.5, 2.5, 2.5}, {0,0,0}, 1, 0);
-
-    particles.push_back(p1);
-    particles.push_back(p2);
-
-    auto container = createTestContainer(std::move(particles));
-
+TEST_F(TestLinkedCells, ParticleBinning) {
     // Check Cell 1 (1,1,1)
     int cell1Index = container->index3dToIndex1d(1, 1, 1);
     EXPECT_EQ(container->cells[cell1Index].particles.size(), 1);
