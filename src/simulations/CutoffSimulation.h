@@ -3,9 +3,9 @@
 //
 #pragma once
 
+#include <memory>
 
 #include "../LinkedCells/LinkedCells.h"
-#include <memory>
 #include "Simulation.h"
 
 class CutoffSimulation : public Simulation {
@@ -20,7 +20,8 @@ class CutoffSimulation : public Simulation {
   std::vector<Particle> &particles;
 
  public:
-  CutoffSimulation(std::vector<Particle> &particles, Vector3 dimension, double end_time, double delta_t, double cutoffRadius);
+  CutoffSimulation(std::vector<Particle> &particles, Vector3 dimension, double end_time, double delta_t,
+                   double cutoffRadius);
 
   /**
    * Performes one iteration of the simulation by updating the force, position and velocity of each particle

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 
+#include "LinkedCells/LinkedCells.h"
 #include "ParticleContainer.h"
 #include "Settings.h"
 #include "outputWriter/VTKWriter.h"
@@ -17,7 +18,6 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks-inl.h"
 #include "spdlog/spdlog.h"
-#include "LinkedCells/LinkedCells.h"
 
 /**
  * @brief plot the particles to a xyz-file or to a vtk-file.
@@ -25,7 +25,6 @@
  * If ENABLE_VTK_OUTPUT is set, this function creates a vtk-file. Otherwise it creates a xyz-file
  */
 void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder);
-
 
 /**
  * @brief Initialize spdlog
@@ -47,7 +46,6 @@ void initializeLogging() {
   spdlog::set_default_logger(async_logger);
 
   spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
-
 }
 
 int main(int argc, char *argsv[]) {
@@ -100,7 +98,8 @@ int main(int argc, char *argsv[]) {
 
       case 3:
       default:
-        simulation = std::make_unique<CutoffSimulation>(input_particles, settings.domain, settings.end_time, settings.delta_t, settings.cutoff_radius);
+        simulation = std::make_unique<CutoffSimulation>(input_particles, settings.domain, settings.end_time,
+                                                        settings.delta_t, settings.cutoff_radius);
     };
 
     double current_time = settings.start_time;
