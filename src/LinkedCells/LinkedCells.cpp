@@ -3,10 +3,11 @@
 //
 
 #include "LinkedCells.h"
+
 #include <spdlog/spdlog.h>
 
-
-LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff) : particles(particles), domain_size(domain) {
+LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff)
+    : particles(particles), domain_size(domain) {
   // calculate number of cells
   numCellsX = (domain_size[0] + cutoff - 1) / cutoff;
   numCellsY = (domain_size[1] + cutoff - 1) / cutoff;
@@ -16,7 +17,7 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
   cellSizeX = domain_size[0] / numCellsX;
   cellSizeY = domain_size[1] / numCellsY;
   cellSizeZ = domain_size[2] / numCellsZ;
-  cell_size = {cellSizeX, cellSizeY, cellSizeZ };
+  cell_size = {cellSizeX, cellSizeY, cellSizeZ};
 
   // Reserve space for ghost cells
   numCellsX += 2;
@@ -34,7 +35,7 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
     // check if cell should be a border cell
     else if (x == 1 || y == 1 || z == 1 || x == numCellsX - 2 || y == numCellsY - 2 || z == numCellsZ - 2) {
       cells[i].cell_type = CellType::BORDER;
-      //Set Border Types
+      // Set Border Types
       if (x == 1) {
         cells[i].borders[0] = REFLECTION;
       }
@@ -53,7 +54,6 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
       if (z == numCellsZ - 2) {
         cells[i].borders[5] = REFLECTION;
       }
-
     }
     // remaining cells are REGULAR by default
   }
@@ -106,12 +106,14 @@ std::array<int, 3> LinkedCells::index1dToIndex3d(const int cellIndex) {
   return coordinates;
 }
 
-int LinkedCells::index3dToIndex1d(const int x, const int y, const int z) { return x + numCellsX * y + numCellsX * numCellsY * z; }
+int LinkedCells::index3dToIndex1d(const int x, const int y, const int z) {
+  return x + numCellsX * y + numCellsX * numCellsY * z;
+}
 
 std::array<int, 3> LinkedCells::coordinate3dToIndex3d(const double x, const double y, const double z) {
   std::array<int, 3> indexes;
   indexes[0] = static_cast<int>(x / cellSizeX) + 1;
-  indexes[1] = static_cast<int>(y /cellSizeY) + 1;
+  indexes[1] = static_cast<int>(y / cellSizeY) + 1;
   indexes[2] = static_cast<int>(z / cellSizeZ) + 1;
   return indexes;
 }
@@ -122,16 +124,17 @@ int LinkedCells::coordinate3dToIndex1d(const double x, const double y, const dou
 }
 
 double LinkedCells::getBorderDistance(const int cellIndex, const int border, Vector3 pos) {
-  //cellIndex is not needed, but since every function which calls this shoould have cellIndex, we can parse it, because it seems more efficient than calculating it
-  //get 3d index of the cell
+  // cellIndex is not needed, but since every function which calls this shoould have cellIndex, we can parse it, because
+  // it seems more efficient than calculating it get 3d index of the cell
   std::array<int, 3> cellIndex3d = this->index1dToIndex3d(cellIndex);
   // border 0, 3 -> x-direction, border 1,4 -> y-direction, border 2,5 -> z-direction
   int axis = border % 3;
-  // calculate position of the border wall (cellIndex -1, because coordinates (0,0,0) belong to cell with index3d (1,1,1))
-  double boarderWall = (cellIndex3d[axis]-1)*cell_size[axis];
+  // calculate position of the border wall (cellIndex -1, because coordinates (0,0,0) belong to cell with index3d
+  // (1,1,1)) add length of cells up to the the specified cells from either left to right, bottom to up or front to back
+  double boarderWall = (cellIndex3d[axis] - 1) * cell_size[axis];
   // 0,1,2 -> min-border, 3,4,5 -> max-border
+  // add length of the current cell if the back, up or right border is calculated
   boarderWall += (border < 3) ? 0 : cell_size[axis];
   spdlog::debug("cellIndex3d: {}, cell_size: {}, boarderWall: {}", cellIndex3d[axis], cell_size[axis], boarderWall);
-  return  std::abs(pos[axis]-boarderWall);
-
+  return std::abs(pos[axis] - boarderWall);
 }
