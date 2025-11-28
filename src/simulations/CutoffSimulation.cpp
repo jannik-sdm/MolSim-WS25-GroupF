@@ -117,7 +117,8 @@ void CutoffSimulation::moveParticles() {
           // border
           createGhostParticles(j, current_cell, k, new_cell);
         }
-      } else if (current_cell.cell_type == CellType::GHOST && new_cell.cell_type == CellType::REGULAR) {
+      } else if (current_cell.cell_type == CellType::GHOST) {
+        // if particles leaves a border cell we have to delete the ghost particles in
         // particle leaves a border cell and enters a regular cell
         // TODO: delete all ghost cells associated with this particle
       } else
