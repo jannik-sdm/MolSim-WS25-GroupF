@@ -25,7 +25,6 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::filesystem::path f
 
   if (simulation["domain"]) settings.domain = simulation["domain"].as<Vector3>();
 
-
   YAML::Node parts = config["particles"];
   for (auto p : parts) {
     if (p["cuboid"]) {
