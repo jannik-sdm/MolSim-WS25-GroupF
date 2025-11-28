@@ -1,5 +1,5 @@
 /**
- * @file ArrayMath.h
+ * @file ArrayUtils.h
  * @author F. Gratl
  * @date 12/13/19
  */
