@@ -41,6 +41,7 @@ class CutoffSimulation : public Simulation {
    */
   void updateV() override;
 
+  void createGhostParticles(int particle_index, Cell &current_cell, int current_cell_index, Cell &new_cell);
   void moveParticles();
 
   void initializeBrownianMotion();

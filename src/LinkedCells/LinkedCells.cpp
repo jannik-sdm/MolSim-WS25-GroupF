@@ -35,6 +35,25 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
     // check if cell should be a border cell
     else if (x == 1 || y == 1 || z == 1 || x == numCellsX - 2 || y == numCellsY - 2 || z == numCellsZ - 2) {
       cells[i].cell_type = CellType::BORDER;
+      // Set Border Types
+      if (x == 1) {
+        cells[i].borders[0] = REFLECTION;
+      }
+      if (y == 1) {
+        cells[i].borders[1] = REFLECTION;
+      }
+      if (z == 1) {
+        cells[i].borders[2] = REFLECTION;
+      }
+      if (x == numCellsX - 2) {
+        cells[i].borders[3] = REFLECTION;
+      }
+      if (y == numCellsY - 2) {
+        cells[i].borders[4] = REFLECTION;
+      }
+      if (z == numCellsZ - 2) {
+        cells[i].borders[5] = REFLECTION;
+      }
     }
     // remaining cells are REGULAR by default
   }
@@ -102,4 +121,20 @@ std::array<int, 3> LinkedCells::coordinate3dToIndex3d(const double x, const doub
 int LinkedCells::coordinate3dToIndex1d(const double x, const double y, const double z) {
   std::array<int, 3> index3d = coordinate3dToIndex3d(x, y, z);
   return index3dToIndex1d(index3d[0], index3d[1], index3d[2]);
+}
+
+double LinkedCells::getBorderDistance(const int cellIndex, const int border, Vector3 pos) {
+  // cellIndex is not needed, but since every function which calls this shoould have cellIndex, we can parse it, because
+  // it seems more efficient than calculating it get 3d index of the cell
+  std::array<int, 3> cellIndex3d = this->index1dToIndex3d(cellIndex);
+  // border 0, 3 -> x-direction, border 1,4 -> y-direction, border 2,5 -> z-direction
+  int axis = border % 3;
+  // calculate position of the border wall (cellIndex -1, because coordinates (0,0,0) belong to cell with index3d
+  // (1,1,1)) add length of cells up to the the specified cells from either left to right, bottom to up or front to back
+  double boarderWall = (cellIndex3d[axis] - 1) * cell_size[axis];
+  // 0,1,2 -> min-border, 3,4,5 -> max-border
+  // add length of the current cell if the back, up or right border is calculated
+  boarderWall += (border < 3) ? 0 : cell_size[axis];
+  spdlog::debug("cellIndex3d: {}, cell_size: {}, boarderWall: {}", cellIndex3d[axis], cell_size[axis], boarderWall);
+  return std::abs(pos[axis] - boarderWall);
 }
