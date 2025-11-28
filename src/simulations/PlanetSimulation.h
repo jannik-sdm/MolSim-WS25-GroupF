@@ -7,6 +7,16 @@
 #include "../ParticleContainer.h"
 #include "Simulation.h"
 
+/**
+ * @class PlanetSimulation
+ * @brief Simulation for Assignment 1
+ *
+ * This class calculates timesteps for a planet simulation.
+ *
+ * @see Physics::calculateV
+ * @see Physics::calculateX
+ * @see Physics::planetForce
+ */
 class PlanetSimulation : public Simulation {
  public:
   PlanetSimulation(ParticleContainer &container, double end_time, double delta_t);
@@ -16,8 +26,11 @@ class PlanetSimulation : public Simulation {
   void iteration() override;
 
  protected:
+  /** @brief Container for the particles */
   ParticleContainer &particleContainer;
+  /** @todo remove this variable, its unused */
   const double end_time;
+  /** @brief timestep used in calculations */
   const double delta_t;
 
   /**
