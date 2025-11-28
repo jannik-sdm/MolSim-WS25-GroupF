@@ -16,9 +16,13 @@ CutoffSimulation::CutoffSimulation(std::vector<Particle> &particles, Vector3 dim
 }
 
 void CutoffSimulation::iteration() {
+  spdlog::trace("Updating Positions");
   updateX();
+  spdlog::trace("Updating Forces");
   updateF();
+  spdlog::trace("Updating Velocities");
   updateV();
+  spdlog::trace("Moving Particles");
   moveParticles();
 }
 
@@ -118,13 +122,13 @@ void CutoffSimulation::moveParticles() {
             Vector3 ghostParticleV = cell.particles[j]->getV();
             ghostParticleV[l%3] *= -1;
             //Save ghost Particle
-            spdlog::debug("Added Ghost Particle with coordinates ({}, {}, {}) ", ghostParticleX[0], ghostParticleX[1], ghostParticleX[2]);
             int ghostCellIndex1d = linkedCells.coordinate3dToIndex1d(ghostParticleX);
+            spdlog::trace("Adding Ghost Particle with coordinates ({}, {}, {}) to Cell with index {}/{}", ghostParticleX[0], ghostParticleX[1], ghostParticleX[2], ghostCellIndex1d, linkedCells.cells.size());
             linkedCells.cells[ghostCellIndex1d].ghostParticles.push_back( Particle(ghostParticleX, ghostParticleV, cell.particles[j]->getM(), 0));
-            linkedCells.cells[ghostCellIndex1d].particles.push_back(&linkedCells.cells[j].ghostParticles.back());
+            linkedCells.cells[ghostCellIndex1d].particles.push_back(&linkedCells.cells[ghostCellIndex1d].ghostParticles.back());
           }
-
-        }*/
+        }
+          */
       }
       else
         p->setType(-1); // mark particle as dead

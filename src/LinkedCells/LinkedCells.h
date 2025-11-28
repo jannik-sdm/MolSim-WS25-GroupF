@@ -18,7 +18,7 @@ class LinkedCells {
   std::vector<Cell> cells;
 
   /**
-   * Vector that contains pointers to all particles of the simulation
+   * Reference to a Vector of all particles in the simulation
    */
   std::vector<Particle> &particles;
 
@@ -89,6 +89,14 @@ Describes how many cells the overall structure has in Z-direction   */
   int coordinate3dToIndex1d(const Vector3 &x) { return coordinate3dToIndex1d(x[0], x[1], x[2]); }
 
   std::array<int, 3> coordinate3dToIndex3d(double x, double y, double z);
+
+  /**
+   * Calculates the distance between a given position and a given border of a cell
+   * @param cellIndex1d 1D index of the cell
+   * @param border border number between 0 and 5 (border 0, 3 -> x-direction, border 1,4 -> y-direction, border 2,5 -> z-direction, 0,1,2 -> min-border, 3,4,5 -> max-border)
+   * @param pos position to calculate the distance to
+   * @return distance between the position and the border
+   */
 
   double getBorderDistance(int cellIndex1d, int border, Vector3 pos);
 };
