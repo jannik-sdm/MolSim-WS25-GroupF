@@ -66,6 +66,10 @@ TEST_F(TestLinkedCells, CoordinateToIndexMapping) {
   int idx2 = container->coordinate3dToIndex1d(1.5, 1.5, 1.5);
   int expected2 = container->index3dToIndex1d(2, 2, 2);
   EXPECT_EQ(idx2, expected2);
+
+  // Test 3: Coordinate -0.5 (inside cell 0)
+  int idx3 = container->coordinate3dToIndex1d(-0.5, -0.5, -0.5);
+  EXPECT_EQ(idx3, 0);
 }
 
 /***
