@@ -112,9 +112,9 @@ int LinkedCells::index3dToIndex1d(const int x, const int y, const int z) {
 
 std::array<int, 3> LinkedCells::coordinate3dToIndex3d(const double x, const double y, const double z) {
   std::array<int, 3> indexes;
-  indexes[0] = static_cast<int>(x / cellSizeX) + 1;
-  indexes[1] = static_cast<int>(y / cellSizeY) + 1;
-  indexes[2] = static_cast<int>(z / cellSizeZ) + 1;
+  indexes[0] = static_cast<int>(std::floor(x / cellSizeX)) + 1;
+  indexes[1] = static_cast<int>(std::floor(y / cellSizeY)) + 1;
+  indexes[2] = static_cast<int>(std::floor(z / cellSizeZ)) + 1;
   return indexes;
 }
 

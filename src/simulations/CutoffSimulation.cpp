@@ -66,23 +66,26 @@ void CutoffSimulation::updateF() {
     if (c1.cell_type == CellType::GHOST) continue;
     std::array<int, 26> neighbourCellsIndex = linkedCells.getNeighbourCells(i);
     for (const int j : neighbourCellsIndex) {
-      if (j < i) continue;  // Skip same pairs
-
       auto &c2 = linkedCells.cells[j];
+      // newton optimization, but ONLY if c2 is not a Ghost cell, because if this calculation is skipped, particles are
+      // not repulsed
+      if (j < i && c2.cell_type != CellType::GHOST) continue;
 
       for (const auto p1 : c1.particles) {
         // iterate over ghost particles if c2 is a ghost cell, else use normale particles
         if (c2.cell_type == CellType::GHOST) {
-          for (const auto p2 : c2.ghost_pointers) {
-            const double distance = ArrayUtils::L2Norm(p1->getX() - p2->getX());
+          for (int k = 0; k < c2.size_ghost_particles; k++) {
+            Particle &p2 = c2.ghost_particles[k];
+            const double distance = ArrayUtils::L2Norm(p1->getX() - p2.getX());
             // for ghost particles the force should only be computed if its repulsing
             // normally cutoffRadius >> repulsing_distance but i'm letting it stand since it's an or statement
+            spdlog::trace("reached radius check for ghost particles");
             if (distance >= this->repulsing_distance || distance > cutoffRadius) continue;
 
-            Vector3 f = Physics::lennardJonesForce(*p1, *p2, sigma, epsilon);
-            // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
+            Vector3 f = Physics::lennardJonesForce(*p1, p2, sigma, epsilon);
             p1->addF(f);
-            p2->subF(f);
+            spdlog::trace("adding force of ghost particle: {} {} {}", f[0], f[1], f[2]);
+            // dont need to subtract force of ghost particles, since they are updated after anyways
           }
         } else {
           // case for regular cells
@@ -112,30 +115,6 @@ void CutoffSimulation::updateV() {
   for (auto &particle : linkedCells.particles) {
     if (particle.getType() < 0) continue;
     particle.setV(Physics::calculateV(particle, delta_t));
-  }
-}
-
-void CutoffSimulation::updateGhost() {
-  for (int cell_index = 0; cell_index < linkedCells.cells.size(); cell_index++) {
-    auto &cell = linkedCells.cells[cell_index];
-    if (cell.cell_type != CellType::BORDER) {
-      continue;
-    }
-
-    // clear ghost_particles and ghost_pointers of the cell
-    cell.size_ghost_particles = 0;
-    cell.ghost_pointers
-        .clear();  // dont need to free because the pointers point to the ghost particles handled in the vector
-
-    for (auto particle : cell.particles) {
-      // iterate over all particles of the BORDER cell and create ghost particles for each of them
-      createGhostParticles(*particle, cell_index, cell);
-    }
-
-    // update the pointers to the ghost particles in the cell
-    for (auto &ghost_particle : cell.ghost_particles) {
-      cell.ghost_pointers.push_back(&ghost_particle);
-    }
   }
 }
 
@@ -169,9 +148,30 @@ void CutoffSimulation::moveParticles() {
   }
 }
 
+void CutoffSimulation::updateGhost() {
+  for (int cell_index = 0; cell_index < linkedCells.cells.size(); cell_index++) {
+    auto &cell = linkedCells.cells[cell_index];
+    if (cell.cell_type == CellType::GHOST) {
+      // clear particles of ghost cells
+      cell.size_ghost_particles = 0;
+      continue;
+    }
+  }
+  for (int cell_index = 0; cell_index < linkedCells.cells.size(); cell_index++) {
+    auto &cell = linkedCells.cells[cell_index];
+    if (cell.cell_type != BORDER) continue;
+    for (auto particle : cell.particles) {
+      // iterate over all particles of the BORDER cell and create ghost particles for each of them
+      createGhostParticles(*particle, cell_index, cell);
+    }
+  }
+}
+
 void CutoffSimulation::createGhostParticles(Particle &particle, const int cell_index, Cell &cell) {
-  for (int l = 0; l < 6 ; l++) {// && l != 2 && l != 5
+  for (int l = 0; l < 6; l++) {
+    // if (l == 2 | l == 5) continue;
     if (cell.borders[l] != REFLECTION) continue;
+
     // create ghost particles for every reflection border
 
     // X of ghost Particle
@@ -192,8 +192,10 @@ void CutoffSimulation::createGhostParticles(Particle &particle, const int cell_i
     int ghostCellIndex1d = linkedCells.coordinate3dToIndex1d(ghostParticleX);
     Cell &ghost_cell = linkedCells.cells[ghostCellIndex1d];
     int index_ghost_particle = ghost_cell.size_ghost_particles;
-    spdlog::info("Adding Ghost Particle with coordinates ({}, {}, {}) to Cell with index {}/{}", ghostParticleX[0],
-                 ghostParticleX[1], ghostParticleX[2], ghostCellIndex1d, linkedCells.cells.size());
+    spdlog::trace("Adding Ghost Particle with coordinates ({}, {}, {}) to Cell with index {}/{}", ghostParticleX[0],
+                  ghostParticleX[1], ghostParticleX[2], ghostCellIndex1d, linkedCells.cells.size());
+    spdlog::trace("deltaBorder: {} distance: {}", 2 * deltaBorder,
+                  ArrayUtils::L2Norm(particle.getX() - ghostParticleX));
 
     if (index_ghost_particle < ghost_cell.ghost_particles.size()) {
       // vector has enough allocated space ==> reuse old particle objects

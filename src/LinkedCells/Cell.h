@@ -31,17 +31,11 @@ class Cell {
                                  // instead just overwrite them
 
   /**
-   * Vector that contains pointers to all ghost particles currently in the cell, to assure seamless integration into
-   * CutoffSimulation::updateF()
-   */
-  std::vector<Particle *> ghost_pointers;
-
-  /**
    * Describes, if it is an inner cell (regular), an edge cell or a ghost cell
    */
   CellType cell_type;
   /**
-   * Describes what kind of Boundary this cell has. on each side. Regular inner cells will have boundary type OUTFLOW in
+   * Describes what kind of Boundary this cell has on each side. Regular inner cells will have boundary type OUTFLOW in
    * each direction: borders[0] -> (0,0,0) (0,1,1) -> links borders[1] -> (0,0,0) (1,0,1) -> unten borders[2] -> (0,0,0)
    * (1,1,0) -> vorne borders[3] -> (1,0,0) (1,1,1) -> rechts borders[4] -> (0,1,0) (1,1,1) -> oben borders[5] ->
    * (0,0,1) (1,1,1) -> hinten
