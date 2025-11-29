@@ -124,8 +124,8 @@ int LinkedCells::coordinate3dToIndex1d(const double x, const double y, const dou
 }
 
 double LinkedCells::getBorderDistance(const int cellIndex, const int border, Vector3 pos) {
-  // cellIndex is not needed, but since every function which calls this shoould have cellIndex, we can parse it, because
-  // it seems more efficient than calculating it get 3d index of the cell
+  // cellIndex is not needed, but since every function which calls this shoould have cellIndex, we can pass it, because
+  // it seems more efficient than calculating it to get 3d index of the cell
   std::array<int, 3> cellIndex3d = this->index1dToIndex3d(cellIndex);
   // border 0, 3 -> x-direction, border 1,4 -> y-direction, border 2,5 -> z-direction
   int axis = border % 3;

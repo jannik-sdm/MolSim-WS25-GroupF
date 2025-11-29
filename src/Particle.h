@@ -130,6 +130,12 @@ class Particle {
 
   void setV(const Vector3 &new_v);
 
+  /**
+   * @brief Sets the Mass
+   * @param new_m
+   */
+  void setM(const double new_m);
+
   void setType(int new_type) { type = new_type; }
 
   bool operator==(Particle &other);

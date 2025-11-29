@@ -22,7 +22,19 @@ class Cell {
   /**
    * Vector that contains Ghost Particles (real Particles and not only references to particles)
    */
-  std::vector<Particle> ghostParticles;
+  std::vector<Particle> ghost_particles;
+
+  /**
+   * Amount of ghost particles currently in the cell
+   */
+  int size_ghost_particles = 0;  // by keeping track of this we don't have to delete all particles in the vector and can
+                                 // instead just overwrite them
+
+  /**
+   * Vector that contains pointers to all ghost particles currently in the cell, to assure seamless integration into
+   * CutoffSimulation::updateF()
+   */
+  std::vector<Particle *> ghost_pointers;
 
   /**
    * Describes, if it is an inner cell (regular), an edge cell or a ghost cell

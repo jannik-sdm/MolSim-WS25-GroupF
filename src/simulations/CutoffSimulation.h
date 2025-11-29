@@ -3,6 +3,7 @@
 //
 #pragma once
 
+#include <cmath>
 #include <memory>
 
 #include "../LinkedCells/LinkedCells.h"
@@ -16,6 +17,10 @@ class CutoffSimulation : public Simulation {
   const double end_time;
   const double delta_t;
   const double cutoffRadius = 3.0;
+  /**
+   * Distance for when two particles are repulsing
+   */
+  const double repulsing_distance;
   LinkedCells linkedCells;
   std::vector<Particle> &particles;
 
@@ -41,8 +46,26 @@ class CutoffSimulation : public Simulation {
    */
   void updateV() override;
 
-  void createGhostParticles(int particle_index, Cell &current_cell, int current_cell_index, Cell &new_cell);
+  /**
+   * @brief Adds ghost particles to the ghost cells adjacent to the reflective borders of the current border cell
+   * @param particle Particle for which we have to create ghost particles
+   * @param cell_index Index to the cell the particle is located in
+   * @param cell Reference of the cell the particle is located in
+   */
+  void createGhostParticles(Particle &particle, const int cell_index, Cell &cell);
+
+  /**
+   * @brief Creates ghost particles for all particles located in border cells and creates pointers to acces them
+   */
+  void updateGhost();
+
+  /**
+   * @brief Moves the particles that left a cell into their new cell
+   */
   void moveParticles();
 
+  /**
+   * @brief Initializes the particles with the brownian motion
+   */
   void initializeBrownianMotion();
 };
