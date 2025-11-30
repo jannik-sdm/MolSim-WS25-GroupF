@@ -21,7 +21,7 @@ void Settings::printHelp() {
          "-e, --t_end=DOUBLE       sets t_end (default 1000)\n"
          "-d, --delta_t=DOUBLE     sets delta_t (default 0.014)\n"
          "-b, --BrownMotionMean    sets the mean for the Brown motion\n"
-         "-l, --logLevel=STRING    sets the Level of logging. (OFF, ERROR, WARNING, INFO (default), DEBUG, TRACE)\n"
+         "-l, --logLevel=STRING    sets the Level of logging. (off, error, warning, info (default), debug, trace)\n"
          "-h, --help               shows this Text end terminates the program\n\n"
          "Example:\n"
          "./MolSim -e 100.0 -y ../input/assignment3.yaml -o ../out/out"
@@ -92,6 +92,7 @@ Settings::PARSE_RESULT Settings::parseArguments(int argc, char *argv[]) {
           std::string logLevelText(optarg);
           spdlog::level::level_enum logLevel = stringToLogLevel(logLevelText);
           spdlog::set_level(logLevel);
+          break;
         }
         case 'h':
           return HELP;
