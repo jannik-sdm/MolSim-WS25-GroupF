@@ -35,10 +35,11 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::filesystem::path f
       double distance = cuboid["distance"].as<double>();
       double mass = cuboid["mass"].as<double>();
       Vector3 v = cuboid["velocity"].as<Vector3>();
-      spdlog::info("generating cuboid: {}, {}, {}", x[0], x[1], x[2]);
-      spdlog::info("-> {}, {}, {}", n[0], n[1], n[2]);
-      spdlog::info("-> {}, {}", distance, mass);
-      spdlog::info("-> {}, {}, {}", v[0], v[1], v[2]);
+      spdlog::info("generating cuboid:" );
+      spdlog::info("-> Lower left Corner: ({}, {}, {})", x[0], x[1], x[2]);
+      spdlog::info("-> length: {}, width: {}, height: {}", n[0], n[1], n[2]);
+      spdlog::info("-> distance: {}, mass: {}", distance, mass);
+      spdlog::info("-> Velocity: ({}, {}, {})", v[0], v[1], v[2]);
 
       ParticleGenerator::cuboid(particles, x, n, distance, mass, v);
     } else if (p["single"]) {
