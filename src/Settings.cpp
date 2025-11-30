@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 Settings::Settings(int argc, char *argv[], std::vector<Particle> &particles) : particles(particles) {
-  this->parseArguments(argc, argv);
+  parse_result = this->parseArguments(argc, argv);
 }
 
 void Settings::printHelp() {
@@ -24,7 +24,7 @@ void Settings::printHelp() {
          "-l, --logLevel=STRING    sets the Level of logging. (OFF, ERROR, WARNING, INFO (default), DEBUG, TRACE)\n"
          "-h, --help               shows this Text end terminates the program\n\n"
          "Example:\n"
-         "./MolSim -e 100.0 -p ../input/eingabe-cuboid.txt"
+         "./MolSim -e 100.0 -y ../input/assignment3.yaml -o ../out/out"
       << std::endl;
 }
 
