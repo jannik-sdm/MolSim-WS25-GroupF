@@ -1,0 +1,16 @@
+output:
+  folder: "out/"
+  frequency: 10
+simulation:
+  end_time: 10
+  delta_t: 0.0005
+  brown_motion_avg_velocity: 0.1
+  cutoff_radius: 3.0
+  domain: [120, 50, 1]
+particles:
+  - disc:
+      position: [60, 25, 0]
+      radius: 15
+      distance: 1.1225
+      mass: 1.0
+      velocity: [0, -10, 0]

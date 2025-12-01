@@ -38,7 +38,6 @@ inline Vector3 planetForce(Particle &p1, Particle &p2) {
  *
  * @param p1 First particle
  * @param p2 Second particle
- * @param delta_t Δt
  * @param sigma σ
  * @param epsilon ɛ
  * @return Vector3

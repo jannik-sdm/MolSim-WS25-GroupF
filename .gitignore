@@ -41,3 +41,12 @@
 /*build*/
 doxys_documentation/
 *out*/
+
+# GDB
+.gdb_history
+
+# Logs
+logs/
+
+# Tests
+Testing/

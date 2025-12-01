@@ -4,42 +4,41 @@
 #include <unordered_map>
 
 Settings::Settings(int argc, char *argv[], std::vector<Particle> &particles) : particles(particles) {
-  this->parseArguments(argc, argv);
+  parse_result = parseArguments(argc, argv);
 }
 
 void Settings::printHelp() {
-  std::cout
-      << "Usage: ./MolSim\n\n"
-         "Simulates Molecules. For detailed Description see README.md\n\n"
-         "Options:\n"
-         "-w, --week=UINT          select which week's simulation to run (1=PlanetSimulation, 2=Collision Simulation "
-         "(Default))\n"
-         "-s, --single=FILE        reads single particles from the file in xyz format\n"
-         "-c, --cuboid=FILE        reads particles from the file in cuboid format\n"
-         "-c, --cuboid=FILE        reads particles and simulation parameters from a yaml file\n"
-         "-o, --out=FILE           path and name of the output files. Path has to exist! (default: MD_vtk)\n"
-         "-e, --t_end=DOUBLE       sets t_end (default 1000)\n"
-         "-d, --delta_t=DOUBLE     sets delta_t (default 0.014)\n"
-         "-b, --BrownMotionMean    sets the mean for the Brown motion\n"
-         "-l, --logLevel=STRING    sets the Level of logging. (OFF, ERROR, WARNING, INFO (default), DEBUG, TRACE)\n"
-         "-h, --help               shows this Text end terminates the program\n\n"
-         "Example:\n"
-         "./MolSim -e 100.0 -p ../input/eingabe-cuboid.txt"
-      << std::endl;
+  std::cout << "Simulates Molecules. For a detailed description see README.md\n\n"
+               "Usage:\n"
+               "  -o, --out=FILE                  Path and name of the output files\n"
+               "  -f, --frequency=UINT            Frequency at which output files are written\n"
+               "  -w, --worksheet=UINT            Select which worksheets's simulation to run\n"
+               "  -e, --end-time=DOUBLE           Sets the end time\n"
+               "  -d, --delta-t=DOUBLE            Sets the timestep\n"
+               "  -b, --brown-motion-avg=DOUBLE   Sets the average mean for the brownian motion\n"
+               "  -s, --single=FILE               Reads particles from the specified file in xyz format\n"
+               "  -c, --cuboid=FILE               Reads particles from the specified file in cuboid format\n"
+               "  -y, --yaml=FILE                 Reads particles and settings from the specified file in yaml format\n"
+               "  -l, --loglevel=STRING           Set the log level (trace, debug, info, warn, error)\n"
+               "  -h, --help                      Show this help text and terminates the program.\n\n"
+               "Example:\n"
+               "  MolSim -e 100.0 -c ../input/eingabe-cuboid.txt"
+            << std::endl;
 }
 
 Settings::PARSE_RESULT Settings::parseArguments(int argc, char *argv[]) {
-  const char *const short_opts = "e:d:w:s:c:y:b:ho:l:";
-  const option long_opts[] = {{"t_end", required_argument, nullptr, 'e'},
-                              {"delta_t", required_argument, nullptr, 'd'},
-                              {"week", required_argument, nullptr, 'w'},
+  const char *const short_opts = "e:d:w:s:c:y:b:ho:f:l:";
+  const option long_opts[] = {{"end-time", required_argument, nullptr, 'e'},
+                              {"delta-t", required_argument, nullptr, 'd'},
+                              {"worksheet", required_argument, nullptr, 'w'},
                               {"single", required_argument, nullptr, 's'},
                               {"cuboid", required_argument, nullptr, 'c'},
                               {"yaml", required_argument, nullptr, 'y'},
-                              {"BrownMotionMean", required_argument, nullptr, 'b'},
+                              {"brown-motion-avg", required_argument, nullptr, 'b'},
                               {"help", no_argument, nullptr, 'h'},
                               {"out", required_argument, nullptr, 'o'},
-                              {"logLevel", required_argument, nullptr, 'l'},
+                              {"frequency", required_argument, nullptr, 'f'},
+                              {"loglevel", required_argument, nullptr, 'l'},
                               {nullptr, no_argument, nullptr, 0}};
 
   while (true) {
@@ -88,18 +87,26 @@ Settings::PARSE_RESULT Settings::parseArguments(int argc, char *argv[]) {
           spdlog::debug("output folder set to: {}", outputFolder.string());
           break;
 
+        case 'f':
+          frequency = std::stoul(optarg);
+          spdlog::debug("frequency set to: {}", frequency);
+          break;
+
         case 'l': {
-          std::string logLevelText(optarg);
-          spdlog::level::level_enum logLevel = stringToLogLevel(logLevelText);
+          spdlog::level::level_enum logLevel = stringToLogLevel(optarg);
           spdlog::set_level(logLevel);
-        }
+        } break;
+
         case 'h':
           return HELP;
+          break;
+
         case '?':
           spdlog::error("Unknown option: {}", static_cast<char>(optopt));
         default:
           spdlog::error("An error occurred while passing the arguments.");
           return ERROR;
+          break;
       }
     } catch (const std::invalid_argument &e) {
       spdlog::error("Error: could not parse arguments!");
@@ -117,16 +124,16 @@ spdlog::level::level_enum Settings::stringToLogLevel(std::string string) {
 
   const std::unordered_map<std::string, spdlog::level::level_enum> lookup = {
       {"off", spdlog::level::off},   {"trace", spdlog::level::trace}, {"debug", spdlog::level::debug},
-      {"info", spdlog::level::info}, {"warn", spdlog::level::warn},   {"err", spdlog::level::err},
+      {"info", spdlog::level::info}, {"warn", spdlog::level::warn},   {"error", spdlog::level::err},
   };
 
-  auto gato = lookup.find(string);
-  if (gato == lookup.end()) {
+  auto level = lookup.find(string);
+  if (level == lookup.end()) {
     spdlog::error("Loglevel does not exist");
     return spdlog::level::info;
   }
 
-  return gato->second;
+  return level->second;
 }
 
 void Settings::createOutputDirectory(std::filesystem::path directory) {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <getopt.h>
+#include <spdlog/spdlog.h>
 
 #include <filesystem>
 #include <iostream>
@@ -9,7 +10,6 @@
 #include "inputReader/FileReader.h"
 #include "inputReader/XYZReader.h"
 #include "inputReader/YAMLReader.h"
-#include "spdlog/spdlog.h"
 
 /**
  * @class Settings
