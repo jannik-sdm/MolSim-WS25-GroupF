@@ -11,13 +11,15 @@
 #include "Physics.h"
 
 CutoffSimulation::CutoffSimulation(std::vector<Particle> &particles, Vector3 dimension, double end_time, double delta_t,
-                                   double cutoffRadius)
+                                   double cutoffRadius, std::array<BorderType,6>& border, bool is2D)
     : end_time(end_time),
       delta_t(delta_t),
       cutoffRadius(cutoffRadius),
-      linkedCells(particles, dimension, cutoffRadius),
+      linkedCells(particles, dimension, cutoffRadius, border),
       particles(particles),
-      repulsing_distance(std::pow(2, 1.0 / 6.0) * sigma) {
+      repulsing_distance(std::pow(2, 1.0 / 6.0) * sigma),
+      is2D(is2D)
+{
   initializeBrownianMotion();
 }
 
@@ -176,7 +178,7 @@ void CutoffSimulation::updateGhost() {
 
 void CutoffSimulation::createGhostParticles(Particle &particle, const int cell_index, Cell &cell) {
   for (int l = 0; l < 6; l++) {
-    // if (l == 2 | l == 5) continue;
+    if (is2D && (l == 2 || l == 5)) continue;
     if (cell.borders[l] != REFLECTION) continue;
 
     // create ghost particles for every reflection border
@@ -222,6 +224,6 @@ void CutoffSimulation::createGhostParticles(Particle &particle, const int cell_i
 
 void CutoffSimulation::initializeBrownianMotion() {
   for (auto &p : linkedCells.particles) {
-    p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, 2));
+    p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, (is2D ? 2 : 3)));
   }
 }

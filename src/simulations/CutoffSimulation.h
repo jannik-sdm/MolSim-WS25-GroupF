@@ -17,6 +17,7 @@ class CutoffSimulation : public Simulation {
   const double end_time;
   const double delta_t;
   const double cutoffRadius = 3.0;
+  bool is2D;
   /**
    * Distance for when two particles are repulsing
    */
@@ -26,7 +27,7 @@ class CutoffSimulation : public Simulation {
 
  public:
   CutoffSimulation(std::vector<Particle> &particles, Vector3 dimension, double end_time, double delta_t,
-                   double cutoffRadius);
+                   double cutoffRadius, std::array<BorderType,6>& border, bool is2D);
 
   /**
    * Performes one iteration of the simulation by updating the force, position and velocity of each particle

@@ -99,7 +99,7 @@ int main(int argc, char *argsv[]) {
       case 3:
       default:
         simulation = std::make_unique<CutoffSimulation>(input_particles, settings.domain, settings.end_time,
-                                                        settings.delta_t, settings.cutoff_radius);
+                                                        settings.delta_t, settings.cutoff_radius, settings.borders, settings.is2D);
     };
 
     double current_time = settings.start_time;

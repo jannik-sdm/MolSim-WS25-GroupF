@@ -10,6 +10,7 @@
 #include "inputReader/XYZReader.h"
 #include "inputReader/YAMLReader.h"
 #include "spdlog/spdlog.h"
+#include "LinkedCells/Cell.h"
 
 /**
  * @class Settings
@@ -34,6 +35,10 @@ class Settings {
   double brown_motion_avg_velocity = 0.1;
   /** @brief Cutoff radius for linked cell algorithm */
   double cutoff_radius = 3.0;
+ /** @brief BorderTypes of all 6 sides of the domain"*/
+  std::array<BorderType, 6> borders = {REFLECTION, REFLECTION, REFLECTION, REFLECTION, REFLECTION, REFLECTION};
+  /** @brief Specifies if the simmulation should be 2D or 3D"*/
+  bool is2D = false;
   /** @brief Domain */
   Vector3 domain = {1, 1, 1};
 

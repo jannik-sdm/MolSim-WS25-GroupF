@@ -6,7 +6,7 @@
 
 #include <spdlog/spdlog.h>
 
-LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff)
+LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff, std::array<BorderType,6>& border)
     : particles(particles), domain_size(domain) {
   // calculate number of cells
   numCellsX = (domain_size[0] + cutoff - 1) / cutoff;
@@ -39,22 +39,22 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
         cells[i].cell_type = CellType::BORDER;
         // Set Border Types
         if (x == 1) {
-          cells[i].borders[0] = REFLECTION;
+          cells[i].borders[0] = border[0];
         }
         if (y == 1) {
-          cells[i].borders[1] = REFLECTION;
+          cells[i].borders[1] = border[3];
         }
         if (z == 1) {
-          cells[i].borders[2] = REFLECTION;
+          cells[i].borders[2] = border[1];
         }
         if (x == numCellsX - 2) {
-          cells[i].borders[3] = REFLECTION;
+          cells[i].borders[3] = border[4];
         }
         if (y == numCellsY - 2) {
-          cells[i].borders[4] = REFLECTION;
+          cells[i].borders[4] = border[2];
         }
         if (z == numCellsZ - 2) {
-          cells[i].borders[5] = REFLECTION;
+          cells[i].borders[5] = border[5];
         }
       }
       // remaining cells are REGULAR by default
