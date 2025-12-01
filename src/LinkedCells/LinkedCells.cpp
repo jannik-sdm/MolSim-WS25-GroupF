@@ -6,7 +6,8 @@
 
 #include <spdlog/spdlog.h>
 
-LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff, std::array<BorderType,6>& border)
+LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff,
+                         std::array<BorderType, 6> border)
     : particles(particles), domain_size(domain) {
   // calculate number of cells
   numCellsX = (domain_size[0] + cutoff - 1) / cutoff;
@@ -77,7 +78,6 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
 }
 
 void LinkedCells::setNeighbourCells(const int cellIndex) {
-
   const std::array<int, 3> coordinates = index1dToIndex3d(cellIndex);
 
   int index = 0;
@@ -134,6 +134,7 @@ double LinkedCells::getBorderDistance(const int cellIndex, const int border, Vec
   // 0,1,2 -> min-border, 3,4,5 -> max-border
   // add length of the current cell if the back, up or right border is calculated
   borderWall += (border < 3) ? 0 : cell_size[axis];
-  spdlog::trace("Border Distance: {}, cellIndex3d: {}, cell_size: {}, border: {}", pos[axis]-borderWall, cellIndex3d[axis], cell_size[axis], border);
+  spdlog::trace("Border Distance: {}, cellIndex3d: {}, cell_size: {}, border: {}", pos[axis] - borderWall,
+                cellIndex3d[axis], cell_size[axis], border);
   return std::abs(pos[axis] - borderWall);
 }

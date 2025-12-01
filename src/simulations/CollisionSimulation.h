@@ -4,8 +4,19 @@
 
 #pragma once
 
+#include "../Particle.h"
 #include "PlanetSimulation.h"
 
+/**
+ * @class CollisionSimulation
+ * @brief Simulation for Assignment 2
+ *
+ * This class calculates timesteps for a particle collision simulation.
+ *
+ * @see Physics::calculateV
+ * @see Physics::calculateX
+ * @see Physics::lennardJonesForce
+ */
 class CollisionSimulation : public PlanetSimulation {
  public:
   CollisionSimulation(std::vector<Particle> &particles, double end_time, double delta_t);
@@ -18,8 +29,10 @@ class CollisionSimulation : public PlanetSimulation {
   void updateF() override;
 
  private:
-  // constants for the cacluation
+  /** @brief Value used for epsilon durign force calculation, @see Physics::lennardJonesForce */
   const double epsilon = 5;
+  /** @brief Value used for sigma during force calculation, @see Physics::lennardJonesForce */
   const double sigma = 1;
-  double brownian_motion_avg_velocity = 0.1;
+  /** @brief Average velocity used to initialize brownian motion */
+  const double brownian_motion_avg_velocity = 0.1;
 };

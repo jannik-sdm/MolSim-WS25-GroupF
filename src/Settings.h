@@ -1,16 +1,16 @@
 #pragma once
 
 #include <getopt.h>
+#include <spdlog/spdlog.h>
 
 #include <filesystem>
 #include <iostream>
 
+#include "LinkedCells/Cell.h"
 #include "inputReader/CuboidReader.h"
 #include "inputReader/FileReader.h"
 #include "inputReader/XYZReader.h"
 #include "inputReader/YAMLReader.h"
-#include "spdlog/spdlog.h"
-#include "LinkedCells/Cell.h"
 
 /**
  * @class Settings
@@ -35,7 +35,7 @@ class Settings {
   double brown_motion_avg_velocity = 0.1;
   /** @brief Cutoff radius for linked cell algorithm */
   double cutoff_radius = 3.0;
- /** @brief BorderTypes of all 6 sides of the domain"*/
+  /** @brief BorderTypes of all 6 sides of the domain"*/
   std::array<BorderType, 6> borders = {REFLECTION, REFLECTION, REFLECTION, REFLECTION, REFLECTION, REFLECTION};
   /** @brief Specifies if the simmulation should be 2D or 3D"*/
   bool is2D = false;

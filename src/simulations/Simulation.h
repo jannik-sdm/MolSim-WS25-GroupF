@@ -4,6 +4,11 @@
 
 #pragma once
 
+/**
+ * @brief Base class for simulations
+ *
+ * This class ensures that every simulation has a iterate method
+ */
 class Simulation {
  public:
   // desctructor to avoid memory leaks
