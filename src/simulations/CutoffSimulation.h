@@ -27,7 +27,7 @@ class CutoffSimulation : public Simulation {
 
  public:
   CutoffSimulation(std::vector<Particle> &particles, Vector3 dimension, double end_time, double delta_t,
-                   double cutoffRadius, std::array<BorderType,6>& border, bool is2D);
+                   double cutoffRadius, std::array<BorderType, 6> &border, bool is2D);
 
   /**
    * Performes one iteration of the simulation by updating the force, position and velocity of each particle
