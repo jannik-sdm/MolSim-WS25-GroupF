@@ -42,6 +42,8 @@ class Cell {
    */
   std::array<BorderType, 6> borders;
 
+  std::array<int, 26> neighbors;
+
   Cell(ParticleContainer particleContainer, CellType type);
 
   // default constructur:

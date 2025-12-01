@@ -11,26 +11,27 @@
 #include "Physics.h"
 
 CutoffSimulation::CutoffSimulation(std::vector<Particle> &particles, Vector3 dimension, double end_time, double delta_t,
-                                   double cutoffRadius)
+                                   double cutoffRadius, std::array<BorderType, 6> &border, bool is2D)
     : end_time(end_time),
       delta_t(delta_t),
       cutoffRadius(cutoffRadius),
-      linkedCells(particles, dimension, cutoffRadius),
+      linkedCells(particles, dimension, cutoffRadius, border),
       particles(particles),
-      repulsing_distance(std::pow(2, 1.0 / 6.0) * sigma) {
+      repulsing_distance(std::pow(2, 1.0 / 6.0) * sigma),
+      is2D(is2D) {
   initializeBrownianMotion();
 }
 
 void CutoffSimulation::iteration() {
-  spdlog::trace("Updating Positions");
+  spdlog::debug("Updating Positions");
   updateX();
-  spdlog::trace("Updating Ghost Particles");
+  spdlog::debug("Updating Ghost Particles");
   updateGhost();
-  spdlog::trace("Updating Forces");
+  spdlog::debug("Updating Forces");
   updateF();
-  spdlog::trace("Updating Velocities");
+  spdlog::debug("Updating Velocities");
   updateV();
-  spdlog::trace("Moving Particles");
+  spdlog::debug("Moving Particles");
   moveParticles();
 }
 
@@ -107,14 +108,20 @@ void CutoffSimulation::updateX() {
   for (auto &particle : linkedCells.particles) {
     // skip dead particles
     if (particle.getType() < 0) continue;
+    spdlog::trace("Updating X:");
+    spdlog::trace("-> Old Position: ({},{},{})", particle.getX()[0], particle.getX()[1], particle.getX()[2]);
     particle.setX(Physics::calculateX(particle, delta_t));
+    spdlog::trace("-> New: ({},{},{})", particle.getX()[0], particle.getX()[1], particle.getX()[2]);
   }
 }
 
 void CutoffSimulation::updateV() {
   for (auto &particle : linkedCells.particles) {
     if (particle.getType() < 0) continue;
+    spdlog::trace("Updating V:");
+    spdlog::trace("-> Old Velocity: ({},{},{})", particle.getV()[0], particle.getV()[1], particle.getV()[2]);
     particle.setV(Physics::calculateV(particle, delta_t));
+    spdlog::trace("-> New Velocity: ({},{},{})", particle.getV()[0], particle.getV()[1], particle.getV()[2]);
   }
 }
 
@@ -131,7 +138,8 @@ void CutoffSimulation::moveParticles() {
 
       // move p to cell[j]
 
-      spdlog::trace("Moving particle from cell {} to cell {}", k, i);
+      spdlog::trace("Moving particle with coordinate ({},{},{}) from cell {} to cell {}", p->getX()[0], p->getX()[1],
+                    p->getX()[2], k, i);
       Cell &new_cell = linkedCells.cells[k];
       if (new_cell.cell_type != CellType::GHOST) {
         new_cell.particles.push_back(p);
@@ -169,14 +177,14 @@ void CutoffSimulation::updateGhost() {
 
 void CutoffSimulation::createGhostParticles(Particle &particle, const int cell_index, Cell &cell) {
   for (int l = 0; l < 6; l++) {
-    // if (l == 2 | l == 5) continue;
+    if (is2D && (l == 2 || l == 5)) continue;
     if (cell.borders[l] != REFLECTION) continue;
 
     // create ghost particles for every reflection border
 
     // X of ghost Particle
     Vector3 ghostParticleX = particle.getX();
-
+    spdlog::trace("ghostParticleX: ({},{},{})", ghostParticleX[0], ghostParticleX[1], ghostParticleX[2]);
     // calculate the distance of the particle to the border l of the new cell it is moving into
     double deltaBorder = linkedCells.getBorderDistance(cell_index, l, ghostParticleX);
     double particle_distance = 2 * deltaBorder;
@@ -190,10 +198,13 @@ void CutoffSimulation::createGhostParticles(Particle &particle, const int cell_i
     ghostParticleV[l % 3] *= -1;
     // Save ghost Particle
     int ghostCellIndex1d = linkedCells.coordinate3dToIndex1d(ghostParticleX);
+    spdlog::trace(
+        "Adding Ghost Particle with coordinates ({}, {}, {}) (Ghost Particle of ({},{},{}))to Cell with index {}/{}",
+        ghostParticleX[0], ghostParticleX[1], ghostParticleX[2], particle.getX()[0], particle.getX()[1],
+        particle.getX()[2], ghostCellIndex1d, linkedCells.cells.size());
     Cell &ghost_cell = linkedCells.cells[ghostCellIndex1d];
     int index_ghost_particle = ghost_cell.size_ghost_particles;
-    spdlog::trace("Adding Ghost Particle with coordinates ({}, {}, {}) to Cell with index {}/{}", ghostParticleX[0],
-                  ghostParticleX[1], ghostParticleX[2], ghostCellIndex1d, linkedCells.cells.size());
+
     spdlog::trace("deltaBorder: {} distance: {}", 2 * deltaBorder,
                   ArrayUtils::L2Norm(particle.getX() - ghostParticleX));
 
@@ -213,6 +224,6 @@ void CutoffSimulation::createGhostParticles(Particle &particle, const int cell_i
 
 void CutoffSimulation::initializeBrownianMotion() {
   for (auto &p : linkedCells.particles) {
-    p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, 2));
+    p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, (is2D ? 2 : 3)));
   }
 }

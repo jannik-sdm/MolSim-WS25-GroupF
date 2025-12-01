@@ -9,6 +9,7 @@
 #include <sstream>
 #include <vector>
 
+#include "../LinkedCells/Cell.h"
 #include "../ParticleGenerator.h"
 #include "../utils/ArrayUtils.h"
 
@@ -27,6 +28,20 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::filesystem::path f
   if (simulation["cutoff_radius"]) settings.cutoff_radius = simulation["cutoff_radius"].as<double>();
 
   if (simulation["domain"]) settings.domain = simulation["domain"].as<Vector3>();
+  if (simulation["borders"]) {
+    std::array<std::string, 6> borderStrings = simulation["borders"].as<std::array<std::string, 6>>();
+    std::array<BorderType, 6> borders;
+    for (int i = 0; i < 6; i++) {
+      auto &borderString = borderStrings[i];
+      if (borderString == "reflection")
+        borders[i] = REFLECTION;
+      else if (borderString == "period")
+        borders[i] = PERIODIC;
+      else
+        borders[i] = OUTFLOW;
+    }
+  }
+  if (simulation["dimension"]) settings.is2D = simulation["dimension"].as<std::string>() == "2D";
 
   YAML::Node parts = config["particles"];
   for (auto p : parts) {

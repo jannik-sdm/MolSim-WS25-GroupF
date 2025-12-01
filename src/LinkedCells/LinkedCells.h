@@ -60,13 +60,21 @@ Describes how many cells the overall structure has in Z-direction   */
    * @param size_z domain size in z direction
    * @param cutoff cutoff radius set in the simluation
    */
-  LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff);
+  LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff,
+              std::array<BorderType, 6> borders = {OUTFLOW});
   /**
    * Finds the neighbour-cells of the given cell and returns their cell-array indexes
    * @param cellIndex 1D cell index of the current cell
    * @returns array of 1D cell indexes
    */
-  std::array<int, 26> getNeighbourCells(int cellIndex);
+  std::array<int, 26> getNeighbourCells(int cellIndex) { return cells[cellIndex].neighbors; }
+
+  /**
+   * Helper Function for the Constructor. Finds the neighbourcells of the given Cell and writes them
+   * in the NeighbourCells Attribut of the cell
+   * @param cellIndex cell to find the neighbours
+   */
+  void setNeighbourCells(int cellIndex);
 
   /**
    * Calculates the 3D index of a cell from the 1D index in the array
@@ -93,7 +101,8 @@ Describes how many cells the overall structure has in Z-direction   */
   /**
    * Calculates the distance between a given position and a given border of a cell
    * @param cellIndex1d 1D index of the cell
-   * @param border border number between 0 and 5 (border 0, 3 -> x-direction, border 1,4 -> y-direction, border 2,5 -> z-direction, 0,1,2 -> min-border, 3,4,5 -> max-border)
+   * @param border border number between 0 and 5 (border 0, 3 -> x-direction, border 1,4 -> y-direction, border 2,5 ->
+   * z-direction, 0,1,2 -> min-border, 3,4,5 -> max-border)
    * @param pos position to calculate the distance to
    * @return distance between the position and the border
    */

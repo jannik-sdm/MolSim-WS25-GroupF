@@ -6,7 +6,8 @@
 
 #include <spdlog/spdlog.h>
 
-LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff)
+LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff,
+                         std::array<BorderType, 6> border)
     : particles(particles), domain_size(domain) {
   // calculate number of cells
   numCellsX = (domain_size[0] + cutoff - 1) / cutoff;
@@ -33,50 +34,50 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
       cells[i].cell_type = CellType::GHOST;
     }
     // check if cell should be a border cell
-    else if (x == 1 || y == 1 || z == 1 || x == numCellsX - 2 || y == numCellsY - 2 || z == numCellsZ - 2) {
-      cells[i].cell_type = CellType::BORDER;
-      // Set Border Types
-      if (x == 1) {
-        cells[i].borders[0] = REFLECTION;
+    else {
+      setNeighbourCells(i);
+      if (x == 1 || y == 1 || z == 1 || x == numCellsX - 2 || y == numCellsY - 2 || z == numCellsZ - 2) {
+        cells[i].cell_type = CellType::BORDER;
+        // Set Border Types
+        if (x == 1) {
+          cells[i].borders[0] = border[0];
+        }
+        if (y == 1) {
+          cells[i].borders[1] = border[3];
+        }
+        if (z == 1) {
+          cells[i].borders[2] = border[1];
+        }
+        if (x == numCellsX - 2) {
+          cells[i].borders[3] = border[4];
+        }
+        if (y == numCellsY - 2) {
+          cells[i].borders[4] = border[2];
+        }
+        if (z == numCellsZ - 2) {
+          cells[i].borders[5] = border[5];
+        }
       }
-      if (y == 1) {
-        cells[i].borders[1] = REFLECTION;
-      }
-      if (z == 1) {
-        cells[i].borders[2] = REFLECTION;
-      }
-      if (x == numCellsX - 2) {
-        cells[i].borders[3] = REFLECTION;
-      }
-      if (y == numCellsY - 2) {
-        cells[i].borders[4] = REFLECTION;
-      }
-      if (z == numCellsZ - 2) {
-        cells[i].borders[5] = REFLECTION;
-      }
+      // remaining cells are REGULAR by default
     }
-    // remaining cells are REGULAR by default
   }
 
   // add particles to the correct cell
   for (auto &p : particles) {
     auto [x, y, z] = p.getX();
-    spdlog::info("{} {} {}", x, y, z);
+
     const int cellIndex = coordinate3dToIndex1d(x, y, z);
 
     if (cellIndex < 0 || cellIndex >= cells.size()) {
-      spdlog::error("Particle out of domain");
+      spdlog::error("Particle ({},{},{}) out of domain", x, y, z);
       continue;
     }
-
-    spdlog::info("Particle added to cell {}", cellIndex);
+    spdlog::debug("Particle with coordinates: ({} {} {}) added to cell {}/{}", x, y, z, cellIndex, cells.size());
     cells[cellIndex].particles.push_back(&p);
   }
 }
 
-std::array<int, 26> LinkedCells::getNeighbourCells(const int cellIndex) {
-  std::array<int, 26> result;
-
+void LinkedCells::setNeighbourCells(const int cellIndex) {
   const std::array<int, 3> coordinates = index1dToIndex3d(cellIndex);
 
   int index = 0;
@@ -86,13 +87,11 @@ std::array<int, 26> LinkedCells::getNeighbourCells(const int cellIndex) {
         if (i == 0 && j == 0 && k == 0) continue;
 
         const int currentCellIndex = index3dToIndex1d(coordinates[0] + i, coordinates[1] + j, coordinates[2] + k);
-        result[index] = currentCellIndex;
+        cells[cellIndex].neighbors[index] = currentCellIndex;
         index++;
       }
     }
   }
-
-  return result;
 }
 
 std::array<int, 3> LinkedCells::index1dToIndex3d(const int cellIndex) {
@@ -131,10 +130,11 @@ double LinkedCells::getBorderDistance(const int cellIndex, const int border, Vec
   int axis = border % 3;
   // calculate position of the border wall (cellIndex -1, because coordinates (0,0,0) belong to cell with index3d
   // (1,1,1)) add length of cells up to the the specified cells from either left to right, bottom to up or front to back
-  double boarderWall = (cellIndex3d[axis] - 1) * cell_size[axis];
+  double borderWall = (cellIndex3d[axis] - 1) * cell_size[axis];
   // 0,1,2 -> min-border, 3,4,5 -> max-border
   // add length of the current cell if the back, up or right border is calculated
-  boarderWall += (border < 3) ? 0 : cell_size[axis];
-  spdlog::debug("cellIndex3d: {}, cell_size: {}, boarderWall: {}", cellIndex3d[axis], cell_size[axis], boarderWall);
-  return std::abs(pos[axis] - boarderWall);
+  borderWall += (border < 3) ? 0 : cell_size[axis];
+  spdlog::trace("Border Distance: {}, cellIndex3d: {}, cell_size: {}, border: {}", pos[axis] - borderWall,
+                cellIndex3d[axis], cell_size[axis], border);
+  return std::abs(pos[axis] - borderWall);
 }
