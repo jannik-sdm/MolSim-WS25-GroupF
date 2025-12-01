@@ -66,7 +66,13 @@ Describes how many cells the overall structure has in Z-direction   */
    * @param cellIndex 1D cell index of the current cell
    * @returns array of 1D cell indexes
    */
-  std::array<int, 26> getNeighbourCells(int cellIndex){return cells[cellIndex].neighbors;}
+  std::array<int, 26> getNeighbourCells(int cellIndex){return cells[cellIndex].neighbors; }
+
+  /**
+   * Helper Function for the Constructor. Finds the neighbourcells of the given Cell and writes them
+   * in the NeighbourCells Attribut of the cell
+   * @param cellIndex cell to find the neighbours
+   */
   void setNeighbourCells(int cellIndex);
 
   /**

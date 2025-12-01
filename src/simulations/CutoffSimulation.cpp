@@ -197,8 +197,9 @@ void CutoffSimulation::createGhostParticles(Particle &particle, const int cell_i
     ghostParticleV[l % 3] *= -1;
     // Save ghost Particle
     int ghostCellIndex1d = linkedCells.coordinate3dToIndex1d(ghostParticleX);
-    spdlog::trace("Adding Ghost Particle with coordinates ({}, {}, {}) to Cell with index {}/{}", ghostParticleX[0],
-                  ghostParticleX[1], ghostParticleX[2], ghostCellIndex1d, linkedCells.cells.size());
+    spdlog::trace("Adding Ghost Particle with coordinates ({}, {}, {}) (Ghost Particle of ({},{},{}))to Cell with index {}/{}",
+      ghostParticleX[0],ghostParticleX[1], ghostParticleX[2], particle.getX()[0], particle.getX()[1], particle.getX()[2],
+                  ghostCellIndex1d, linkedCells.cells.size());
     Cell &ghost_cell = linkedCells.cells[ghostCellIndex1d];
     int index_ghost_particle = ghost_cell.size_ghost_particles;
 
