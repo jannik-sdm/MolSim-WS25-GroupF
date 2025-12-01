@@ -80,6 +80,7 @@ class PairRange {
    * @return PairIterator at the start of the list of distinct pairs
    */
   PairIterator begin() { return PairIterator(particles, 0, 1); }
+
   /**
    * @brief Stop iterating through distinct pairs
    *
@@ -111,7 +112,9 @@ class ParticleContainer {
   /**
    * Data structure for storing the particles
    */
-  std::vector<Particle> particles;
+  std::vector<Particle> &particles;
+
+  ParticleContainer(std::vector<Particle> &p) : particles(p) {}
 
   /**
    * @brief Proxy for `std::vector begin()`

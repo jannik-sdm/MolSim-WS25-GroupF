@@ -87,6 +87,9 @@ class Particle {
    */
   Particle(Particle &&other) noexcept;
 
+  Particle &operator=(const Particle &other) = default;
+  Particle &operator=(Particle &&other) = default;
+
   /**
    * @brief Construct a new Particle object
    *
@@ -161,6 +164,14 @@ class Particle {
    * @param new_v new Velocity - 3D-"Vector" (std::array<double, 3>)
    */
   void setV(const Vector3 &new_v);
+
+  /**
+   * @brief Sets the Mass
+   * @param new_m
+   */
+  void setM(const double new_m);
+
+  void setType(int new_type) { type = new_type; }
 
   /**
    * @brief Comparte two particles

@@ -30,6 +30,8 @@ add_library(MolSimLib ${MY_SRC})
 target_include_directories(MolSimLib
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*
+
 )
 
 # create make target

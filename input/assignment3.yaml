@@ -6,6 +6,7 @@ simulation:
   delta_t: 0.0005
   brown_motion_avg_velocity: 0.1
   cutoff_radius: 3.0
+  domain: [180, 90, 1]
 particles:
   - cuboid:
       position: [20, 20, 0]

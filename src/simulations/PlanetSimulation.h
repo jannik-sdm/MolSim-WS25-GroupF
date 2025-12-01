@@ -19,7 +19,7 @@
  */
 class PlanetSimulation : public Simulation {
  public:
-  PlanetSimulation(ParticleContainer &container, double end_time, double delta_t);
+  PlanetSimulation(std::vector<Particle> &particles, double end_time, double delta_t);
   /**
    * Calculates one timestep of the simulation and applies the changes to the particles.
    */
@@ -27,7 +27,7 @@ class PlanetSimulation : public Simulation {
 
  protected:
   /** @brief Container for the particles */
-  ParticleContainer &particleContainer;
+  ParticleContainer particleContainer;
   /** @todo remove this variable, its unused */
   const double end_time;
   /** @brief timestep used in calculations */
@@ -39,19 +39,19 @@ class PlanetSimulation : public Simulation {
    * For each pair of disjunct particles this function calculates the force between the two particles.
    * Then this function sums up all forces for one particle to calculate the effective force of each particle
    */
-  virtual void calculateF();
+  virtual void updateF() override;
 
   /**
    * @brief calculate the position for all particles
    *
    * For each particle i this function calculates the new position x.
    */
-  virtual void calculateX();
+  virtual void updateX() override;
 
   /**
    * @brief calculate the Velocity for all particles
    *
    * For each particle i this function calculates the new Velocity v
    */
-  virtual void calculateV();
+  virtual void updateV() override;
 };

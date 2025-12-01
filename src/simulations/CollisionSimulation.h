@@ -19,15 +19,14 @@
  */
 class CollisionSimulation : public PlanetSimulation {
  public:
-  CollisionSimulation(ParticleContainer &container, double end_time, double delta_t);
-
+  CollisionSimulation(std::vector<Particle> &particles, double end_time, double delta_t);
   /**
    * @brief calculate the force for all particles
    *
    * For each pair of disjunct particles this function calculates the Lennard-Jones force f.
    * Then this function sums up all forces for one particle to calculate the effective force of each particle
    */
-  void calculateF() override;
+  void updateF() override;
 
  private:
   /** @brief Value used for epsilon durign force calculation, @see Physics::lennardJonesForce */

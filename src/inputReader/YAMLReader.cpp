@@ -26,6 +26,8 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::filesystem::path f
     settings.brown_motion_avg_velocity = simulation["brown_motion_avg_velocity"].as<double>();
   if (simulation["cutoff_radius"]) settings.cutoff_radius = simulation["cutoff_radius"].as<double>();
 
+  if (simulation["domain"]) settings.domain = simulation["domain"].as<Vector3>();
+
   YAML::Node parts = config["particles"];
   for (auto p : parts) {
     if (p["cuboid"]) {

@@ -4,12 +4,15 @@
  */
 #include <chrono>
 #include <iostream>
+#include <memory>
 
+#include "LinkedCells/LinkedCells.h"
 #include "ParticleContainer.h"
 #include "Settings.h"
 #include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
 #include "simulations/CollisionSimulation.h"
+#include "simulations/CutoffSimulation.h"
 #include "simulations/PlanetSimulation.h"
 #include "spdlog/async.h"
 #include "spdlog/sinks/basic_file_sink.h"
@@ -21,7 +24,7 @@
  *
  * If ENABLE_VTK_OUTPUT is set, this function creates a vtk-file. Otherwise it creates a xyz-file
  */
-void plotParticles(int iteration, std::filesystem::path outputFolder);
+void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder);
 
 /**
  * @brief Initialize spdlog
@@ -45,12 +48,11 @@ void initializeLogging() {
   spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
 }
 
-ParticleContainer particleContainer;
-
 int main(int argc, char *argsv[]) {
   initializeLogging();
 
-  Settings settings = Settings(argc, argsv, particleContainer.particles);
+  std::vector<Particle> input_particles;
+  Settings settings = Settings(argc, argsv, input_particles);
 
   if (settings.isHelp()) {
     Settings::printHelp();
@@ -60,7 +62,7 @@ int main(int argc, char *argsv[]) {
     exit(EXIT_FAILURE);
   }
 
-  if (particleContainer.particles.empty()) {
+  if (input_particles.empty()) {
     spdlog::warn("No particles to simulate");
     exit(EXIT_SUCCESS);
   }
@@ -87,13 +89,17 @@ int main(int argc, char *argsv[]) {
 
     switch (settings.worksheet) {
       case 1:
-        simulation = std::make_unique<PlanetSimulation>(particleContainer, settings.end_time, settings.delta_t);
+        simulation = std::make_unique<PlanetSimulation>(input_particles, settings.end_time, settings.delta_t);
         break;
 
       case 2:
-      default:
-        simulation = std::make_unique<CollisionSimulation>(particleContainer, settings.end_time, settings.delta_t);
+        simulation = std::make_unique<CollisionSimulation>(input_particles, settings.end_time, settings.delta_t);
         break;
+
+      case 3:
+      default:
+        simulation = std::make_unique<CutoffSimulation>(input_particles, settings.domain, settings.end_time,
+                                                        settings.delta_t, settings.cutoff_radius);
     };
 
     double current_time = settings.start_time;
@@ -105,7 +111,7 @@ int main(int argc, char *argsv[]) {
       iteration++;
 
       if (iteration % settings.frequency == 0) {
-        plotParticles(iteration, settings.outputFolder);
+        plotParticles(input_particles, iteration, settings.outputFolder);
       }
       spdlog::info("Iteration {} finished.", iteration);
 
@@ -129,11 +135,11 @@ int main(int argc, char *argsv[]) {
   return 0;
 }
 
-void plotParticles(int iteration, std::filesystem::path outputFolder) {
+void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder) {
 #ifdef ENABLE_VTK_OUTPUT
   outputWriter::VTKWriter writer;
 #else
   outputWriter::XYZWriter writer;
 #endif
-  writer.plotParticles(particleContainer.particles, outputFolder, iteration);
+  writer.plotParticles(particles, outputFolder, iteration);
 }
