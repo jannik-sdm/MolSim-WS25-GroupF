@@ -39,10 +39,10 @@ void CutoffSimulation::updateF() {
   // set the force of all particles to zero
   for (Particle &particle : linkedCells.particles) particle.setF({0, 0, 0});
 
-  // Calculate forces in own cell
   for (int c = 0; c < linkedCells.cells.size(); c++) {
     auto &c1 = linkedCells.cells[c];
 
+    // Calculate forces in own cell
     for (int i = 0; i < c1.particles.size(); i++) {
       const auto p1 = c1.particles[i];
 
@@ -60,6 +60,7 @@ void CutoffSimulation::updateF() {
       }
     }
 
+    // calculate forces for neighbor cells
     if (c1.cell_type == CellType::GHOST) continue;
     std::array<int, 26> neighbourCellsIndex = linkedCells.getNeighbourCells(c);
     for (const int j : neighbourCellsIndex) {
