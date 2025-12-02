@@ -114,7 +114,7 @@ int main(int argc, char *argsv[]) {
       if (iteration % settings.frequency == 0) {
         plotParticles(input_particles, iteration, settings.outputFolder);
       }
-      spdlog::info("Iteration {} finished.", iteration);
+      // spdlog::info("Iteration {} finished.", iteration);
 
       current_time += settings.delta_t;
     }

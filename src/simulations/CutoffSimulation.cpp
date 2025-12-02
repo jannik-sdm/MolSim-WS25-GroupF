@@ -40,12 +40,14 @@ void CutoffSimulation::updateF() {
   for (Particle &particle : linkedCells.particles) particle.setF({0, 0, 0});
 
   // Calculate forces in own cell
-  for (Cell &cell : linkedCells.cells) {
-    for (int i = 0; i < cell.particles.size(); i++) {
-      const auto p1 = cell.particles[i];
+  for (int c = 0; c < linkedCells.cells.size(); c++) {
+    auto &c1 = linkedCells.cells[c];
 
-      for (int j = i + 1; j < cell.particles.size(); j++) {
-        const auto p2 = cell.particles[j];
+    for (int i = 0; i < c1.particles.size(); i++) {
+      const auto p1 = c1.particles[i];
+
+      for (int j = i + 1; j < c1.particles.size(); j++) {
+        const auto p2 = c1.particles[j];
 
         if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoffRadius) continue;
 
@@ -57,20 +59,14 @@ void CutoffSimulation::updateF() {
         p2->subF(f);
       }
     }
-  }
 
-  // Calculate forces with neighbour cells
-  for (int i = 0; i < linkedCells.cells.size(); i++) {
-    auto &c1 = linkedCells.cells[i];
-
-    // skip ghost cells
     if (c1.cell_type == CellType::GHOST) continue;
-    std::array<int, 26> neighbourCellsIndex = linkedCells.getNeighbourCells(i);
+    std::array<int, 26> neighbourCellsIndex = linkedCells.getNeighbourCells(c);
     for (const int j : neighbourCellsIndex) {
       auto &c2 = linkedCells.cells[j];
       // newton optimization, but ONLY if c2 is not a Ghost cell, because if this calculation is skipped, particles are
       // not repulsed
-      if (j < i && c2.cell_type != CellType::GHOST) continue;
+      if (j < c && c2.cell_type != CellType::GHOST) continue;
 
       for (const auto p1 : c1.particles) {
         // iterate over ghost particles if c2 is a ghost cell, else use normale particles
