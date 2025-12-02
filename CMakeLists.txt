@@ -11,10 +11,10 @@ project(MolSim_GroupF VERSION 0.0.1 LANGUAGES CXX)
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug;Release;RelWithDebInfo;MinSizeRel")
 
 # set Release as the default build type if it is not yet set.
-if(NOT CMAKE_BUILD_TYPE)
+if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING
             "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
-endif(NOT CMAKE_BUILD_TYPE)
+endif (NOT CMAKE_BUILD_TYPE)
 
 # collect all cpp files
 file(GLOB_RECURSE MY_SRC
@@ -30,7 +30,6 @@ add_library(MolSimLib ${MY_SRC})
 target_include_directories(MolSimLib
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/*
 
 )
 
@@ -56,10 +55,10 @@ target_compile_options(MolSim
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 option(ENABLE_TIME_MEASURE "Enable Time Measure" OFF)
-if(ENABLE_TIME_MEASURE)
+if (ENABLE_TIME_MEASURE)
     set(ITERATIONS 1 CACHE STRING "Number of iterations in main, to get statistical significant time measure")
-        #https://stackoverflow.com/a/9017635
-target_compile_definitions(MolSimLib PUBLIC ENABLE_TIME_MEASURE=${ITERATIONS})
+    #https://stackoverflow.com/a/9017635
+    target_compile_definitions(MolSimLib PUBLIC ENABLE_TIME_MEASURE=${ITERATIONS})
 endif ()
 
 include(vtk)

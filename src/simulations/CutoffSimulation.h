@@ -69,4 +69,9 @@ class CutoffSimulation : public Simulation {
    * @brief Initializes the particles with the brownian motion
    */
   void initializeBrownianMotion();
+
+  /**
+   * @brief getter for the tests
+   */
+  LinkedCells &getLinkedCells() { return linkedCells; }
 };
