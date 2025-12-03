@@ -128,9 +128,14 @@ int main(int argc, char *argsv[]) {
   }
 
   auto total_end_time_measure = std::chrono::high_resolution_clock::now();
-  spdlog::info(
-      "Total runtime: {}ms",
-      std::chrono::duration_cast<std::chrono::milliseconds>(total_end_time_measure - total_start_time_measure).count());
+  if (spdlog::get_level() <= spdlog::level::info) {
+    spdlog::info(
+        "Total runtime: {}ms",
+        std::chrono::duration_cast<std::chrono::milliseconds>(total_end_time_measure - total_start_time_measure).count());
+  }else std::cout << "Total Runtime: " <<
+    std::chrono::duration_cast<std::chrono::milliseconds>(total_end_time_measure - total_start_time_measure).count()
+  << "ms.\n";
+
 #endif
 
   return 0;
