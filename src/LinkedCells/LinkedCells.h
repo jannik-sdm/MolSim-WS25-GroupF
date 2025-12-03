@@ -11,7 +11,7 @@
 #include "ParticleContainer.h"
 
 class LinkedCells {
- public:
+public:
   /**
    * 1-D Array with all Cells
    */
@@ -52,7 +52,7 @@ Describes how many cells the overall structure has in Z-direction   */
   double cellSizeY;
   double cellSizeZ;
 
- public:
+public:
   /**
    * Initializes the variables and cells with their cell-type and adds the respective particles to the cell
    * @param size_x domain size in x direction
@@ -108,4 +108,15 @@ Describes how many cells the overall structure has in Z-direction   */
    */
 
   double getBorderDistance(int cellIndex1d, int border, Vector3 pos);
+
+  /**
+   * Calculates the Border between two neighbour Cells
+   * @param ownIndex1d first 1D Inex of the neighbour Cells
+   * @param otherIndex1d second 1D Index of the neighbour Cells
+  * @return border number between -1 and 5 (border 0, 3 -> x-direction, border 1,4 -> y-direction, border 2,5 ->
+   * z-direction, 0,1,2 -> min-border, 3,4,5 -> max-border, border -1 -> error. Cells don`t have a common Border)
+   * CAUTION! This Implementation always returns only one Border, even if a Particle meight have escaped not through a
+   * border, but through an edge or a corner!
+   */
+  int getSharedBorder(int ownIndex1d, int otherIndex1d);
 };

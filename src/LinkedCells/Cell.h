@@ -10,7 +10,7 @@
  */
 enum CellType { REGULAR, BORDER, GHOST };
 
-enum BorderType { OUTFLOW, REFLECTION, PERIODIC };
+enum BorderType { OUTFLOW, REFLECTION, PERIODIC, NAIVE_REFLECTION };
 
 class Cell {
  public:
