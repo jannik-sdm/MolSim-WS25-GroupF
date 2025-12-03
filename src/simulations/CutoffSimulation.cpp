@@ -143,8 +143,10 @@ void CutoffSimulation::moveParticles() {
       Cell &new_cell = linkedCells.cells[k];
       if (new_cell.cell_type != CellType::GHOST) {
         new_cell.particles.push_back(p);
-      } else
+      } else {
         p->setType(-1);  // mark particle as dead
+        spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
+      }
 
       // erase p from cell[i] by swapping p to the back of the vector
       current_cell.particles[j] = current_cell.particles.back();

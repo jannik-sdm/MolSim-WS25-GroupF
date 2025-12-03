@@ -7,7 +7,7 @@ simulation:
   brown_motion_avg_velocity: 0.1
   cutoff_radius: 3.0
   domain: [180, 90, 1]
-  borders: [ reflection, reflection, reflection, reflection, reflection, reflection ]
+  borders: [reflection,reflection,reflection,reflection,reflection,reflection]
   dimension: 2D
 particles:
   - cuboid:

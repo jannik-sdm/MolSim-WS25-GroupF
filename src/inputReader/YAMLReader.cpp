@@ -30,7 +30,7 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::filesystem::path f
   if (simulation["domain"]) settings.domain = simulation["domain"].as<Vector3>();
   if (simulation["borders"]) {
     std::array<std::string, 6> borderStrings = simulation["borders"].as<std::array<std::string, 6>>();
-    std::array<BorderType, 6> borders;
+    std::array<BorderType, 6> &borders = settings.borders;
     for (int i = 0; i < 6; i++) {
       auto &borderString = borderStrings[i];
       if (borderString == "reflection")

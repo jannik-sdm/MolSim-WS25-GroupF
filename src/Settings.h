@@ -36,7 +36,7 @@ class Settings {
   /** @brief Cutoff radius for linked cell algorithm */
   double cutoff_radius = 3.0;
   /** @brief BorderTypes of all 6 sides of the domain"*/
-  std::array<BorderType, 6> borders = {REFLECTION, REFLECTION, REFLECTION, REFLECTION, REFLECTION, REFLECTION};
+  std::array<BorderType, 6> borders;
   /** @brief Specifies if the simmulation should be 2D or 3D"*/
   bool is2D = false;
   /** @brief Domain */
