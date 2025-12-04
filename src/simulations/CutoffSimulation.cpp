@@ -144,27 +144,27 @@ void CutoffSimulation::moveParticles() {
       if (new_cell.cell_type != CellType::GHOST) {
         new_cell.particles.push_back(p);
       } else {
-        //get shared border current_cell, new_cell
+        // get shared border current_cell, new_cell
         int borderIndex = linkedCells.getSharedBorder(i, k);
         BorderType border = current_cell.borders[borderIndex];
-        if (border == OUTFLOW){
+        if (border == OUTFLOW) {
           p->setType(-1);  // mark particle as dead
           spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
-        }else if (border == NAIVE_REFLECTION) {
-          //Get Velocity of the particle and flip it
+        } else if (border == NAIVE_REFLECTION) {
+          // Get Velocity of the particle and flip it
           Vector3 v = p->getV();
-          v[borderIndex%3] *= -1;
+          v[borderIndex % 3] *= -1;
           Vector3 neg = {-1, -1, -1};
-          p->setV(neg * p->getV()); //Turn Velocity
-          Vector3 oldF = p->getOldF(); //Save OldF
-          p->setF(neg * p->getF()); //Turn F
-          Physics::calculateX(*p,delta_t); //Calculate old Position
+          p->setV(neg * p->getV());          // Turn Velocity
+          Vector3 oldF = p->getOldF();       // Save OldF
+          p->setF(neg * p->getF());          // Turn F
+          Physics::calculateX(*p, delta_t);  // Calculate old Position
           p->setF(oldF);
-          p->setF(neg * p->getF()); //Reset old Force
-          p->setV(v); //Set new Velocity
-          Physics::calculateX(*p, delta_t); //Calculate new Position
-          continue; //Don't move the Particle into a Ghost Cell
-        }else {
+          p->setF(neg * p->getF());          // Reset old Force
+          p->setV(v);                        // Set new Velocity
+          Physics::calculateX(*p, delta_t);  // Calculate new Position
+          continue;                          // Don't move the Particle into a Ghost Cell
+        } else {
           spdlog::error("A Particle escaped from the domain, even, if it shouldn't");
         }
       }

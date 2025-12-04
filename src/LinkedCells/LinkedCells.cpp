@@ -140,21 +140,18 @@ double LinkedCells::getBorderDistance(const int cellIndex, const int border, Vec
 }
 
 int LinkedCells::getSharedBorder(int ownIndex1d, int otherIndex1d) {
-  std::array<int, 26>& neighbours = cells[ownIndex1d].neighbors;
+  std::array<int, 26> &neighbours = cells[ownIndex1d].neighbors;
   int i = -1;
-  //Get neighbour Index
+  // Get neighbour Index
   for (; i < 26; i++) {
     if (neighbours[i] == otherIndex1d) break;
   }
-  //Find Border:
+  // Find Border:
   if (i < 0) return -1;
-  if (i < 9) return 0; //All Neighbours at x = 0 Border (back)
-  if (i < 12) return 1; //All Neighbours at y = 0 Border (bottom)
-  if (i == 12) return 2; //Neighbour at z = 0 Border (right)
-  if (i == 13) return 5; //Neighbour at z = 1 Border (left)
-  if (i < 17) return 4; //All Neighbours at y = 1 Border (top)
-  return 3; //All Neighbours at x = 1 Border (front)
-
+  if (i < 9) return 0;    // All Neighbours at x = 0 Border (back)
+  if (i < 12) return 1;   // All Neighbours at y = 0 Border (bottom)
+  if (i == 12) return 2;  // Neighbour at z = 0 Border (right)
+  if (i == 13) return 5;  // Neighbour at z = 1 Border (left)
+  if (i < 17) return 4;   // All Neighbours at y = 1 Border (top)
+  return 3;               // All Neighbours at x = 1 Border (front)
 }
-
-
