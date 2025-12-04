@@ -25,14 +25,14 @@ CutoffSimulation::CutoffSimulation(std::vector<Particle> &particles, Vector3 dim
 void CutoffSimulation::iteration() {
   spdlog::debug("Updating Positions");
   updateX();
+  spdlog::debug("Moving Particles");
+  moveParticles();
   spdlog::debug("Updating Ghost Particles");
   updateGhost();
   spdlog::debug("Updating Forces");
   updateF();
   spdlog::debug("Updating Velocities");
   updateV();
-  spdlog::debug("Moving Particles");
-  moveParticles();
 }
 
 void CutoffSimulation::updateF() {
@@ -151,11 +151,6 @@ void CutoffSimulation::moveParticles() {
           p->setType(-1);  // mark particle as dead
           spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
         }else if (border == NAIVE_REFLECTION) {
-          //Particles will move one time step (at corners up to 3 time steps and at edges up to 2 time steps) out of domain!
-          //But it will turn around and move back into the domain again
-          //This only works, if a particle is slow enough to stay in the ghost cells while bouncing off.
-          //If it goes beyond the ghost cells this implementation will crash.
-
           //Get Velocity of the particle and flip it
           Vector3 v = p->getV();
           v[borderIndex%3] *= -1;
@@ -167,6 +162,7 @@ void CutoffSimulation::moveParticles() {
           p->setF(oldF);
           p->setF(neg * p->getF()); //Reset old Force
           p->setV(v); //Set new Velocity
+          Physics::calculateX(*p, delta_t); //Calculate new Position
           continue; //Don't move the Particle into a Ghost Cell
         }else {
           spdlog::error("A Particle escaped from the domain, even, if it shouldn't");
