@@ -123,8 +123,8 @@ Describes how many cells the overall structure has in Z-direction   */
   LinkedCellsContainer(std::vector<Particle> &particles, Vector3 domain, double cutoffRadius, double delta_t,
                        std::array<BorderType, 6> borders = {OUTFLOW}, bool is2D = false);
 
-  void applyToAllPairs(void applyForce(Particle &p1, Particle &p2, double sigma, double epsilon)) override;
-  void applyToAllParticles(std::function<void(Particle &)> apply) override;
-  void updatePosition(void updateX(Particle &p, double delta_t)) override;
-  void updateVelocity(void updateV(Particle &p, double delta_t)) override;
+  void applyToAllPairs(std::function<Vector3(Particle &p1, Particle &p2)> calculateForce) override;
+  void applyToAllParticles(std::function<Vector3(Particle &)> apply, int k) override;
+  void updatePosition(Vector3 calculateX(Particle &p, double delta_t)) override;
+  void updateVelocity(Vector3 calculateV(Particle &p, double delta_t)) override;
 };

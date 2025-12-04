@@ -32,7 +32,13 @@ void CollisionSimulation::iteration() {
   updateV();
 }
 
-void CollisionSimulation::updateF() { container.applyToAllPairs(Physics::lennardJonesForce); }
+void CollisionSimulation::updateF() {
+  auto lennardJonesHelper = [this](Particle &p1, Particle &p2) {
+    Vector3 f = Physics::lennardJonesForce(p1, p2, this->sigma, this->epsilon);
+    return f;
+  };
+  container.applyToAllPairs(lennardJonesHelper);
+}
 
 void CollisionSimulation::updateX() { container.updatePosition(Physics::calculateX); }
 
@@ -40,7 +46,8 @@ void CollisionSimulation::updateV() { container.updateVelocity(Physics::calculat
 
 void CollisionSimulation::initializeBrownianMotion() {
   auto applyBrownianMotion = [this](Particle &p) {
-    p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, (is2D ? 2 : 3)));
+    Vector3 v = p.getV() + maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, (is2D ? 2 : 3));
+    return v;
   };
-  container.applyToAllParticles(applyBrownianMotion);
+  container.applyToAllParticles(applyBrownianMotion, 1);
 }

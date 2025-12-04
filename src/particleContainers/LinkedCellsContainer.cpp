@@ -145,7 +145,7 @@ double LinkedCellsContainer::getBorderDistance(const int cellIndex, const int bo
   return std::abs(pos[axis] - borderWall);
 }
 
-void LinkedCellsContainer::applyToAllPairs(void applyForce(Particle &p1, Particle &p2, double sigma, double epsilon)) {
+void LinkedCellsContainer::applyToAllPairs(std::function<Vector3(Particle &p1, Particle &p2)> calculateForce) {
   // set the force of all particles to zero
   for (Particle &particle : particles) particle.setF({0, 0, 0});
 
@@ -162,7 +162,9 @@ void LinkedCellsContainer::applyToAllPairs(void applyForce(Particle &p1, Particl
         if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoff_radius) continue;
 
         // spdlog::warn("{} <-> {}", p1->toString(), p2->toString());
-        applyForce(*p1, *p2, sigma, epsilon);
+        Vector3 f = calculateForce(*p1, *p2);
+        p1->addF(f);
+        p2->subF(f);
       }
     }
 
@@ -186,7 +188,9 @@ void LinkedCellsContainer::applyToAllPairs(void applyForce(Particle &p1, Particl
             spdlog::trace("reached radius check for ghost particles");
             if (distance >= this->repulsing_distance || distance > cutoff_radius) continue;
 
-            applyForce(*p1, p2, sigma, epsilon);
+            Vector3 f = calculateForce(*p1, p2);
+            p1->addF(f);
+            p2.subF(f);
             // spdlog::trace("adding force of ghost particle: {} {} {}", f[0], f[1], f[2]);
           }
         } else {
@@ -194,7 +198,9 @@ void LinkedCellsContainer::applyToAllPairs(void applyForce(Particle &p1, Particl
           for (const auto p2 : c2.particles) {
             if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoff_radius) continue;
 
-            applyForce(*p1, *p2, sigma, epsilon);
+            Vector3 f = calculateForce(*p1, *p2);
+            p1->addF(f);
+            p2->subF(f);
           }
         }
       }
@@ -202,24 +208,31 @@ void LinkedCellsContainer::applyToAllPairs(void applyForce(Particle &p1, Particl
   }
 }
 
-void LinkedCellsContainer::applyToAllParticles(std::function<void(Particle &)> apply) {
+void LinkedCellsContainer::applyToAllParticles(std::function<Vector3(Particle &)> apply, int k) {
   for (auto &p : particles) {
-    apply(p);
+    Vector3 x = apply(p);
+    if (k == 0) {
+      p.setX(x);
+    } else if (k == 1) {
+      p.setV(x);
+    } else if (k == 2) {
+      p.setF(x);
+    }
   }
 }
 
-void LinkedCellsContainer::updatePosition(void updateX(Particle &p, double delta_t)) {
+void LinkedCellsContainer::updatePosition(Vector3 calculateX(Particle &p, double delta_t)) {
   for (auto &p : particles) {
-    updateX(p, delta_t);
-    updateGhost();
+    p.setX(calculateX(p, delta_t));
   }
+  updateGhost();
 }
 
-void LinkedCellsContainer::updateVelocity(void updateV(Particle &p, double delta_t)) {
+void LinkedCellsContainer::updateVelocity(Vector3 updateV(Particle &p, double delta_t)) {
   for (auto &p : particles) {
-    updateV(p, delta_t);
-    moveParticles();
+    p.setV(updateV(p, delta_t));
   }
+  moveParticles();
 }
 
 void LinkedCellsContainer::moveParticles() {

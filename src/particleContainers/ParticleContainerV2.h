@@ -22,8 +22,13 @@ class ParticleContainerV2 {
   virtual ~ParticleContainerV2() = default;
   ParticleContainerV2(std::vector<Particle> &particles) : particles(particles) {}
 
-  virtual void applyToAllPairs(void applyForce(Particle &p1, Particle &p2, double sigma, double epsilon)) = 0;
-  virtual void applyToAllParticles(std::function<void(Particle &)> apply) = 0;
-  virtual void updatePosition(void updateX(Particle &p, double delta_t)) = 0;
-  virtual void updateVelocity(void updateV(Particle &p, double delta_t)) = 0;
+  virtual void applyToAllPairs(std::function<Vector3(Particle &p1, Particle &p2)> forceCalculation) = 0;
+  /**
+   *
+   * @param apply function returning the vector being applied
+   * @param k integer {0, 1, 2], that determines, what should be applied (position = 0, velocity = 1, force = 2)
+   */
+  virtual void applyToAllParticles(std::function<Vector3(Particle &)> apply, int k) = 0;
+  virtual void updatePosition(Vector3 calculateX(Particle &p, double delta_t)) = 0;
+  virtual void updateVelocity(Vector3 calculateV(Particle &p, double delta_t)) = 0;
 };
