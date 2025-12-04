@@ -85,7 +85,7 @@ void CutoffSimulation::updateF() {
 
             Vector3 f = Physics::lennardJonesForce(*p1, p2, sigma, epsilon);
             p1->addF(f);
-            spdlog::trace("adding force of ghost particle: {} {} {}", f[0], f[1], f[2]);
+            spdlog::trace("adding force of ghost particle: {}", ArrayUtils::to_string(f));
             // dont need to subtract force of ghost particles, since they are updated after anyways
           }
         } else {
@@ -109,9 +109,9 @@ void CutoffSimulation::updateX() {
     // skip dead particles
     if (particle.getType() < 0) continue;
     spdlog::trace("Updating X:");
-    spdlog::trace("-> Old Position: ({},{},{})", particle.getX()[0], particle.getX()[1], particle.getX()[2]);
+    spdlog::trace("-> Old Position: {}", ArrayUtils::to_string(particle.getX()));
     particle.setX(Physics::calculateX(particle, delta_t));
-    spdlog::trace("-> New: ({},{},{})", particle.getX()[0], particle.getX()[1], particle.getX()[2]);
+    spdlog::trace("-> New Position: {}", ArrayUtils::to_string(particle.getX()));
   }
 }
 
@@ -119,9 +119,9 @@ void CutoffSimulation::updateV() {
   for (auto &particle : linkedCells.particles) {
     if (particle.getType() < 0) continue;
     spdlog::trace("Updating V:");
-    spdlog::trace("-> Old Velocity: ({},{},{})", particle.getV()[0], particle.getV()[1], particle.getV()[2]);
+    spdlog::trace("-> Old Velocity: {}", ArrayUtils::to_string(particle.getV()));
     particle.setV(Physics::calculateV(particle, delta_t));
-    spdlog::trace("-> New Velocity: ({},{},{})", particle.getV()[0], particle.getV()[1], particle.getV()[2]);
+    spdlog::trace("-> New Velocity: {}", ArrayUtils::to_string(particle.getV()));
   }
 }
 
@@ -138,33 +138,33 @@ void CutoffSimulation::moveParticles() {
 
       // move p to cell[j]
 
-      spdlog::trace("Moving particle with coordinate ({},{},{}) from cell {} to cell {}", p->getX()[0], p->getX()[1],
-                    p->getX()[2], k, i);
+      spdlog::trace("Moving particle with coordinate {} from cell {} to cell {}", ArrayUtils::to_string(p->getX()), k,
+                    i);
       Cell &new_cell = linkedCells.cells[k];
       if (new_cell.cell_type != CellType::GHOST) {
         new_cell.particles.push_back(p);
       } else {
-        //get shared border current_cell, new_cell
+        // get shared border current_cell, new_cell
         int borderIndex = linkedCells.getSharedBorder(i, k);
         BorderType border = current_cell.borders[borderIndex];
-        if (border == OUTFLOW){
+        if (border == OUTFLOW) {
           p->setType(-1);  // mark particle as dead
-          spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
-        }else if (border == NAIVE_REFLECTION) {
-          //Get Velocity of the particle and flip it
+          spdlog::trace("Particle {} is dead!", ArrayUtils::to_string(p->getX()));
+        } else if (border == NAIVE_REFLECTION) {
+          // Get Velocity of the particle and flip it
           Vector3 v = p->getV();
-          v[borderIndex%3] *= -1;
+          v[borderIndex % 3] *= -1;
           Vector3 neg = {-1, -1, -1};
-          p->setV(neg * p->getV()); //Turn Velocity
-          Vector3 oldF = p->getOldF(); //Save OldF
-          p->setF(neg * p->getF()); //Turn F
-          Physics::calculateX(*p,delta_t); //Calculate old Position
+          p->setV(neg * p->getV());          // Turn Velocity
+          Vector3 oldF = p->getOldF();       // Save OldF
+          p->setF(neg * p->getF());          // Turn F
+          Physics::calculateX(*p, delta_t);  // Calculate old Position
           p->setF(oldF);
-          p->setF(neg * p->getF()); //Reset old Force
-          p->setV(v); //Set new Velocity
-          Physics::calculateX(*p, delta_t); //Calculate new Position
-          continue; //Don't move the Particle into a Ghost Cell
-        }else {
+          p->setF(neg * p->getF());          // Reset old Force
+          p->setV(v);                        // Set new Velocity
+          Physics::calculateX(*p, delta_t);  // Calculate new Position
+          continue;                          // Don't move the Particle into a Ghost Cell
+        } else {
           spdlog::error("A Particle escaped from the domain, even, if it shouldn't");
         }
       }
@@ -206,7 +206,7 @@ void CutoffSimulation::createGhostParticles(Particle &particle, const int cell_i
 
     // X of ghost Particle
     Vector3 ghostParticleX = particle.getX();
-    spdlog::trace("ghostParticleX: ({},{},{})", ghostParticleX[0], ghostParticleX[1], ghostParticleX[2]);
+    spdlog::trace("ghostParticleX: {}", ArrayUtils::to_string(ghostParticleX));
     // calculate the distance of the particle to the border l of the new cell it is moving into
     double deltaBorder = linkedCells.getBorderDistance(cell_index, l, ghostParticleX);
     double particle_distance = 2 * deltaBorder;
@@ -220,10 +220,9 @@ void CutoffSimulation::createGhostParticles(Particle &particle, const int cell_i
     ghostParticleV[l % 3] *= -1;
     // Save ghost Particle
     int ghostCellIndex1d = linkedCells.coordinate3dToIndex1d(ghostParticleX);
-    spdlog::trace(
-        "Adding Ghost Particle with coordinates ({}, {}, {}) (Ghost Particle of ({},{},{}))to Cell with index {}/{}",
-        ghostParticleX[0], ghostParticleX[1], ghostParticleX[2], particle.getX()[0], particle.getX()[1],
-        particle.getX()[2], ghostCellIndex1d, linkedCells.cells.size());
+    spdlog::trace("Adding Ghost Particle with coordinates {} (Ghost Particle of {})to Cell with index {}/{}",
+                  ArrayUtils::to_string(ghostParticleX), ArrayUtils::to_string(particle.getX()), ghostCellIndex1d,
+                  linkedCells.cells.size());
     Cell &ghost_cell = linkedCells.cells[ghostCellIndex1d];
     int index_ghost_particle = ghost_cell.size_ghost_particles;
 
