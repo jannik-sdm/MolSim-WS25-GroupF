@@ -13,14 +13,15 @@
 #include "../ParticleGenerator.h"
 #include "../utils/ArrayUtils.h"
 
-void YAMLReader::parse(std::vector<Particle> &particles, std::filesystem::path file, Settings &settings) {
-  YAML::Node config = YAML::LoadFile(file.string());
+void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Settings &settings) {
+  YAML::Node config = YAML::Load(file);
 
   YAML::Node output = config["output"];
   if (output["folder"]) settings.outputFolder = output["folder"].as<std::string>();
   if (output["frequency"]) settings.frequency = output["frequency"].as<unsigned int>();
 
   YAML::Node simulation = config["simulation"];
+  if (simulation["worksheet"]) settings.worksheet = simulation["worksheet"].as<unsigned int>();
   if (simulation["end_time"]) settings.end_time = simulation["end_time"].as<double>();
   if (simulation["delta_t"]) settings.delta_t = simulation["delta_t"].as<double>();
   if (simulation["brown_motion_avg_velocity"])

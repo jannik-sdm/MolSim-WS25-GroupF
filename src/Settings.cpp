@@ -1,5 +1,7 @@
 #include "Settings.h"
 
+#include <yaml-cpp/yaml.h>
+
 #include <algorithm>
 #include <unordered_map>
 
@@ -73,7 +75,12 @@ Settings::PARSE_RESULT Settings::parseArguments(int argc, char *argv[]) {
           break;
 
         case 'y':
-          YAMLReader::parse(particles, optarg, *this);
+          try {
+            YAMLReader::readFile(particles, optarg, *this);
+          } catch (YAML::Exception) {
+            spdlog::error("Error parsing YAML file, aborting");
+            return ERROR;
+          }
           break;
 
         case 'b':

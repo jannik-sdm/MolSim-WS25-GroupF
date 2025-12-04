@@ -14,6 +14,16 @@ class Settings;
  */
 class YAMLReader {
  public:
+  static void readFile(std::vector<Particle> &particles, const std::filesystem::path filepath, Settings &settings) {
+    std::ifstream file(filepath);
+    if (!file.is_open()) {
+      spdlog::error("Error opening {}", filepath.string());
+      exit(-1);
+    }
+
+    YAMLReader::parse(particles, file, settings);
+  }
+
   /**
    * @brief Parse a YAML file into `particles` and `settings`
    *
@@ -21,5 +31,5 @@ class YAMLReader {
    * @param file Path to the yaml file
    * @param settings Where to store settings
    */
-  static void parse(std::vector<Particle> &particles, std::filesystem::path file, Settings &settings);
+  static void parse(std::vector<Particle> &particles, std::istream &file, Settings &settings);
 };
