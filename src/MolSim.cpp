@@ -35,16 +35,16 @@ void plotParticles(std::vector<Particle> &particles, int iteration, std::filesys
 void initializeLogging() {
   spdlog::init_thread_pool(8192, 1);
   // Create Sinks
-  /*auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+  auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
   auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(
-      "logs/log.txt", true); //true: overrides already existing files instad of appending
+      "logs/log.txt", true);  // true: overrides already existing files instad of appending
   // Create Logger
   std::vector<spdlog::sink_ptr> sinks{stdout_sink, file_sink};
   auto async_logger = std::make_shared<spdlog::async_logger>(
       "async_logger", sinks.begin(), sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block);
   // Set Defaults
   spdlog::set_default_logger(async_logger);
-  */
+
   spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
 }
 
