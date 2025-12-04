@@ -42,8 +42,9 @@
 doxys_documentation/
 *out*/
 
-# GDB
+# GDB & Perf Tooling
 .gdb_history
+perf.data*
 
 # Logs
 logs/
