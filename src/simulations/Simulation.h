@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "particleContainers/ParticleContainerV2.h"
 
 /**
  * @brief Base class for simulations
@@ -14,6 +15,7 @@ class Simulation {
   // desctructor to avoid memory leaks
   virtual ~Simulation() = default;
 
+  std::unique_ptr<ParticleContainerV2> container = nullptr;
   /**
    * @brief Performs one complete iteration of the simulation.
    *

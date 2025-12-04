@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Particle.h"
+#include "../Particle.h"
 #include "utils/ArrayUtils.h"
 
 /**
@@ -21,9 +21,11 @@ namespace Physics {
  * @param p2
  * @return Vector3
  */
-inline Vector3 planetForce(Particle &p1, Particle &p2) {
+inline void planetForce(Particle &p1, Particle &p2) {
   const double coeff = 1 / pow(ArrayUtils::L2Norm(p1.getX() - p2.getX()), 3);
-  return coeff * p1.getM() * p2.getM() * (p2.getX() - p1.getX());
+  const Vector3 force = coeff * p1.getM() * p2.getM() * (p2.getX() - p1.getX());
+  p1.addF(force);
+  p2.subF(force);
 }
 
 /**
@@ -42,11 +44,13 @@ inline Vector3 planetForce(Particle &p1, Particle &p2) {
  * @param epsilon ɛ
  * @return Vector3
  */
-inline Vector3 lennardJonesForce(Particle &p1, Particle &p2, double sigma, double epsilon) {
+inline void lennardJonesForce(Particle &p1, Particle &p2, double sigma, double epsilon) {
   const double norm = ArrayUtils::L2Norm(p1.getX() - p2.getX());
   const double coeff_1 = std::pow(sigma / norm, 6) - 2 * std::pow(sigma / norm, 12);
   const double coeff_2 = -(24 * epsilon) / std::pow(norm, 2);
-  return coeff_1 * coeff_2 * (p1.getX() - p2.getX());
+  const Vector3 force = coeff_1 * coeff_2 * (p1.getX() - p2.getX());
+  p1.addF(force);
+  p2.subF(force);
 }
 
 /**
@@ -61,9 +65,9 @@ inline Vector3 lennardJonesForce(Particle &p1, Particle &p2, double sigma, doubl
  * @param delta_t
  * @return Vector3
  */
-inline Vector3 calculateX(Particle &p, double delta_t) {
+inline void calculateX(Particle &p, double delta_t) {
   const double coeff = 1 / (2 * p.getM());
-  return p.getX() + delta_t * p.getV() + pow(delta_t, 2) * coeff * p.getF();
+  p.setX(p.getX() + delta_t * p.getV() + pow(delta_t, 2) * coeff * p.getF());
 }
 
 /**
@@ -78,9 +82,9 @@ inline Vector3 calculateX(Particle &p, double delta_t) {
  * @param delta_t
  * @return Vector3
  */
-inline Vector3 calculateV(Particle &p, double delta_t) {
+inline void calculateV(Particle &p, double delta_t) {
   const double coeff = 1 / (2 * p.getM());
-  return p.getV() + delta_t * coeff * (p.getOldF() + p.getF());
+  p.setV(p.getV() + delta_t * coeff * (p.getOldF() + p.getF()));
 }
 
 }  // namespace Physics

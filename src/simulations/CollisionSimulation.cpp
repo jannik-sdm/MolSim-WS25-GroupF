@@ -1,28 +1,46 @@
 //
-// Created by jannik on 11/7/25.
+// Created by jannik on 11/23/25.
 //
-
 #include "CollisionSimulation.h"
+
+#include <spdlog/spdlog.h>
+#include <unistd.h>
 
 #include "../utils/ArrayUtils.h"
 #include "../utils/MaxwellBoltzmannDistribution.h"
 #include "Physics.h"
+#include "particleContainers/LinkedCellsContainer.h"
 
-CollisionSimulation::CollisionSimulation(std::vector<Particle> &particles, const double end_time, const double delta_t)
-    : PlanetSimulation(particles, end_time, delta_t) {
-  // initialize particles with brownian motion
-  for (auto &p : particleContainer) {
-    Vector3 v = maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, 2);
-    p.setV(p.getV() + v);
-  }
+CollisionSimulation::CollisionSimulation(ParticleContainerV2 &container, Vector3 dimension, double end_time,
+                                         double delta_t, double cutoffRadius, std::array<BorderType, 6> &border,
+                                         bool is2D)
+    : end_time(end_time),
+      delta_t(delta_t),
+      cutoffRadius(cutoffRadius),
+      container(container),
+      repulsing_distance(std::pow(2, 1.0 / 6.0) * sigma),
+      is2D(is2D) {
+  initializeBrownianMotion();
 }
 
-void CollisionSimulation::updateF() {
-  for (auto &p : particleContainer) p.setF({0, 0, 0});
-  for (auto [p1, p2] : particleContainer.pairs()) {
-    Vector3 f = Physics::lennardJonesForce(p1, p2, sigma, epsilon);
+void CollisionSimulation::iteration() {
+  spdlog::debug("Updating Positions");
+  updateX();
+  spdlog::debug("Updating Forces");
+  updateF();
+  spdlog::debug("Updating Velocities");
+  updateV();
+}
 
-    p1.addF(f);
-    p2.subF(f);
-  }
+void CollisionSimulation::updateF() { container.applyToAllPairs(Physics::lennardJonesForce); }
+
+void CollisionSimulation::updateX() { container.updatePosition(Physics::calculateX); }
+
+void CollisionSimulation::updateV() { container.updateVelocity(Physics::calculateV); }
+
+void CollisionSimulation::initializeBrownianMotion() {
+  auto applyBrownianMotion = [this](Particle &p) {
+    p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, (is2D ? 2 : 3)));
+  };
+  container.applyToAllParticles(applyBrownianMotion);
 }

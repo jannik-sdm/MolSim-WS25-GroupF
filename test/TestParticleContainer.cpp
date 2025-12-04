@@ -2,7 +2,7 @@
 
 #include "TestParticleContainer.h"
 
-TestParticleContainer::TestParticleContainer() {
+Testcontainer::TestParticleContainer() {
   container = std::make_unique<ParticleContainer>(particles);
 
   for (int i = 0; i < NUM_PARTICLES; i++) {

@@ -11,8 +11,9 @@
 #include "Settings.h"
 #include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
+#include "particleContainers/DirectSum.h"
+#include "particleContainers/LinkedCellsContainer.h"
 #include "simulations/CollisionSimulation.h"
-#include "simulations/CutoffSimulation.h"
 #include "simulations/PlanetSimulation.h"
 #include "spdlog/async.h"
 #include "spdlog/sinks/basic_file_sink.h"
@@ -47,6 +48,9 @@ void initializeLogging() {
   */
   spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
 }
+
+const double epsilon = 5;
+const double sigma = 1;
 
 int main(int argc, char *argsv[]) {
   initializeLogging();
@@ -86,21 +90,28 @@ int main(int argc, char *argsv[]) {
 
     // select simulation
     std::unique_ptr<Simulation> simulation = nullptr;
+    std::unique_ptr<ParticleContainerV2> container = nullptr;
 
     switch (settings.worksheet) {
       case 1:
-        simulation = std::make_unique<PlanetSimulation>(input_particles, settings.end_time, settings.delta_t);
+        container = std::make_unique<DirectSum>(input_particles, settings.delta_t, sigma, epsilon);
+        simulation = std::make_unique<PlanetSimulation>(*container, settings.end_time, settings.delta_t);
         break;
 
       case 2:
-        simulation = std::make_unique<CollisionSimulation>(input_particles, settings.end_time, settings.delta_t);
+        container = std::make_unique<DirectSum>(input_particles, settings.delta_t, sigma, epsilon);
+        simulation =
+            std::make_unique<CollisionSimulation>(*container, settings.domain, settings.end_time, settings.delta_t,
+                                                  settings.cutoff_radius, settings.borders, settings.is2D);
         break;
 
       case 3:
       default:
+        container = std::make_unique<LinkedCellsContainer>(input_particles, settings.domain, settings.cutoff_radius,
+                                                           settings.delta_t, settings.borders, settings.is2D);
         simulation =
-            std::make_unique<CutoffSimulation>(input_particles, settings.domain, settings.end_time, settings.delta_t,
-                                               settings.cutoff_radius, settings.borders, settings.is2D);
+            std::make_unique<CollisionSimulation>(*container, settings.domain, settings.end_time, settings.delta_t,
+                                                  settings.cutoff_radius, settings.borders, settings.is2D);
     };
 
     double current_time = settings.start_time;

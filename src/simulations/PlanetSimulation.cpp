@@ -4,13 +4,13 @@
 
 #include "PlanetSimulation.h"
 
-#include "../ParticleContainer.h"
+#include "../container.h"
 #include "../utils/ArrayUtils.h"
 #include "Physics.h"
 #include "Simulation.h"
 
-PlanetSimulation::PlanetSimulation(std::vector<Particle> &particles, const double end_time, const double delta_t)
-    : particleContainer(particles), end_time(end_time), delta_t(delta_t) {}
+PlanetSimulation::PlanetSimulation(containerV2 &container, const double end_time, const double delta_t)
+    : container(container), end_time(end_time), delta_t(delta_t) {}
 
 void PlanetSimulation::iteration() {
   // calculate new x
@@ -22,23 +22,24 @@ void PlanetSimulation::iteration() {
 }
 
 void PlanetSimulation::updateF() {
-  for (auto &p : particleContainer) p.setF({0, 0, 0});
-  for (auto [p1, p2] : particleContainer.pairs()) {
+  for (auto &p : container) p.setF({0, 0, 0});
+  for (auto [p1, p2] : container.pairs()) {
     Vector3 f = Physics::planetForce(p1, p2);
 
     p1.addF(f);
     p2.subF(f);
   }
+  container.applyToAllPairs(Physics::planetForce);
 }
 
 void PlanetSimulation::updateX() {
-  for (auto &p : particleContainer) {
+  for (auto &p : container) {
     p.setX(Physics::calculateX(p, delta_t));
   }
 }
 
 void PlanetSimulation::updateV() {
-  for (auto &p : particleContainer) {
+  for (auto &p : container) {
     p.setV(Physics::calculateV(p, delta_t));
   }
 }

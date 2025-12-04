@@ -6,12 +6,12 @@
 #include <vector>
 
 #include "Particle.h"
-#include "simulations/CutoffSimulation.h"
+#include "simulations/CollisionSimulation.h"
 
 class CutoffSimulationTest : public ::testing::Test {
  protected:
   std::vector<Particle> particles;
-  std::unique_ptr<CutoffSimulation> sim;
+  std::unique_ptr<CollisionSimulation> sim;
 
   // Simulation Parameters
   Vector3 domain = {10.0, 10.0, 10.0};  // Large enough domain
@@ -31,6 +31,6 @@ class CutoffSimulationTest : public ::testing::Test {
     particles.reserve(100);
   }
   void InitSimulation() {
-    sim = std::make_unique<CutoffSimulation>(particles, domain, end_time, delta_t, cutoff, borders, is2D);
+    sim = std::make_unique<CollisionSimulation>(particles, domain, end_time, delta_t, cutoff, borders, is2D);
   }
 };

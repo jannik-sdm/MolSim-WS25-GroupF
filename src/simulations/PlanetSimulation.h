@@ -19,7 +19,7 @@
  */
 class PlanetSimulation : public Simulation {
  public:
-  PlanetSimulation(std::vector<Particle> &particles, double end_time, double delta_t);
+  PlanetSimulation(ParticleContainerV2 &container, double end_time, double delta_t);
   /**
    * Calculates one timestep of the simulation and applies the changes to the particles.
    */
@@ -27,7 +27,7 @@ class PlanetSimulation : public Simulation {
 
  protected:
   /** @brief Container for the particles */
-  ParticleContainer particleContainer;
+  ParticleContainerV2 &container;
   /** @todo remove this variable, its unused */
   const double end_time;
   /** @brief timestep used in calculations */
