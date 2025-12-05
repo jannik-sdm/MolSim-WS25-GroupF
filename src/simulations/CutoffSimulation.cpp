@@ -151,7 +151,9 @@ void CutoffSimulation::moveParticles() {
           p->setType(-1);  // mark particle as dead
           spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
         } else if (border == NAIVE_REFLECTION) {
-          // Get Velocity of the particle and flip it
+          // First go back to the Old Position and then reflect the Velocity and calculate the new Position
+          // This is not acurate, because the particle is not reflected AT the border,
+          // but since simply turning the velocity is not acurate either, this should be a good enough solution
           Vector3 v = p->getV();
           v[borderIndex % 3] *= -1;
           Vector3 neg = {-1, -1, -1};
