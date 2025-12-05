@@ -9,10 +9,10 @@
 LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff,
                          std::array<BorderType, 6> border)
     : particles(particles), domain_size(domain) {
-  // calculate number of cells
-  numCellsX = (domain_size[0] + cutoff - 1) / cutoff;
-  numCellsY = (domain_size[1] + cutoff - 1) / cutoff;
-  numCellsZ = (domain_size[2] + cutoff - 1) / cutoff;
+  // calculate number of cells - should always be at least 1
+  numCellsX = std::max(1, static_cast<int>(domain_size[0] / cutoff));
+  numCellsY = std::max(1, static_cast<int>(domain_size[1] / cutoff));
+  numCellsZ = std::max(1, static_cast<int>(domain_size[2] / cutoff));
 
   // calculate cell-size dimensions
   cellSizeX = domain_size[0] / numCellsX;
