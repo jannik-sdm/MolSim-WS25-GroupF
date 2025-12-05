@@ -62,6 +62,8 @@ simulation:
   brown_motion_avg_velocity: 0.1 # Average velocity to use in brownian motion
   cutoff_radius: 3.0 # Cutoff radius for LinkedCells simulations
   domain: [180, 90, 1] # Domain for LinkedCells simulations
+  borders: [outflow,outflow,outflow,outflow,outflow,outflow] #Border Types for the 6 Borders of the Domain. Possible Border Types are: outflow, period, naive Reflection, reflection
+  dimension: 2D #2D or 3D Domain
 
 # Instructions to spawn particles
 particles:
@@ -120,3 +122,5 @@ Test the Code
 ```
 ctest
 ```
+
+![Implementation worksheet 2 vs. worksheet 3](./material/Graphik_Iterationen.png)
