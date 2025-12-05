@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <vector>
 
 #include "Particle.h"
@@ -32,7 +33,7 @@ class PairIterator {
   size_t j;
 
  public:
-  PairIterator(std::vector<Particle> &particles, size_t i, size_t j) : particles(particles), i(i), j(j) {};
+  PairIterator(std::vector<Particle> &particles, size_t i, size_t j) : particles(particles), i(i), j(j){};
   std::pair<Particle &, Particle &> operator*();
   /**
    * Moves the iterator to the next distinct pair of particles
@@ -71,7 +72,7 @@ class PairRange {
   std::vector<Particle> &particles;
 
  public:
-  PairRange(std::vector<Particle> &particles) : particles(particles) {};
+  PairRange(std::vector<Particle> &particles) : particles(particles){};
 
   /**
    * @brief Begin iterating through distinct pairs
@@ -79,12 +80,15 @@ class PairRange {
    * @return PairIterator at the start of the list of distinct pairs
    */
   PairIterator begin() { return PairIterator(particles, 0, 1); }
+
   /**
    * @brief Stop iterating through distinct pairs
    *
    * @return PairIterator at the end of the list of distinct pairs
    */
-  PairIterator end() { return PairIterator(particles, particles.size() - 1, particles.size() - 1); }
+  PairIterator end() {
+    return PairIterator(particles, std::max(0UL, particles.size() - 2), std::max(1UL, particles.size() - 1));
+  }
 };
 
 /**
@@ -108,7 +112,9 @@ class ParticleContainer {
   /**
    * Data structure for storing the particles
    */
-  std::vector<Particle> particles;
+  std::vector<Particle> &particles;
+
+  ParticleContainer(std::vector<Particle> &p) : particles(p) {}
 
   /**
    * @brief Proxy for `std::vector begin()`

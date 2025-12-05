@@ -17,13 +17,17 @@ if(ENABLE_DOXYGEN_TARGET)
         set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
         #Generating LATEX
         set(DOXYGEN_GENERATE_LATEX YES)
+         # Make sure markdown is enabled and set image path so images in ./material are found
+        set(DOXYGEN_MARKDOWN_SUPPORT YES)
+        set(DOXYGEN_IMAGE_PATH ${PROJECT_SOURCE_DIR}/material)
+        
         IF(ENABLE_VTK_OUTPUT)
             set(DOXYGEN_PREDEFINED ENABLE_VTK_OUTPUT)
         endif()
         # TODO: Add a custom target for building the documentation.
         doxygen_add_docs(
                 doc_doxygen
-                src/ README.md
+                src/ README.md material/
                 WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                 COMMENT "Generate a Doxygen documentation with make doc_doxygen"
         )

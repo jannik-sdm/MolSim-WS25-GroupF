@@ -21,5 +21,11 @@
  */
 class CuboidReader : public FileReader<CuboidReader> {
  public:
+  /**
+   * @brief Parses a stream of the `file` in cuboid format into `particles`
+   *
+   * @param particles Where to store the read particles
+   * @param file Filestream to read from
+   */
   static void parse(std::vector<Particle> &particles, std::istream &file);
 };
