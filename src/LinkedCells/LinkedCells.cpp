@@ -36,6 +36,7 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
     }
     // check if cell should be a border cell
     else {
+      setNeighbourCells(i);
       if (x == 1 || y == 1 || z == 1 || x == numCellsX - 2 || y == numCellsY - 2 || z == numCellsZ - 2) {
         cells[i].cell_type = CellType::BORDER;
         // Set Border Types
@@ -59,7 +60,6 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
         }
       }
       // remaining cells are REGULAR by default
-      setNeighbourCells(i);
     }
   }
 
@@ -82,21 +82,21 @@ void LinkedCells::setNeighbourCells(const int cellIndex) {
   const std::array<int, 3> coordinates = index1dToIndex3d(cellIndex);
   Cell &cell = cells[cellIndex];
   int index = 0;
-  std::array<bool, 6> periodic;
+  //std::array<bool, 6> periodic;
   std::array<int, 3> dimension = {-1, -1, -1};
   for (; dimension[0] < 2; dimension[0]++) {
-    periodic[0] = (cell.borders[0] == PERIODIC && dimension[0] == -1);
-    periodic[3] = (cell.borders[3] == PERIODIC && dimension[0] == 1);
+    //periodic[0] = (cell.borders[0] == PERIODIC && dimension[0] == -1);
+    //periodic[3] = (cell.borders[3] == PERIODIC && dimension[0] == 1);
     for (; dimension[1] < 2; dimension[1]++) {
-      periodic[1] = (cell.borders[1] == PERIODIC && dimension[1] == -1);
-      periodic[4] = (cell.borders[4] == PERIODIC && dimension[1] == 1);
+      //periodic[1] = (cell.borders[1] == PERIODIC && dimension[1] == -1);
+      //periodic[4] = (cell.borders[4] == PERIODIC && dimension[1] == 1);
       for (; dimension[2] < 2; dimension[2]++) {
-        periodic[2] = (cell.borders[2] == PERIODIC && dimension[2] == -1);
-        periodic[5] = (cell.borders[5] == PERIODIC && dimension[2] == 1);
+        //periodic[2] = (cell.borders[2] == PERIODIC && dimension[2] == -1);
+        //periodic[5] = (cell.borders[5] == PERIODIC && dimension[2] == 1);
         if (dimension[0] == 0 && dimension[1] == 0 && dimension[2] == 0) continue;
         //Set Periodic neighbours different, if boundarys are periodic:
         std::array<int, 3> neighbourCoordinates = coordinates;
-        for (int i = 0; i < 3; i++) {
+        /*for (int i = 0; i < 3; i++) {
           if (periodic[i]) {
             //x/y/z Coordinate = max Zeile
             neighbourCoordinates[i] = numCells[i] -2;//NumCellsX/Y/Z
@@ -106,9 +106,9 @@ void LinkedCells::setNeighbourCells(const int cellIndex) {
           }else {
             //x/y/z Coordinate = aktuelle + i/j/k
             neighbourCoordinates[i] += dimension[i];
-          }
-        }
-          const int currentCellIndex = index3dToIndex1d(neighbourCoordinates[0], neighbourCoordinates[1], neighbourCoordinates[2]);
+          //}
+        }*/
+        const int currentCellIndex = index3dToIndex1d(neighbourCoordinates[0]+dimension[0], neighbourCoordinates[1]+dimension[1], neighbourCoordinates[2]+dimension[2]);
           cells[cellIndex].neighbors[index] = currentCellIndex;
         index++;
       }
@@ -172,7 +172,8 @@ int LinkedCells::getSharedBorder(int ownIndex1d, int otherIndex1d) {
   // Find Border:
   if (i < 0) {
     //Check for Periodic borders
-    if (cells[otherIndex1d].cell_type == GHOST
+    /*if (cells[otherIndex1d].cell_type == GHOST
+      //Nachsehen, ob eine der borders unserer Zelle Periodisch ist
       && std::find(cells[ownIndex1d].borders.begin(), cells[ownIndex1d].borders.end(), PERIODIC) != cells[ownIndex1d].borders.end()) {
       //Find real cell to a ghost cell
       std::array<int, 3> otherIndex3d  = index1dToIndex3d(otherIndex1d);
@@ -185,7 +186,7 @@ int LinkedCells::getSharedBorder(int ownIndex1d, int otherIndex1d) {
       }
       spdlog::warn("Entered recursive part");
       return getSharedBorder(ownIndex1d, index3dToIndex1d(otherIndex3d[0], otherIndex3d[1], otherIndex3d[2]));
-    }
+    }*/
     return -1;
   }
   if (i < 9) return 0;    // All Neighbours at x = 0 Border (back)

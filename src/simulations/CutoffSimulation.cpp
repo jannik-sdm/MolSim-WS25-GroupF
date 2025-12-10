@@ -55,6 +55,11 @@ void CutoffSimulation::updateF() {
         // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
         p1->addF(f);
         p2->subF(f);
+        spdlog::trace("Adding Force: ({},{},{})", f[0], f[1], f[2]);
+        spdlog::trace("new Force own Cell: ({},{},{}) with particles: p1: ({},{},{}), p2: ({},{},{})",
+          p1->getF()[0], p1->getF()[1], p1->getF()[2],
+          p1->getX()[0], p1->getX()[1], p1->getX()[2],
+          p2->getX()[0], p2->getX()[1], p2->getX()[2]);
       }
     }
   }
@@ -86,6 +91,7 @@ void CutoffSimulation::updateF() {
             Vector3 f = Physics::lennardJonesForce(*p1, p2, sigma, epsilon);
             p1->addF(f);
             spdlog::trace("adding force of ghost particle: {} {} {}", f[0], f[1], f[2]);
+            spdlog::trace("new Force Ghost Cell: ({},{},{})", p1->getF()[0], p1->getF()[1], p1->getF()[2]);
             // dont need to subtract force of ghost particles, since they are updated after anyways
           }
         } else {
@@ -94,9 +100,10 @@ void CutoffSimulation::updateF() {
             if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoffRadius) continue;
 
             Vector3 f = Physics::lennardJonesForce(*p1, *p2, sigma, epsilon);
-            // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
+            spdlog::trace("Adding ({},{},{}) to the force of Particle: ({},{},{})", f[0], f[1], f[2], p1->getX()[0], p1->getX()[1], p1->getX()[2]);
             p1->addF(f);
             p2->subF(f);
+            spdlog::trace("new Force Normal Cell: ({},{},{})", p1->getF()[0], p1->getF()[1], p1->getF()[2]);
           }
         }
       }
@@ -110,6 +117,8 @@ void CutoffSimulation::updateX() {
     if (particle.getType() < 0) continue;
     spdlog::trace("Updating X:");
     spdlog::trace("-> Old Position: ({},{},{})", particle.getX()[0], particle.getX()[1], particle.getX()[2]);
+    spdlog::trace("-> Velocity: ({},{},{})", particle.getV()[0], particle.getV()[1], particle.getV()[2]);
+    spdlog::trace("-> Force: ({},{},{})", particle.getF()[0], particle.getF()[1], particle.getF()[2]);
     particle.setX(Physics::calculateX(particle, delta_t));
     spdlog::trace("-> New: ({},{},{})", particle.getX()[0], particle.getX()[1], particle.getX()[2]);
   }
@@ -139,7 +148,9 @@ void CutoffSimulation::moveParticles() {
       // move p to cell[j]
 
       spdlog::trace("Moving particle with coordinate ({},{},{}) from cell {} to cell {}", p->getX()[0], p->getX()[1],
-                    p->getX()[2], k, i);
+                    p->getX()[2], i,k);
+      std::array<int, 3> i3D = linkedCells.index1dToIndex3d(i);
+      spdlog::trace("Old cell: ({},{},{})", i3D[0],i3D[1], i3D[2] );
       Cell &new_cell = linkedCells.cells[k];
       if (new_cell.cell_type != CellType::GHOST) {
         new_cell.particles.push_back(p);
@@ -166,16 +177,15 @@ void CutoffSimulation::moveParticles() {
           p->setV(v);                        // Set new Velocity
           Physics::calculateX(*p, delta_t);  // Calculate new Position
           continue;                          // Don't move the Particle into a Ghost Cell
-        } else if (border == PERIODIC) {
-          spdlog::trace("Particle left domain at one side and entered it at the other side");
-          //Eigentliche Logik in update Ghost
+        } /*else if (border == PERIODIC) {
           Vector3 x = p->getX();
+          spdlog::warn("Particle with position ({},{},{}) left domain at one side and entered it at the other side", x[0],x[1],x[2]);
           for (int index = 0; index < 3; index++) {
             if (x[index] < 0 ) x[index] += linkedCells.domain_size[index];
             if (x[index] > linkedCells.domain_size[index]) x[index] -= linkedCells.domain_size[index];
           }
           p->setX(x);
-        }else{
+        }*/else{
           spdlog::error("A Particle escaped from the domain, even, if it shouldn't");
         }
       }
