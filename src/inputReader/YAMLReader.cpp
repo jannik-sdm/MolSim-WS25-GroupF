@@ -36,7 +36,7 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Set
       auto &borderString = borderStrings[i];
       if (borderString == "reflection")
         borders[i] = REFLECTION;
-      else if (borderString == "period")
+      else if (borderString == "periodic")
         borders[i] = PERIODIC;
       else if (borderString == "naive Reflection")
         borders[i] = NAIVE_REFLECTION;

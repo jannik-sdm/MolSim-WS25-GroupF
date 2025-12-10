@@ -32,6 +32,10 @@ class LinkedCells {
    */
   std::array<double, 3> cell_size;
   /**
+   * Describes how many cells the overall structure has in X-,Y-, amd Z-direction
+   */
+  std::array<int, 3> numCells;
+  /**
    * Describes how many cells the overall structure has in X-direction
    */
   int numCellsX;

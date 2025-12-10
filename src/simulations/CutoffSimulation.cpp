@@ -152,7 +152,7 @@ void CutoffSimulation::moveParticles() {
           spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
         } else if (border == NAIVE_REFLECTION) {
           // First go back to the Old Position and then reflect the Velocity and calculate the new Position
-          // This is not acurate, because the particle is not reflected AT the border,
+          // This is not acurate, because the particle is not reflected at the border,
           // but since simply turning the velocity is not acurate either, this should be a good enough solution
           Vector3 v = p->getV();
           v[borderIndex % 3] *= -1;
@@ -166,7 +166,16 @@ void CutoffSimulation::moveParticles() {
           p->setV(v);                        // Set new Velocity
           Physics::calculateX(*p, delta_t);  // Calculate new Position
           continue;                          // Don't move the Particle into a Ghost Cell
-        } else {
+        } else if (border == PERIODIC) {
+          spdlog::trace("Particle left domain at one side and entered it at the other side");
+          //Eigentliche Logik in update Ghost
+          Vector3 x = p->getX();
+          for (int index = 0; index < 3; index++) {
+            if (x[index] < 0 ) x[index] += linkedCells.domain_size[index];
+            if (x[index] > linkedCells.domain_size[index]) x[index] -= linkedCells.domain_size[index];
+          }
+          p->setX(x);
+        }else{
           spdlog::error("A Particle escaped from the domain, even, if it shouldn't");
         }
       }

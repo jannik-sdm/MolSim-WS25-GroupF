@@ -24,6 +24,7 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
   numCellsX += 2;
   numCellsY += 2;
   numCellsZ += 2;
+  numCells = {numCellsX, numCellsY, numCellsZ};
 
   cells.resize(numCellsX * numCellsY * numCellsZ);
 
@@ -35,7 +36,6 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
     }
     // check if cell should be a border cell
     else {
-      setNeighbourCells(i);
       if (x == 1 || y == 1 || z == 1 || x == numCellsX - 2 || y == numCellsY - 2 || z == numCellsZ - 2) {
         cells[i].cell_type = CellType::BORDER;
         // Set Border Types
@@ -59,6 +59,7 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
         }
       }
       // remaining cells are REGULAR by default
+      setNeighbourCells(i);
     }
   }
 
@@ -79,15 +80,36 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
 
 void LinkedCells::setNeighbourCells(const int cellIndex) {
   const std::array<int, 3> coordinates = index1dToIndex3d(cellIndex);
-
+  Cell &cell = cells[cellIndex];
   int index = 0;
-  for (int i = -1; i < 2; i++) {
-    for (int j = -1; j < 2; j++) {
-      for (int k = -1; k < 2; k++) {
-        if (i == 0 && j == 0 && k == 0) continue;
-
-        const int currentCellIndex = index3dToIndex1d(coordinates[0] + i, coordinates[1] + j, coordinates[2] + k);
-        cells[cellIndex].neighbors[index] = currentCellIndex;
+  std::array<bool, 6> periodic;
+  std::array<int, 3> dimension = {-1, -1, -1};
+  for (; dimension[0] < 2; dimension[0]++) {
+    periodic[0] = (cell.borders[0] == PERIODIC && dimension[0] == -1);
+    periodic[3] = (cell.borders[3] == PERIODIC && dimension[0] == 1);
+    for (; dimension[1] < 2; dimension[1]++) {
+      periodic[1] = (cell.borders[1] == PERIODIC && dimension[1] == -1);
+      periodic[4] = (cell.borders[4] == PERIODIC && dimension[1] == 1);
+      for (; dimension[2] < 2; dimension[2]++) {
+        periodic[2] = (cell.borders[2] == PERIODIC && dimension[2] == -1);
+        periodic[5] = (cell.borders[5] == PERIODIC && dimension[2] == 1);
+        if (dimension[0] == 0 && dimension[1] == 0 && dimension[2] == 0) continue;
+        //Set Periodic neighbours different, if boundarys are periodic:
+        std::array<int, 3> neighbourCoordinates = coordinates;
+        for (int i = 0; i < 3; i++) {
+          if (periodic[i]) {
+            //x/y/z Coordinate = max Zeile
+            neighbourCoordinates[i] = numCells[i] -2;//NumCellsX/Y/Z
+          }else if (periodic[i+3]) {
+            //x/y/z Coordinate = min Zeile
+            neighbourCoordinates[i] = 1;
+          }else {
+            //x/y/z Coordinate = aktuelle + i/j/k
+            neighbourCoordinates[i] += dimension[i];
+          }
+        }
+          const int currentCellIndex = index3dToIndex1d(neighbourCoordinates[0], neighbourCoordinates[1], neighbourCoordinates[2]);
+          cells[cellIndex].neighbors[index] = currentCellIndex;
         index++;
       }
     }
@@ -139,6 +161,7 @@ double LinkedCells::getBorderDistance(const int cellIndex, const int border, Vec
   return std::abs(pos[axis] - borderWall);
 }
 
+//Diese funktion funktioniert noch nicht 100 % richtig, wenn ein Partikel die Domäne verlassen möchte und es mehrere verschiedene Boundary Typen gibt
 int LinkedCells::getSharedBorder(int ownIndex1d, int otherIndex1d) {
   std::array<int, 26> &neighbours = cells[ownIndex1d].neighbors;
   int i = -1;
@@ -147,7 +170,24 @@ int LinkedCells::getSharedBorder(int ownIndex1d, int otherIndex1d) {
     if (neighbours[i] == otherIndex1d) break;
   }
   // Find Border:
-  if (i < 0) return -1;
+  if (i < 0) {
+    //Check for Periodic borders
+    if (cells[otherIndex1d].cell_type == GHOST
+      && std::find(cells[ownIndex1d].borders.begin(), cells[ownIndex1d].borders.end(), PERIODIC) != cells[ownIndex1d].borders.end()) {
+      //Find real cell to a ghost cell
+      std::array<int, 3> otherIndex3d  = index1dToIndex3d(otherIndex1d);
+      for (int j = 0; j < 3; j++) {
+        if (otherIndex3d[j] == numCells[j] -1) {
+          otherIndex3d[j] = 1;
+        }else if (otherIndex3d[j] == 0) {
+          otherIndex3d[j] = numCells[j]-2;
+        }
+      }
+      spdlog::warn("Entered recursive part");
+      return getSharedBorder(ownIndex1d, index3dToIndex1d(otherIndex3d[0], otherIndex3d[1], otherIndex3d[2]));
+    }
+    return -1;
+  }
   if (i < 9) return 0;    // All Neighbours at x = 0 Border (back)
   if (i < 12) return 1;   // All Neighbours at y = 0 Border (bottom)
   if (i == 12) return 2;  // Neighbour at z = 0 Border (right)
