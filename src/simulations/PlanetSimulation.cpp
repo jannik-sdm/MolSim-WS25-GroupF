@@ -2,12 +2,12 @@
 // Created by jannik on 11/6/25.
 //
 
-#include "PlanetSimulation.h"
+#include "simulations/PlanetSimulation.h"
 
-#include "../ParticleContainer.h"
-#include "../utils/ArrayUtils.h"
 #include "Physics.h"
-#include "Simulation.h"
+#include "container/directSum/ParticleContainer.h"
+#include "simulations/Simulation.h"
+#include "utils/ArrayUtils.h"
 
 PlanetSimulation::PlanetSimulation(std::vector<Particle> &particles, const double end_time, const double delta_t)
     : particleContainer(particles), end_time(end_time), delta_t(delta_t) {}

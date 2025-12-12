@@ -6,8 +6,8 @@
 #include <cmath>
 #include <memory>
 
-#include "../LinkedCells/LinkedCells.h"
-#include "Simulation.h"
+#include "container/linkedCells/LinkedCells.h"
+#include "simulations/Simulation.h"
 
 class CutoffSimulation : public Simulation {
  private:

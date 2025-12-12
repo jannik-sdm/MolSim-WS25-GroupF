@@ -2,11 +2,11 @@
 // Created by jannik on 11/7/25.
 //
 
-#include "CollisionSimulation.h"
+#include "simulations/CollisionSimulation.h"
 
-#include "../utils/ArrayUtils.h"
-#include "../utils/MaxwellBoltzmannDistribution.h"
 #include "Physics.h"
+#include "utils/ArrayUtils.h"
+#include "utils/MaxwellBoltzmannDistribution.h"
 
 CollisionSimulation::CollisionSimulation(std::vector<Particle> &particles, const double end_time, const double delta_t)
     : PlanetSimulation(particles, end_time, delta_t) {

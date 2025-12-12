@@ -1,4 +1,5 @@
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
 #include "inputReader/CuboidReader.h"
 #include "inputReader/FileReader.h"
 #include "inputReader/XYZReader.h"

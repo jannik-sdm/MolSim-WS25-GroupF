@@ -1,7 +1,8 @@
 #pragma once
 
-#include "ParticleContainer.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
+#include "container/directSum/ParticleContainer.h"
 
 class TestParticleContainer : public ::testing::Test {
  protected:

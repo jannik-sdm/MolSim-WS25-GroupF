@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "../ParticleContainer.h"
-#include "Simulation.h"
+#include "container/directSum/ParticleContainer.h"
+#include "simulations/Simulation.h"
 
 /**
  * @class PlanetSimulation

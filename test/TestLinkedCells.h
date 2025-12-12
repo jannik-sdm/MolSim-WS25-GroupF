@@ -8,8 +8,8 @@
 #include <memory>
 #include <vector>
 
-#include "LinkedCells/LinkedCells.h"
 #include "Particle.h"
+#include "container/linkedCells/LinkedCells.h"
 
 class TestLinkedCells : public ::testing::Test {
  protected:

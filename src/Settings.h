@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <iostream>
 
-#include "LinkedCells/Cell.h"
+#include "container/linkedCells/Cell.h"
 #include "inputReader/CuboidReader.h"
 #include "inputReader/FileReader.h"
 #include "inputReader/XYZReader.h"
@@ -48,7 +48,7 @@ class Settings {
   /** @brief Which worksheet to run */
   unsigned int worksheet;
 
-  Settings(std::vector<Particle> &particles) : particles(particles){};
+  Settings(std::vector<Particle> &particles) : particles(particles) {};
 
   /**
    * @brief Parses the Arguments

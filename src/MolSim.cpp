@@ -6,9 +6,9 @@
 #include <iostream>
 #include <memory>
 
-#include "LinkedCells/LinkedCells.h"
-#include "ParticleContainer.h"
 #include "Settings.h"
+#include "container/directSum/ParticleContainer.h"
+#include "container/linkedCells/LinkedCells.h"
 #include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
 #include "simulations/CollisionSimulation.h"

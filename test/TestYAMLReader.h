@@ -3,7 +3,6 @@
 #include <gtest/gtest.h>
 
 #include "Particle.h"
-#include "ParticleGenerator.h"
 #include "Settings.h"
 
 class TestYAMLReader : public ::testing::Test {
