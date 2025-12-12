@@ -90,7 +90,7 @@ class CutoffSimulation : public Simulation {
    * @brief Calculates the current temperature of the simulation
    * @return current temperature of the simulation
    */
-  double calculateTemperature();
+  double calculateCurrentTemperature();
 
   /**
    * @brief Calculates the scaling factor beta based on the target temperature
