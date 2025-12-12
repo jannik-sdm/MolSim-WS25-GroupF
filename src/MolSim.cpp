@@ -67,13 +67,15 @@ int main(int argc, char *argsv[]) {
     exit(EXIT_SUCCESS);
   }
 
-  // use given parameters, or default endtime = 1000 delta_t = 0.014
-  spdlog::info("Parsed Arguments:");
-  spdlog::info("Starting simulation with parameters:");
-  spdlog::info("endtime = {}", settings.end_time);
-  spdlog::info("delta_t = {}", settings.delta_t);
-  spdlog::info("brown_motion_mean = {}", settings.brown_motion_avg_velocity);
-  spdlog::info("output path/name = {}", settings.outputFolder.string());
+  if (!settings.worksheet.has_value()) {
+    spdlog::warn("No simulation selected");
+    exit(EXIT_SUCCESS);
+  }
+
+  if (!settings.delta_t.has_value()) {
+    spdlog::error("Missing value for delta_t");
+    exit(EXIT_SUCCESS);
+  }
 
 #ifdef ENABLE_TIME_MEASURE
   auto total_start_time_measure = std::chrono::high_resolution_clock::now();
@@ -87,27 +89,32 @@ int main(int argc, char *argsv[]) {
     // select simulation
     std::unique_ptr<Simulation> simulation = nullptr;
 
-    switch (settings.worksheet) {
+    switch (settings.worksheet.value()) {
       case 1:
-        simulation = std::make_unique<PlanetSimulation>(input_particles, settings.end_time, settings.delta_t);
+        simulation =
+            std::make_unique<PlanetSimulation>(input_particles, settings.end_time.value(), settings.delta_t.value());
         break;
 
       case 2:
-        simulation = std::make_unique<CollisionSimulation>(input_particles, settings.end_time, settings.delta_t);
+        simulation =
+            std::make_unique<CollisionSimulation>(input_particles, settings.end_time.value(), settings.delta_t.value());
         break;
 
       case 3:
+        simulation = std::make_unique<CutoffSimulation>(
+            input_particles, settings.domain.value(), settings.end_time.value(), settings.delta_t.value(),
+            settings.cutoff_radius.value(), settings.borders.value(), settings.is2D);
+        break;
       default:
-        simulation =
-            std::make_unique<CutoffSimulation>(input_particles, settings.domain, settings.end_time, settings.delta_t,
-                                               settings.cutoff_radius, settings.borders, settings.is2D);
+        spdlog::error("Invalid worksheet number {}", settings.worksheet.value());
+        exit(EXIT_FAILURE);
     };
 
     double current_time = settings.start_time;
     int iteration = 0;
 
     // for this loop, we assume: current x, current f and current v are known
-    while (current_time < settings.end_time) {
+    while (current_time < settings.end_time.value_or(settings.start_time)) {
       simulation->iteration();
       iteration++;
 
@@ -116,7 +123,7 @@ int main(int argc, char *argsv[]) {
       }
       spdlog::info("Iteration {} finished.", iteration);
 
-      current_time += settings.delta_t;
+      current_time += settings.delta_t.value();
     }
 
     spdlog::info("output written. Terminating...");
