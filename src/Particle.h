@@ -57,6 +57,13 @@ class Particle {
    */
   int type;
 
+  /**
+   * State of the particle.
+   * -1 := dead
+   * 0 := alive
+   */
+  int state = 0;
+
  public:
   /**
    * @brief Empty constructor
