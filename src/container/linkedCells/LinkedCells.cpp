@@ -2,7 +2,7 @@
 // Created by jv_fedora on 19.11.25.
 //
 
-#include "LinkedCells.h"
+#include "container/linkedCells/LinkedCells.h"
 
 #include <spdlog/spdlog.h>
 

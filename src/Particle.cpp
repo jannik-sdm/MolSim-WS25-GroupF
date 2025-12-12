@@ -7,9 +7,10 @@
 
 #include "Particle.h"
 
+#include <spdlog/spdlog.h>
+
 #include <iostream>
 
-#include "spdlog/spdlog.h"
 #include "utils/ArrayUtils.h"
 
 Particle::Particle(int type_arg) {

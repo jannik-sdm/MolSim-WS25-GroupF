@@ -1,4 +1,4 @@
-#include "CuboidReader.h"
+#include "inputReader/CuboidReader.h"
 
 #include <array>
 #include <cstdlib>
@@ -6,7 +6,7 @@
 #include <sstream>
 #include <vector>
 
-#include "../ParticleGenerator.h"
+#include "ParticleGenerator.h"
 
 void CuboidReader::parse(std::vector<Particle> &particles, std::istream &file) {
   Vector3 x;

@@ -1,11 +1,11 @@
-#include "XYZReader.h"
+#include "inputReader/XYZReader.h"
+
+#include <spdlog/spdlog.h>
 
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <vector>
-
-#include "spdlog/spdlog.h"
 
 void XYZReader::parse(std::vector<Particle> &particles, std::istream &file) {
   std::array<double, 3> x;

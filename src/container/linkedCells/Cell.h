@@ -2,8 +2,8 @@
 // Created by jv_fedora on 19.11.25.
 //
 #pragma once
-#include "../Particle.h"
-#include "../ParticleContainer.h"
+#include "Particle.h"
+#include "container/directSum/ParticleContainer.h"
 /**
  * Cell Type
  * REGULAR = Cell

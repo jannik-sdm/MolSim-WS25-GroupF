@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "../Particle.h"
-#include "PlanetSimulation.h"
+#include "Particle.h"
+#include "simulations/PlanetSimulation.h"
 
 /**
  * @class CollisionSimulation

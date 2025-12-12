@@ -3,8 +3,8 @@
 #include <filesystem>
 #include <vector>
 
-#include "../Particle.h"
-#include "../Settings.h"
+#include "Particle.h"
+#include "Settings.h"
 
 class Settings;
 

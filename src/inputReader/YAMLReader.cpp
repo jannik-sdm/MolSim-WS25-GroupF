@@ -1,4 +1,4 @@
-#include "YAMLReader.h"
+#include "inputReader/YAMLReader.h"
 
 #include <spdlog/spdlog.h>
 #include <yaml-cpp/yaml.h>
@@ -9,9 +9,9 @@
 #include <sstream>
 #include <vector>
 
-#include "../LinkedCells/Cell.h"
-#include "../ParticleGenerator.h"
-#include "../utils/ArrayUtils.h"
+#include "ParticleGenerator.h"
+#include "container/linkedCells/Cell.h"
+#include "utils/ArrayUtils.h"
 
 void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Settings &settings) {
   YAML::Node config = YAML::Load(file);

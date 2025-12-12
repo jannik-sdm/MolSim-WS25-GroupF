@@ -7,8 +7,8 @@
 #include <array>
 #include <vector>
 
-#include "Cell.h"
-#include "ParticleContainer.h"
+#include "container/directSum/ParticleContainer.h"
+#include "container/linkedCells/Cell.h"
 
 class LinkedCells {
  public:

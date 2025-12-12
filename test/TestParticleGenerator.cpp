@@ -1,6 +1,7 @@
 
+#include <gtest/gtest.h>
+
 #include "ParticleGenerator.h"
-#include "gtest/gtest.h"
 
 /**
  * @test Basic Cuboid generation

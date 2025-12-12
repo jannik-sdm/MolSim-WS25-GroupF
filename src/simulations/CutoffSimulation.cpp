@@ -1,14 +1,14 @@
 //
 // Created by jannik on 11/23/25.
 //
-#include "CutoffSimulation.h"
+#include "simulations/CutoffSimulation.h"
 
 #include <spdlog/spdlog.h>
 #include <unistd.h>
 
-#include "../utils/ArrayUtils.h"
-#include "../utils/MaxwellBoltzmannDistribution.h"
 #include "Physics.h"
+#include "utils/ArrayUtils.h"
+#include "utils/MaxwellBoltzmannDistribution.h"
 
 CutoffSimulation::CutoffSimulation(std::vector<Particle> &particles, Vector3 dimension, double end_time, double delta_t,
                                    double cutoffRadius, std::array<BorderType, 6> &border, bool is2D)
