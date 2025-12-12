@@ -9,9 +9,9 @@
 #include <sstream>
 #include <vector>
 
-#include "ParticleGenerator.h"
 #include "container/linkedCells/Cell.h"
 #include "utils/ArrayUtils.h"
+#include "utils/ParticleGenerator.h"
 
 void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Settings &settings) {
   YAML::Node config = YAML::Load(file);
