@@ -19,7 +19,8 @@ CutoffSimulation::CutoffSimulation(std::vector<Particle> &particles, Vector3 dim
       particles(particles),
       repulsing_distance(std::pow(2, 1.0 / 6.0) * sigma),
       is2D(is2D) {
-  for (auto &p : particles) if (p.getState() != -1) alive_particles++;
+  for (auto &p : particles)
+    if (p.getState() != -1) alive_particles++;
   initializeBrownianMotion();
 }
 
@@ -263,4 +264,10 @@ double CutoffSimulation::calculateEkin() {
     ekin += 0.5 * p.getM() * v * v;
   }
   return ekin;
+}
+
+double CutoffSimulation::calculateTemperature() {
+  const int dimensions = (is2D ? 2 : 3);
+  const double temperature = (2 * calculateEkin()) / (dimensions * alive_particles);
+  return temperature;
 }

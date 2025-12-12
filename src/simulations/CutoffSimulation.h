@@ -85,4 +85,12 @@ class CutoffSimulation : public Simulation {
    * @return kinetic energy of all the particles
    */
   double calculateEkin();
+
+  /**
+   * @brief calculates the current temperature of the simulation
+   * @return current temperature of the simulation
+   */
+  double calculateTemperature();
+
+
 };
