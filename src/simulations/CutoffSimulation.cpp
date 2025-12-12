@@ -256,6 +256,7 @@ void CutoffSimulation::initializeBrownianMotion() {
 double CutoffSimulation::calculateEkin() {
   double ekin = 0;
   for (auto &p : particles) {
+    if (p.getState() < 0) continue;
     const double v = ArrayUtils::L2Norm(p.getV());
     ekin += 0.5 * p.getM() * v * v;
   }
