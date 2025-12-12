@@ -92,5 +92,10 @@ class CutoffSimulation : public Simulation {
    */
   double calculateTemperature();
 
-
+  /**
+   * @brief calculates the scaling factor beta based on the target temperature
+   * @param target_temperature the target temperature we want the simulation to reach
+   * @return scaling factor beta
+   */
+  double calculateScalingFactor(double target_temperature);
 };

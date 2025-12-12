@@ -271,3 +271,9 @@ double CutoffSimulation::calculateTemperature() {
   const double temperature = (2 * calculateEkin()) / (dimensions * alive_particles);
   return temperature;
 }
+
+double CutoffSimulation::calculateScalingFactor(double target_temperature) {
+  return std::sqrt(target_temperature / calculateTemperature());
+}
+
+
