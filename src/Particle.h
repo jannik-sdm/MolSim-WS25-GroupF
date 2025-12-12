@@ -143,6 +143,8 @@ class Particle {
    */
   int getType() const;
 
+  int getState() const;
+
   /**
    * @brief Sets new effective Force and updates Old Force to the current Force
    * @param new_f new Force - 3D-"Vector" (std::array<double, 3>)
@@ -180,6 +182,8 @@ class Particle {
   void setM(const double new_m);
 
   void setType(int new_type) { type = new_type; }
+
+  void setState(int new_state) { state = new_state;}
 
   /**
    * @brief Comparte two particles
