@@ -5,6 +5,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <optional>
 
 #include "container/linkedCells/Cell.h"
 #include "inputReader/CuboidReader.h"
@@ -28,25 +29,25 @@ class Settings {
   /** @brief Time where the simulation starts */
   const double start_time = 0;
   /** @brief time until the simulation runs */
-  double end_time = 5;
+  std::optional<double> end_time;
   /** @brief amount of time that passes each iteration */
-  double delta_t = 0.0002;
+  std::optional<double> delta_t;
   /** @brief Average brownian motion velocity to initialize the particles with */
-  double brown_motion_avg_velocity = 0.1;
+  std::optional<double> brown_motion_avg_velocity;
   /** @brief Cutoff radius for linked cell algorithm */
-  double cutoff_radius = 3.0;
+  std::optional<double> cutoff_radius;
   /** @brief BorderTypes of all 6 sides of the domain"*/
-  std::array<BorderType, 6> borders;
+  std::optional<std::array<BorderType, 6>> borders;
   /** @brief Specifies if the simmulation should be 2D or 3D"*/
   bool is2D = false;
   /** @brief Domain */
-  Vector3 domain = {1, 1, 1};
+  std::optional<Vector3> domain;
 
   /** @brief Log level for console/file output */
   spdlog::level::level_enum log_level = spdlog::level::info;
 
   /** @brief Which worksheet to run */
-  unsigned int worksheet;
+  std::optional<unsigned int> worksheet;
 
   Settings(std::vector<Particle> &particles) : particles(particles) {};
 

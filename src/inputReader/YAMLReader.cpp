@@ -30,19 +30,7 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Set
 
   if (simulation["domain"]) settings.domain = simulation["domain"].as<Vector3>();
   if (simulation["borders"]) {
-    std::array<std::string, 6> borderStrings = simulation["borders"].as<std::array<std::string, 6>>();
-    std::array<BorderType, 6> &borders = settings.borders;
-    for (int i = 0; i < 6; i++) {
-      auto &borderString = borderStrings[i];
-      if (borderString == "reflection")
-        borders[i] = REFLECTION;
-      else if (borderString == "period")
-        borders[i] = PERIODIC;
-      else if (borderString == "naive Reflection")
-        borders[i] = NAIVE_REFLECTION;
-      else
-        borders[i] = OUTFLOW;
-    }
+    settings.borders = string_to_border_type(simulation["borders"].as<std::array<std::string, 6>>());
   }
   if (simulation["dimension"]) settings.is2D = simulation["dimension"].as<std::string>() == "2D";
 
