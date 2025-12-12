@@ -87,15 +87,21 @@ class CutoffSimulation : public Simulation {
   double calculateEkin();
 
   /**
-   * @brief calculates the current temperature of the simulation
+   * @brief Calculates the current temperature of the simulation
    * @return current temperature of the simulation
    */
   double calculateTemperature();
 
   /**
-   * @brief calculates the scaling factor beta based on the target temperature
+   * @brief Calculates the scaling factor beta based on the target temperature
    * @param target_temperature the target temperature we want the simulation to reach
    * @return scaling factor beta
    */
   double calculateScalingFactor(double target_temperature);
+
+  /**
+   * @brief Applies the scaling factor beta to each velocity
+   * @param scaling_factor scaling factor beta applied to each velocity
+   */
+  void applyScalingFactor(double scaling_factor);
 };

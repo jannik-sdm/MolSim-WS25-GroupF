@@ -276,4 +276,9 @@ double CutoffSimulation::calculateScalingFactor(double target_temperature) {
   return std::sqrt(target_temperature / calculateTemperature());
 }
 
-
+void CutoffSimulation::applyScalingFactor(double scaling_factor) {
+  for (auto &p : particles) {
+    if (p.getState() < 0) continue;
+    p.setV(scaling_factor * p.getV());
+  }
+}
