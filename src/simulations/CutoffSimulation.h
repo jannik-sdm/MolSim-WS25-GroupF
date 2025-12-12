@@ -74,4 +74,10 @@ class CutoffSimulation : public Simulation {
    * @brief getter for the tests
    */
   LinkedCells &getLinkedCells() { return linkedCells; }
+
+  /**
+   * @brief Calculates the kinetic energy of the simulation (sum of energy of all particles)
+   * @return kinetic energy of all the particles
+   */
+  double calculateEkin();
 };

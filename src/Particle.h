@@ -143,6 +143,10 @@ class Particle {
    */
   int getType() const;
 
+  /**
+   *
+   * @return State of this particle
+   */
   int getState() const;
 
   /**
@@ -183,7 +187,7 @@ class Particle {
 
   void setType(int new_type) { type = new_type; }
 
-  void setState(int new_state) { state = new_state;}
+  void setState(int new_state) { state = new_state; }
 
   /**
    * @brief Comparte two particles

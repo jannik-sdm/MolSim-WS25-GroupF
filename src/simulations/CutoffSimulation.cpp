@@ -108,7 +108,7 @@ void CutoffSimulation::updateF() {
 void CutoffSimulation::updateX() {
   for (auto &particle : linkedCells.particles) {
     // skip dead particles
-    if (particle.getType() < 0) continue;
+    if (particle.getState() < 0) continue;
     spdlog::trace("Updating X:");
     spdlog::trace("-> Old Position: ({},{},{})", particle.getX()[0], particle.getX()[1], particle.getX()[2]);
     particle.setX(Physics::StoermerVerlet::position(particle, delta_t));
@@ -118,7 +118,7 @@ void CutoffSimulation::updateX() {
 
 void CutoffSimulation::updateV() {
   for (auto &particle : linkedCells.particles) {
-    if (particle.getType() < 0) continue;
+    if (particle.getState() < 0) continue;
     spdlog::trace("Updating V:");
     spdlog::trace("-> Old Velocity: ({},{},{})", particle.getV()[0], particle.getV()[1], particle.getV()[2]);
     particle.setV(Physics::StoermerVerlet::velocity(particle, delta_t));
@@ -149,7 +149,7 @@ void CutoffSimulation::moveParticles() {
         int borderIndex = linkedCells.getSharedBorder(i, k);
         BorderType border = current_cell.borders[borderIndex];
         if (border == BorderType::OUTFLOW) {
-          p->setType(-1);  // mark particle as dead
+          p->setState(-1);  // mark particle as dead
           spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
         } else if (border == BorderType::NAIVE_REFLECTION) {
           // First go back to the Old Position and then reflect the Velocity and calculate the new Position
@@ -251,4 +251,13 @@ void CutoffSimulation::initializeBrownianMotion() {
   for (auto &p : linkedCells.particles) {
     p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, (is2D ? 2 : 3)));
   }
+}
+
+double CutoffSimulation::calculateEkin() {
+  double ekin = 0;
+  for (auto &p : particles) {
+    const double v = ArrayUtils::L2Norm(p.getV());
+    ekin += 0.5 * p.getM() * v * v;
+  }
+  return ekin;
 }
