@@ -19,6 +19,7 @@ CutoffSimulation::CutoffSimulation(std::vector<Particle> &particles, Vector3 dim
       particles(particles),
       repulsing_distance(std::pow(2, 1.0 / 6.0) * sigma),
       is2D(is2D) {
+  for (auto &p : particles) if (p.getState() != -1) alive_particles++;
   initializeBrownianMotion();
 }
 
@@ -150,6 +151,7 @@ void CutoffSimulation::moveParticles() {
         BorderType border = current_cell.borders[borderIndex];
         if (border == BorderType::OUTFLOW) {
           p->setState(-1);  // mark particle as dead
+          alive_particles--;
           spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
         } else if (border == BorderType::NAIVE_REFLECTION) {
           // First go back to the Old Position and then reflect the Velocity and calculate the new Position

@@ -62,7 +62,7 @@ class Particle {
    * -1 := dead
    * 0 := alive
    */
-  int state = 0;
+  int state;
 
  public:
   /**
@@ -70,10 +70,10 @@ class Particle {
    *
    * Constructs a new particle with all values set to zero
    *
-   * @param type Type of the particle
-   * @see Particle::type
+   * @param state State of the particle
+   * @see Particle::state
    */
-  explicit Particle(int type = 0);
+  explicit Particle(int state = 0);
 
   /**
    * @brief Copy constructor

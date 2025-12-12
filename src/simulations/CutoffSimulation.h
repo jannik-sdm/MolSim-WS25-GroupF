@@ -25,6 +25,11 @@ class CutoffSimulation : public Simulation {
   LinkedCells linkedCells;
   std::vector<Particle> &particles;
 
+  /**
+   * a counter for the amount of particles that are still alive
+   */
+  int alive_particles = 0;
+
  public:
   CutoffSimulation(std::vector<Particle> &particles, Vector3 dimension, double end_time, double delta_t,
                    double cutoffRadius, std::array<BorderType, 6> &border, bool is2D);
