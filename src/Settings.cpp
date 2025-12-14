@@ -1,13 +1,17 @@
 #include "Settings.h"
 
+#include <spdlog/async.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks-inl.h>
 #include <yaml-cpp/yaml.h>
 
 #include <algorithm>
 #include <unordered_map>
 
-Settings::Settings(int argc, char *argv[], std::vector<Particle> &particles) : particles(particles) {
-  parse_result = parseArguments(argc, argv);
-}
+#include "inputReader/CuboidReader.h"
+#include "inputReader/FileReader.h"
+#include "inputReader/XYZReader.h"
+#include "inputReader/YAMLReader.h"
 
 void Settings::printHelp() {
   std::cout << "Simulates Molecules. For a detailed description see README.md\n\n"
@@ -28,7 +32,7 @@ void Settings::printHelp() {
             << std::endl;
 }
 
-Settings::PARSE_RESULT Settings::parseArguments(int argc, char *argv[]) {
+void Settings::parseArguments(int argc, char *argv[]) {
   const char *const short_opts = "e:d:w:s:c:y:b:ho:f:l:";
   const option long_opts[] = {{"end-time", required_argument, nullptr, 'e'},
                               {"delta-t", required_argument, nullptr, 'd'},
@@ -76,7 +80,7 @@ Settings::PARSE_RESULT Settings::parseArguments(int argc, char *argv[]) {
             YAMLReader::readFile(particles, optarg, *this);
           } catch (YAML::Exception) {
             spdlog::error("Error parsing YAML file, aborting");
-            return ERROR;
+            exit(EXIT_FAILURE);
           }
           break;
 
@@ -98,42 +102,23 @@ Settings::PARSE_RESULT Settings::parseArguments(int argc, char *argv[]) {
           break;
 
         case 'h':
-          return HELP;
+          printHelp();
+          exit(EXIT_SUCCESS);
           break;
 
         case '?':
-          spdlog::error("Unknown option: {}", static_cast<char>(optopt));
+          spdlog::error("Unknown option: -{}", static_cast<char>(optopt));
+          [[fallthrough]];
         default:
           spdlog::error("An error occurred while passing the arguments.");
-          return ERROR;
+          exit(EXIT_FAILURE);
           break;
       }
     } catch (const std::invalid_argument &e) {
-      spdlog::error("Error: could not parse arguments!");
-      spdlog::error("Is the Type of the Arguments correct?");
-      return ERROR;
+      spdlog::error("Could not parse arguments! Is the Type of the Arguments correct?");
+      exit(EXIT_FAILURE);
     }
   }
-
-  return SUCCESS;
-}
-
-spdlog::level::level_enum Settings::stringToLogLevel(std::string string) {
-  // transform string to lower case
-  std::transform(string.begin(), string.end(), string.begin(), ::tolower);
-
-  const std::unordered_map<std::string, spdlog::level::level_enum> lookup = {
-      {"off", spdlog::level::off},   {"trace", spdlog::level::trace}, {"debug", spdlog::level::debug},
-      {"info", spdlog::level::info}, {"warn", spdlog::level::warn},   {"error", spdlog::level::err},
-  };
-
-  auto level = lookup.find(string);
-  if (level == lookup.end()) {
-    spdlog::error("Loglevel does not exist");
-    return spdlog::level::info;
-  }
-
-  return level->second;
 }
 
 void Settings::createOutputDirectory(std::filesystem::path directory) {

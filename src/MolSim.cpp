@@ -30,15 +30,8 @@ int main(int argc, char *argsv[]) {
   initializeLogging();
 
   std::vector<Particle> input_particles;
-  Settings settings = Settings(argc, argsv, input_particles);
-
-  if (settings.isHelp()) {
-    Settings::printHelp();
-    exit(EXIT_SUCCESS);
-  } else if (settings.isError()) {
-    Settings::printHelp();
-    exit(EXIT_FAILURE);
-  }
+  Settings settings = Settings(input_particles);
+  settings.parseArguments(argc, argsv);
 
   if (input_particles.empty()) {
     spdlog::warn("No particles to simulate");
