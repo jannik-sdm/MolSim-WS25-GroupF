@@ -119,3 +119,11 @@ class Settings {
    */
   void createOutputDirectory(std::filesystem::path directory);
 };
+
+/**
+ * @brief Initialize spdlog
+ *
+ * Sets some default options and enables async logging for spdlog
+ * @see https://github.com/gabime/spdlog
+ */
+void initializeLogging();
