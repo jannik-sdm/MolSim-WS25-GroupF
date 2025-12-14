@@ -6,9 +6,6 @@
 
 #include "../Particle.h"
 class Thermostat {
-  Thermostat(std::vector<Particle> &particles, int n, double target_temperature, double maximum_temperature_change,
-             int &alive_particles, bool is2D);
-
   /**
    * Reference to the particles of the simulation
    */
@@ -38,11 +35,9 @@ class Thermostat {
    */
   int n;
 
-  /**
-   * @brief Calculates the kinetic energy of the simulation (sum of energy of all particles)
-   * @return kinetic energy of all the particles
-   */
-  double calculateEkin();
+ public:
+  Thermostat(std::vector<Particle> &particles, int n, double target_temperature, double maximum_temperature_change,
+             int &alive_particles, bool is2D, double initial_temperature = -0.1);
 
   /**
    * @brief Calculates the current temperature of the simulation
@@ -54,6 +49,7 @@ class Thermostat {
    * @brief Calculates the scaling factor beta based on the target temperature
    * @return scaling factor beta
    */
+ private:
   double calculateScalingFactor();
 
   /**
@@ -61,4 +57,10 @@ class Thermostat {
    * @param scaling_factor scaling factor beta applied to each velocity
    */
   void applyScalingFactor(double scaling_factor);
+
+  /**
+   * @brief Calculates the kinetic energy of the simulation (sum of energy of all particles)
+   * @return Sum of the kinetic energy of all the particles
+   */
+  double calculateEkin();
 };
