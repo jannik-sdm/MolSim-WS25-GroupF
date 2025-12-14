@@ -118,6 +118,7 @@ int main(int argc, char *argsv[]) {
 
 #endif
 
+  outputWriter::exportYAML(input_particles, settings);
   return 0;
 }
 
