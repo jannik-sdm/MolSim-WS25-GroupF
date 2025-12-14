@@ -47,18 +47,18 @@ TEST_F(TestParticleContainer, PairIterationWorks) {
   constexpr unsigned int n = TestParticleContainer::NUM_PARTICLES;
   constexpr unsigned int N = (n * (n - 1)) / 2;
 
-  std::vector<std::pair<int, int>> arr;
+  std::vector<std::pair<Particle *, Particle *>> arr;
   arr.reserve(N);
   for (int i = 0; i < n; i++) {
     for (int j = i + 1; j < n; j++) {
-      arr.emplace_back(i, j);
+      arr.emplace_back(&container->particles.at(i), &container->particles.at(j));
     }
   }
 
   int i = 0;
   for (auto [p1, p2] : container->pairs()) {
-    EXPECT_EQ(p1.getType(), arr[i].first);
-    EXPECT_EQ(p2.getType(), arr[i].second);
+    EXPECT_EQ(&p1, arr[i].first);
+    EXPECT_EQ(&p2, arr[i].second);
 
     if (i++ >= N) {
       FAIL();
