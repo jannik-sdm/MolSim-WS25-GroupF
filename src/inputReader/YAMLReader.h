@@ -1,12 +1,14 @@
 #pragma once
 
+#include <yaml-cpp/yaml.h>
+
+#include <algorithm>
 #include <filesystem>
+#include <fstream>
 #include <vector>
 
 #include "Particle.h"
 #include "Settings.h"
-
-class Settings;
 
 /**
  * @class YAMLReader
@@ -32,26 +34,177 @@ class YAMLReader {
    * @param settings Where to store settings
    */
   static void parse(std::vector<Particle> &particles, std::istream &file, Settings &settings);
+};
 
-  static std::array<BorderType, 6> string_to_border_type(std::array<std::string, 6> border_strings) {
-    std::array<BorderType, 6> result;
-    const std::unordered_map<std::string, BorderType> lookup = {
-        {"outflow", OUTFLOW},
-        {"reflection", REFLECTION},
-        {"periodic", PERIODIC},
-        {"naive_reflection", NAIVE_REFLECTION},
-    };
+namespace YAML {
 
-    for (size_t i = 0; i < border_strings.size(); i++) {
-      auto border_type = lookup.find(border_strings[i]);
-      if (border_type == lookup.end()) {
-        spdlog::error("Border Type {} does not exist", border_strings[i]);
-        result[i] = OUTFLOW;
-      }
+template <>
+struct convert<Particle> {
+  static Node encode(const Particle &rhs) {
+    Node node;
 
-      result[i] = border_type->second;
+    node["position"] = rhs.getX();
+    node["velocity"] = rhs.getV();
+    node["force"] = rhs.getF();
+    node["old_force"] = rhs.getOldF();
+    node["mass"] = rhs.getM();
+    node["type"] = rhs.getType();
+
+    return node;
+  }
+
+  static bool decode(const Node &node, Particle &rhs) {
+    if (!node.IsMap()) {
+      return false;
     }
 
-    return result;
+    auto position = node["position"];
+    if (!position) return false;
+
+    auto velocity = node["velocity"];
+    if (!velocity) return false;
+
+    auto mass = node["mass"];
+    if (!mass) return false;
+
+    auto force = node["force"];
+    auto old_force = node["old_force"];
+    auto type = node["type"];
+
+    if (force && old_force && type)
+      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), force.as<Vector3>(),
+                     old_force.as<Vector3>(), type.as<double>());
+    else if (force && old_force) {
+      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), force.as<Vector3>(),
+                     old_force.as<Vector3>());
+    } else if (force) {
+      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), force.as<Vector3>());
+    } else {
+      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>());
+    }
+
+    return true;
   }
 };
+
+template <>
+struct convert<Settings::Output> {
+  static Node encode(const Settings::Output &rhs) {
+    Node node;
+
+    node["directory"] = rhs.directory.string();
+    node["prefix"] = rhs.prefix;
+    node["frequency"] = rhs.frequency;
+
+    auto log_level = spdlog::level::to_string_view(rhs.log_level);
+    node["log_level"] = std::string(log_level.data(), log_level.size());
+
+    return node;
+  }
+
+  static bool decode(const Node &node, Settings::Output &rhs) {
+    if (!node.IsMap()) {
+      return false;
+    }
+
+    auto directory = node["directory"];
+    if (directory) {
+      rhs.directory = std::filesystem::path(directory.as<std::string>());
+    } else {
+      // fallback to old key
+      auto folder = node["folder"];
+      if (folder) rhs.directory = std::filesystem::path(folder.as<std::string>());
+    }
+
+    auto prefix = node["prefix"];
+    if (prefix) rhs.prefix = std::filesystem::path(prefix.as<std::string>());
+
+    auto frequency = node["frequency"];
+    if (frequency) rhs.frequency = frequency.as<unsigned int>();
+
+    auto log_level = node["log_level"];
+    if (log_level) rhs.log_level = spdlog::level::from_str(log_level.as<std::string>());
+
+    return true;
+  }
+};
+
+template <>
+struct convert<Settings::Simulation> {
+  static Node encode(const Settings::Simulation &rhs) {
+    Node node;
+
+    if (rhs.worksheet) node["worksheet"] = rhs.worksheet.value();
+
+    if (rhs.end_time) node["end_time"] = rhs.end_time.value();
+    if (rhs.delta_t) node["delta_t"] = rhs.delta_t.value();
+
+    if (rhs.domain) node["domain"] = rhs.domain.value();
+    if (rhs.cutoff_radius) node["cutoff_radius"] = rhs.cutoff_radius.value();
+    if (rhs.borders) {
+      auto n = node["borders"];
+
+      for (auto border : rhs.borders.value()) {
+        switch (border) {
+          case OUTFLOW:
+            n.push_back("outflow");
+            break;
+
+          case REFLECTION:
+            n.push_back("reflection");
+            break;
+
+          case PERIODIC:
+            n.push_back("periodic");
+            break;
+
+          default:
+            break;
+        }
+      }
+    }
+
+    if (rhs.is2D) node["dimension"] = "2D";
+    if (rhs.brown_motion_avg_velocity) node["brown_motion_avg_velocity"] = rhs.brown_motion_avg_velocity.value();
+
+    return node;
+  }
+
+  static bool decode(const Node &node, Settings::Simulation &rhs) {
+    if (!node.IsMap()) {
+      return false;
+    }
+
+    auto worksheet = node["worksheet"];
+    if (worksheet) rhs.worksheet = worksheet.as<unsigned int>();
+
+    auto end_time = node["end_time"];
+    if (end_time) rhs.end_time = end_time.as<double>();
+
+    auto delta_t = node["delta_t"];
+    if (delta_t) rhs.delta_t = delta_t.as<double>();
+
+    auto brown_motion_avg_velocity = node["brown_motion_avg_velocity"];
+    if (brown_motion_avg_velocity) rhs.brown_motion_avg_velocity = brown_motion_avg_velocity.as<double>();
+
+    auto cutoff_radius = node["cutoff_radius"];
+    if (cutoff_radius) rhs.cutoff_radius = cutoff_radius.as<double>();
+
+    auto domain = node["domain"];
+    if (domain) rhs.domain = domain.as<Vector3>();
+
+    auto borders = node["borders"];
+    if (borders) {
+      auto border_strings = borders.as<std::array<std::string, 6>>();
+      std::array<BorderType, 6> border_enums;
+      std::transform(border_strings.begin(), border_strings.end(), border_enums.begin(), string_to_border_type);
+      rhs.borders = border_enums;
+    }
+
+    auto dimension = node["dimension"];
+    if (dimension) rhs.is2D = dimension.as<std::string>() == "2D";
+
+    return true;
+  }
+};
+}  // namespace YAML
