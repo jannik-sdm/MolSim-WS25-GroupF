@@ -8,10 +8,6 @@
 #include <optional>
 
 #include "container/linkedCells/Cell.h"
-#include "inputReader/CuboidReader.h"
-#include "inputReader/FileReader.h"
-#include "inputReader/XYZReader.h"
-#include "inputReader/YAMLReader.h"
 
 /**
  * @class Settings
@@ -21,43 +17,55 @@
  */
 class Settings {
  public:
-  /** @brief Path to folder to write output files to */
-  std::filesystem::path outputFolder;
-  /** @brief Frequency of files writen \f$(iteration mod frequency = 0)\f$ */
-  unsigned int frequency = 10;
+  struct Output {
+    /** @brief Path to the directory to write output files to */
+    std::filesystem::path directory = "./";
+    /** @brief Prefix for the filename */
+    std::string prefix = "";
+    /** @brief Frequency of files writen \f$(iteration mod frequency = 0)\f$. Set this to 0 to disable file output */
+    unsigned int frequency = 10;
 
-  /** @brief Time where the simulation starts */
-  const double start_time = 0;
-  /** @brief time until the simulation runs */
-  std::optional<double> end_time;
-  /** @brief amount of time that passes each iteration */
-  std::optional<double> delta_t;
-  /** @brief Average brownian motion velocity to initialize the particles with */
-  std::optional<double> brown_motion_avg_velocity;
-  /** @brief Cutoff radius for linked cell algorithm */
-  std::optional<double> cutoff_radius;
-  /** @brief BorderTypes of all 6 sides of the domain"*/
-  std::optional<std::array<BorderType, 6>> borders;
-  /** @brief Specifies if the simmulation should be 2D or 3D"*/
-  bool is2D = false;
-  /** @brief Domain */
-  std::optional<Vector3> domain;
+    /** @brief Path to the filename to export */
+    std::optional<std::filesystem::path> export_filename;
 
-  /** @brief Log level for console/file output */
-  spdlog::level::level_enum log_level = spdlog::level::info;
+    /** @brief Log level for console/file output */
+    spdlog::level::level_enum log_level = spdlog::level::info;
+  };
+  struct Output output;
 
-  /** @brief Which worksheet to run */
-  std::optional<unsigned int> worksheet;
+  struct Simulation {
+    /** @brief Which worksheet to run */
+    std::optional<unsigned int> worksheet;
+
+    /** @brief Time where the simulation starts */
+    double start_time = 0;
+    /** @brief time until the simulation runs */
+    std::optional<double> end_time;
+    /** @brief amount of time that passes each iteration */
+    std::optional<double> delta_t;
+
+    /** @brief Domain */
+    std::optional<Vector3> domain;
+    /** @brief Cutoff radius for linked cell algorithm */
+    std::optional<double> cutoff_radius;
+    /** @brief BorderTypes of all 6 sides of the domain"*/
+    std::optional<std::array<BorderType, 6>> borders;
+    /** @brief Specifies if the simmulation should be 2D or 3D"*/
+    bool is2D = false;
+    /** @brief Average brownian motion velocity to initialize the particles with */
+    std::optional<double> brown_motion_avg_velocity;
+  };
+  struct Simulation simulation;
 
   Settings(std::vector<Particle> &particles) : particles(particles) {};
 
   /**
-   * @brief Parses the Arguments
-   * @param argc number of commandline arguments
-   * @param argv[] commandline arguments
-   * @param particles reference to a particle vector
+   * @brief Parse command line arguments
+   *
+   * @param argc
+   * @param argv
    */
-  Settings(int argc, char *argv[], std::vector<Particle> &particles);
+  void parseArguments(int argc, char *argv[]);
 
   /**
    * @brief Prints Help Message to the Commandline
@@ -65,49 +73,9 @@ class Settings {
    */
   static void printHelp();
 
-  /**
-   * @brief Check if the user requested help screen
-   * @return true if the user requestd help screen
-   */
-  bool isHelp() { return parse_result == HELP; }
-  /**
-   * @brief Check if there was an error during parsing
-   * @return true if there was an error during argument parsing
-   */
-  bool isError() { return parse_result == ERROR; }
-
  private:
   /** @brief Container to store parsed particles in */
   std::vector<Particle> &particles;
-  /** @brief Possible outcomes of parsing command line arguments */
-  enum PARSE_RESULT { SUCCESS, ERROR, HELP };
-  /**
-   * @brief store the result of calling argparse, for later usage
-   *
-   * @see isHelp(), isError()
-   */
-  PARSE_RESULT parse_result;
-
-  /**
-   * @brief Parse
-   *
-   * @param argc Number of command line arguments
-   * @param argv Array of command line arguments
-   * @return PARSE_RESULT result of parsing arguments
-   */
-  PARSE_RESULT parseArguments(int argc, char *argv[]);
-
-  /**
-   * @brief Convert a string to a valid loglevel
-   *
-   * Converts strings such as "TRACE" or "DEBUG" to valid spdlog-loglevels.
-   * Loglevels are matched case insensitive. If the string cannot be matched,
-   * it returns the default log level
-   *
-   * @param string User submitted string
-   * @return spdlog::level::level_enum
-   */
-  spdlog::level::level_enum stringToLogLevel(std::string string);
 
   /**
    * @brief Create a output directory
@@ -119,3 +87,11 @@ class Settings {
    */
   void createOutputDirectory(std::filesystem::path directory);
 };
+
+/**
+ * @brief Initialize spdlog
+ *
+ * Sets some default options and enables async logging for spdlog
+ * @see https://github.com/gabime/spdlog
+ */
+void initializeLogging();

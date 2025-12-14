@@ -2,6 +2,8 @@
  * @file MolSim.cpp
  *
  */
+#include <spdlog/spdlog.h>
+
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -11,13 +13,10 @@
 #include "container/linkedCells/LinkedCells.h"
 #include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
+#include "outputWriter/YAMLWriter.h"
 #include "simulations/CollisionSimulation.h"
 #include "simulations/CutoffSimulation.h"
 #include "simulations/PlanetSimulation.h"
-#include "spdlog/async.h"
-#include "spdlog/sinks/basic_file_sink.h"
-#include "spdlog/sinks/stdout_color_sinks-inl.h"
-#include "spdlog/spdlog.h"
 
 /**
  * @brief plot the particles to a xyz-file or to a vtk-file.
@@ -26,53 +25,24 @@
  */
 void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder);
 
-/**
- * @brief Initialize spdlog
- *
- * Sets some default options and enables async logging for spdlog
- * @see https://github.com/gabime/spdlog
- */
-void initializeLogging() {
-  spdlog::init_thread_pool(8192, 1);
-  // Create Sinks
-  auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-  auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(
-      "logs/log.txt", true);  // true: overrides already existing files instad of appending
-  // Create Logger
-  std::vector<spdlog::sink_ptr> sinks{stdout_sink, file_sink};
-  auto async_logger = std::make_shared<spdlog::async_logger>(
-      "async_logger", sinks.begin(), sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block);
-  // Set Defaults
-  spdlog::set_default_logger(async_logger);
-
-  spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
-}
-
 int main(int argc, char *argsv[]) {
   initializeLogging();
 
   std::vector<Particle> input_particles;
-  Settings settings = Settings(argc, argsv, input_particles);
-
-  if (settings.isHelp()) {
-    Settings::printHelp();
-    exit(EXIT_SUCCESS);
-  } else if (settings.isError()) {
-    Settings::printHelp();
-    exit(EXIT_FAILURE);
-  }
+  Settings settings = Settings(input_particles);
+  settings.parseArguments(argc, argsv);
 
   if (input_particles.empty()) {
     spdlog::warn("No particles to simulate");
     exit(EXIT_SUCCESS);
   }
 
-  if (!settings.worksheet.has_value()) {
+  if (!settings.simulation.worksheet.has_value()) {
     spdlog::warn("No simulation selected");
     exit(EXIT_SUCCESS);
   }
 
-  if (!settings.delta_t.has_value()) {
+  if (!settings.simulation.delta_t.has_value()) {
     spdlog::error("Missing value for delta_t");
     exit(EXIT_SUCCESS);
   }
@@ -89,41 +59,42 @@ int main(int argc, char *argsv[]) {
     // select simulation
     std::unique_ptr<Simulation> simulation = nullptr;
 
-    switch (settings.worksheet.value()) {
+    switch (settings.simulation.worksheet.value()) {
       case 1:
-        simulation =
-            std::make_unique<PlanetSimulation>(input_particles, settings.end_time.value(), settings.delta_t.value());
+        simulation = std::make_unique<PlanetSimulation>(input_particles, settings.simulation.end_time.value(),
+                                                        settings.simulation.delta_t.value());
         break;
 
       case 2:
-        simulation =
-            std::make_unique<CollisionSimulation>(input_particles, settings.end_time.value(), settings.delta_t.value());
+        simulation = std::make_unique<CollisionSimulation>(input_particles, settings.simulation.end_time.value(),
+                                                           settings.simulation.delta_t.value());
         break;
 
       case 3:
         simulation = std::make_unique<CutoffSimulation>(
-            input_particles, settings.domain.value(), settings.end_time.value(), settings.delta_t.value(),
-            settings.cutoff_radius.value(), settings.borders.value(), settings.is2D);
+            input_particles, settings.simulation.domain.value(), settings.simulation.end_time.value(),
+            settings.simulation.delta_t.value(), settings.simulation.cutoff_radius.value(),
+            settings.simulation.borders.value(), settings.simulation.is2D);
         break;
       default:
-        spdlog::error("Invalid worksheet number {}", settings.worksheet.value());
+        spdlog::error("Invalid worksheet number {}", settings.simulation.worksheet.value());
         exit(EXIT_FAILURE);
     };
 
-    double current_time = settings.start_time;
+    double current_time = settings.simulation.start_time;
     int iteration = 0;
 
     // for this loop, we assume: current x, current f and current v are known
-    while (current_time < settings.end_time.value_or(settings.start_time)) {
+    while (current_time < settings.simulation.end_time.value_or(settings.simulation.start_time)) {
       simulation->iteration();
       iteration++;
 
-      if (iteration % settings.frequency == 0) {
-        plotParticles(input_particles, iteration, settings.outputFolder);
+      if (iteration % settings.output.frequency == 0) {
+        plotParticles(input_particles, iteration, settings.output.directory);
       }
       spdlog::info("Iteration {} finished.", iteration);
 
-      current_time += settings.delta_t.value();
+      current_time += settings.simulation.delta_t.value();
     }
 
     spdlog::info("output written. Terminating...");
@@ -148,6 +119,8 @@ int main(int argc, char *argsv[]) {
 
 #endif
 
+  if (settings.output.export_filename.has_value())
+    outputWriter::exportYAML(input_particles, settings, settings.output.export_filename.value());
   return 0;
 }
 

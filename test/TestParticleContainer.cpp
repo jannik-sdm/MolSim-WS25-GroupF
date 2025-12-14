@@ -12,7 +12,7 @@ TestParticleContainer::TestParticleContainer() {
                                static_cast<double>((i + 81) * 12 % 41) * 2.4};
     double m = static_cast<double>(i);
 
-    container->particles.emplace_back(x, v, m, i);
+    container->particles.emplace_back(x, v, m);
   }
 }
 
@@ -25,7 +25,7 @@ TestParticleContainer::TestParticleContainer() {
 TEST_F(TestParticleContainer, IterationWorks) {
   int i = 0;
   for (Particle &particle : container->particles) {
-    EXPECT_EQ(particle.getType(), i);
+    EXPECT_EQ(&particle, &container->particles.at(i));
 
     if (i++ >= NUM_PARTICLES) {
       FAIL();
@@ -47,18 +47,18 @@ TEST_F(TestParticleContainer, PairIterationWorks) {
   constexpr unsigned int n = TestParticleContainer::NUM_PARTICLES;
   constexpr unsigned int N = (n * (n - 1)) / 2;
 
-  std::vector<std::pair<int, int>> arr;
+  std::vector<std::pair<Particle *, Particle *>> arr;
   arr.reserve(N);
   for (int i = 0; i < n; i++) {
     for (int j = i + 1; j < n; j++) {
-      arr.emplace_back(i, j);
+      arr.emplace_back(&container->particles.at(i), &container->particles.at(j));
     }
   }
 
   int i = 0;
   for (auto [p1, p2] : container->pairs()) {
-    EXPECT_EQ(p1.getType(), arr[i].first);
-    EXPECT_EQ(p2.getType(), arr[i].second);
+    EXPECT_EQ(&p1, arr[i].first);
+    EXPECT_EQ(&p2, arr[i].second);
 
     if (i++ >= N) {
       FAIL();

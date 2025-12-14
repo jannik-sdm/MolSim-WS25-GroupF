@@ -9,6 +9,7 @@
 #include <sstream>
 #include <vector>
 
+#include "Settings.h"
 #include "container/linkedCells/Cell.h"
 #include "utils/ArrayUtils.h"
 #include "utils/ParticleGenerator.h"
@@ -16,23 +17,10 @@
 void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Settings &settings) {
   YAML::Node config = YAML::Load(file);
 
-  YAML::Node output = config["output"];
-  if (output["folder"]) settings.outputFolder = output["folder"].as<std::string>();
-  if (output["frequency"]) settings.frequency = output["frequency"].as<unsigned int>();
-
-  YAML::Node simulation = config["simulation"];
-  if (simulation["worksheet"]) settings.worksheet = simulation["worksheet"].as<unsigned int>();
-  if (simulation["end_time"]) settings.end_time = simulation["end_time"].as<double>();
-  if (simulation["delta_t"]) settings.delta_t = simulation["delta_t"].as<double>();
-  if (simulation["brown_motion_avg_velocity"])
-    settings.brown_motion_avg_velocity = simulation["brown_motion_avg_velocity"].as<double>();
-  if (simulation["cutoff_radius"]) settings.cutoff_radius = simulation["cutoff_radius"].as<double>();
-
-  if (simulation["domain"]) settings.domain = simulation["domain"].as<Vector3>();
-  if (simulation["borders"]) {
-    settings.borders = string_to_border_type(simulation["borders"].as<std::array<std::string, 6>>());
-  }
-  if (simulation["dimension"]) settings.is2D = simulation["dimension"].as<std::string>() == "2D";
+  auto output = config["output"];
+  if (output) settings.output = config["output"].as<Settings::Output>();
+  auto simulation = config["simulation"];
+  if (simulation) settings.simulation = config["simulation"].as<Settings::Simulation>();
 
   YAML::Node parts = config["particles"];
   for (auto p : parts) {
@@ -55,9 +43,24 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Set
       Vector3 v = single["velocity"].as<Vector3>();
       double mass = single["mass"].as<double>();
 
-      spdlog::debug("Generating single particle: position={} mass={} velocity={}", ArrayUtils::to_string(x), mass,
-                    ArrayUtils::to_string(v));
-      particles.emplace_back(x, v, mass);
+      if (single["force"]) {
+        Vector3 f = single["force"].as<Vector3>();
+        if (single["old_force"]) {
+          Vector3 old_f = single["old_force"].as<Vector3>();
+          spdlog::debug("Generating single particle: position={}, velocity={}, mass={}, force={}, old_force={}",
+                        ArrayUtils::to_string(x), ArrayUtils::to_string(v), mass, ArrayUtils::to_string(f),
+                        ArrayUtils::to_string(old_f));
+          particles.emplace_back(x, v, mass, f, old_f);
+        } else {
+          spdlog::debug("Generating single particle: position={}, velocity={}, mass={}, force={}",
+                        ArrayUtils::to_string(x), ArrayUtils::to_string(v), mass, ArrayUtils::to_string(f));
+          particles.emplace_back(x, v, mass, f);
+        }
+      } else {
+        spdlog::debug("Generating single particle: position={} mass={} velocity={}", ArrayUtils::to_string(x), mass,
+                      ArrayUtils::to_string(v));
+        particles.emplace_back(x, v, mass);
+      }
     } else if (p["disc"]) {
       YAML::Node disc = p["disc"];
       Vector3 position = disc["position"].as<Vector3>();

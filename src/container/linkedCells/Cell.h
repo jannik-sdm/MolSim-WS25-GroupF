@@ -1,9 +1,12 @@
-//
-// Created by jv_fedora on 19.11.25.
-//
 #pragma once
+
+#include <spdlog/spdlog.h>
+
+#include <unordered_map>
+
 #include "Particle.h"
 #include "container/directSum/ParticleContainer.h"
+
 /**
  * Cell Type
  * REGULAR = Cell
@@ -53,3 +56,20 @@ class Cell {
   std::vector<Particle *> getParticles();
   bool inContainer(Particle particle);
 };
+
+inline BorderType string_to_border_type(std::string str) {
+  const std::unordered_map<std::string, BorderType> lookup = {
+      {"outflow", OUTFLOW},
+      {"reflection", REFLECTION},
+      {"periodic", PERIODIC},
+      {"naive_reflection", NAIVE_REFLECTION},
+  };
+
+  auto x = lookup.find(str);
+  if (x == lookup.end()) {
+    spdlog::warn("Invalid border type \"{}\"", str);
+    return OUTFLOW;
+  }
+
+  return x->second;
+}

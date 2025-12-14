@@ -18,7 +18,7 @@ TEST_F(CutoffSimulationTest, CreatesGhostAtReflectiveBoundary) {
   // Velocity = (-1, 0, 0) moving towards the wall
   Vector3 pos = {0.1, 5.0, 5.0};
   Vector3 vel = {-1.0, 0.0, 0.0};
-  particles.emplace_back(pos, vel, 1.0, 0);
+  particles.emplace_back(pos, vel, 1.0);
 
   InitSimulation();
 
@@ -64,7 +64,7 @@ TEST_F(CutoffSimulationTest, IgnoresParticlesTooFarFromBorder) {
 
   Vector3 pos = {2.0, 5.0, 5.0};
   Vector3 vel = {0.0, 0.0, 0.0};
-  particles.emplace_back(pos, vel, 1.0, 0);
+  particles.emplace_back(pos, vel, 1.0);
 
   InitSimulation();
   sim->updateGhost();
@@ -85,7 +85,7 @@ TEST_F(CutoffSimulationTest, IgnoresParticlesTooFarFromBorder) {
 TEST_F(CutoffSimulationTest, CreatesGhostsInCorner) {
   // Pos close to X=0 and Y=0
   Vector3 pos = {0.1, 0.1, 5.0};
-  particles.emplace_back(pos, Vector3{0, 0, 0}, 1.0, 0);
+  particles.emplace_back(pos, Vector3{0, 0, 0}, 1.0);
 
   InitSimulation();
   sim->updateGhost();
@@ -107,7 +107,7 @@ TEST_F(CutoffSimulationTest, ReflectiveBoundaryGeneratesRepulsiveForce) {
   // repulsing_distance is usually approx 1.12 (for sigma=1).
   // Position 0.1 is definitely within range to feel the wall.
   Vector3 pos = {0.1, 5.0, 5.0};
-  particles.emplace_back(pos, Vector3{-1.0, 0, 0}, 1.0, 0);  // Moving towards wall
+  particles.emplace_back(pos, Vector3{-1.0, 0, 0}, 1.0);  // Moving towards wall
 
   InitSimulation();
   // Ensure force is zero
@@ -139,7 +139,7 @@ TEST_F(CutoffSimulationTest, OutflowBoundaryKillsParticle) {
 
   // Create a particle inside the domain (e.g., x=0.5)
   Vector3 pos = {0.5, 5.0, 5.0};
-  particles.emplace_back(pos, Vector3{1.0, 0, 0}, 1.0, 0);  // Moving Right
+  particles.emplace_back(pos, Vector3{1.0, 0, 0}, 1.0);  // Moving Right
   InitSimulation();
 
   // Simulate the particle moving OUT of the domain

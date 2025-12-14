@@ -18,7 +18,7 @@ TEST_F(TestYAMLReader, OutputFolder) {
 
   YAMLReader::parse(particles, input, settings);
 
-  EXPECT_EQ(settings.outputFolder, folder);
+  EXPECT_EQ(settings.output.directory, folder);
 }
 
 /**
@@ -33,7 +33,7 @@ TEST_F(TestYAMLReader, OutputFrequency) {
 
   YAMLReader::parse(particles, input, settings);
 
-  EXPECT_EQ(settings.frequency, frequency);
+  EXPECT_EQ(settings.output.frequency, frequency);
 
   const int bad_frequency = -10;
   std::stringstream bad_input;
@@ -60,8 +60,8 @@ TEST_F(TestYAMLReader, SimulationWorksheet) {
 
   YAMLReader::parse(particles, input, settings);
 
-  EXPECT_TRUE(settings.worksheet.has_value());
-  EXPECT_EQ(settings.worksheet.value(), worksheet);
+  EXPECT_TRUE(settings.simulation.worksheet.has_value());
+  EXPECT_EQ(settings.simulation.worksheet.value(), worksheet);
 }
 
 /**
@@ -82,8 +82,8 @@ TEST_F(TestYAMLReader, SimulationDeltat) {
 
   YAMLReader::parse(particles, input, settings);
 
-  EXPECT_TRUE(settings.delta_t.has_value());
-  EXPECT_DOUBLE_EQ(settings.delta_t.value(), delta_t);
+  EXPECT_TRUE(settings.simulation.delta_t.has_value());
+  EXPECT_DOUBLE_EQ(settings.simulation.delta_t.value(), delta_t);
 }
 
 /**
@@ -104,8 +104,8 @@ TEST_F(TestYAMLReader, SimulationEndTime) {
 
   YAMLReader::parse(particles, input, settings);
 
-  EXPECT_TRUE(settings.end_time.has_value());
-  EXPECT_DOUBLE_EQ(settings.end_time.value(), end_time);
+  EXPECT_TRUE(settings.simulation.end_time.has_value());
+  EXPECT_DOUBLE_EQ(settings.simulation.end_time.value(), end_time);
 }
 
 /**
@@ -126,8 +126,8 @@ TEST_F(TestYAMLReader, SimulationBrownMotionAvgVelocity) {
 
   YAMLReader::parse(particles, input, settings);
 
-  EXPECT_TRUE(settings.brown_motion_avg_velocity.has_value());
-  EXPECT_DOUBLE_EQ(settings.brown_motion_avg_velocity.value(), brown_motion_avg_velocity);
+  EXPECT_TRUE(settings.simulation.brown_motion_avg_velocity.has_value());
+  EXPECT_DOUBLE_EQ(settings.simulation.brown_motion_avg_velocity.value(), brown_motion_avg_velocity);
 }
 
 /**
@@ -148,8 +148,8 @@ TEST_F(TestYAMLReader, SimulationCutoffRadius) {
 
   YAMLReader::parse(particles, input, settings);
 
-  EXPECT_TRUE(settings.cutoff_radius.has_value());
-  EXPECT_DOUBLE_EQ(settings.cutoff_radius.value(), cutoff_radius);
+  EXPECT_TRUE(settings.simulation.cutoff_radius.has_value());
+  EXPECT_DOUBLE_EQ(settings.simulation.cutoff_radius.value(), cutoff_radius);
 }
 
 /**
@@ -170,8 +170,8 @@ TEST_F(TestYAMLReader, SimulationDomain) {
 
   YAMLReader::parse(particles, input, settings);
 
-  EXPECT_TRUE(settings.domain.has_value());
-  EXPECT_DOUBLE_EQ(settings.domain.value()[0], domain[0]);
-  EXPECT_DOUBLE_EQ(settings.domain.value()[1], domain[1]);
-  EXPECT_DOUBLE_EQ(settings.domain.value()[2], domain[2]);
+  EXPECT_TRUE(settings.simulation.domain.has_value());
+  EXPECT_DOUBLE_EQ(settings.simulation.domain.value()[0], domain[0]);
+  EXPECT_DOUBLE_EQ(settings.simulation.domain.value()[1], domain[1]);
+  EXPECT_DOUBLE_EQ(settings.simulation.domain.value()[2], domain[2]);
 }
