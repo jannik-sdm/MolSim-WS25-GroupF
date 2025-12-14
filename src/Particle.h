@@ -98,7 +98,8 @@ class Particle {
    * @param m_arg Mass of the new particle
    * @param type_arg Type of the new particle
    */
-  Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_arg, const int type_arg = 0);
+  Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_arg, const Vector3 &f_arg = {0},
+           const Vector3 &old_f_arg = {0}, const int type_arg = 0);
 
   /**
    * @brief Destroy the Particle object
