@@ -52,15 +52,15 @@ Settings::PARSE_RESULT Settings::parseArguments(int argc, char *argv[]) {
       // getopt schreibt evtl noch etwas auf stderr.
       switch (opt) {
         case 'e':
-          end_time = std::stod(optarg);
+          simulation.end_time = std::stod(optarg);
           break;
 
         case 'd':
-          delta_t = std::stod(optarg);
+          simulation.delta_t = std::stod(optarg);
           break;
 
         case 'w':
-          worksheet = std::stoul(optarg);
+          simulation.worksheet = std::stoul(optarg);
           break;
 
         case 's':
@@ -81,22 +81,21 @@ Settings::PARSE_RESULT Settings::parseArguments(int argc, char *argv[]) {
           break;
 
         case 'b':
-          brown_motion_avg_velocity = std::stod(optarg);
+          simulation.brown_motion_avg_velocity = std::stod(optarg);
           break;
 
         case 'o':
-          outputFolder = optarg;
+          output.directory = optarg;
           createOutputDirectory(optarg);
           break;
 
         case 'f':
-          frequency = std::stoul(optarg);
+          output.frequency = std::stoul(optarg);
           break;
 
-        case 'l': {
-          spdlog::level::level_enum logLevel = stringToLogLevel(optarg);
-          spdlog::set_level(logLevel);
-        } break;
+        case 'l':
+          output.log_level = spdlog::level::from_str(optarg);
+          break;
 
         case 'h':
           return HELP;

@@ -45,12 +45,12 @@ int main(int argc, char *argsv[]) {
     exit(EXIT_SUCCESS);
   }
 
-  if (!settings.worksheet.has_value()) {
+  if (!settings.simulation.worksheet.has_value()) {
     spdlog::warn("No simulation selected");
     exit(EXIT_SUCCESS);
   }
 
-  if (!settings.delta_t.has_value()) {
+  if (!settings.simulation.delta_t.has_value()) {
     spdlog::error("Missing value for delta_t");
     exit(EXIT_SUCCESS);
   }
@@ -67,41 +67,42 @@ int main(int argc, char *argsv[]) {
     // select simulation
     std::unique_ptr<Simulation> simulation = nullptr;
 
-    switch (settings.worksheet.value()) {
+    switch (settings.simulation.worksheet.value()) {
       case 1:
-        simulation =
-            std::make_unique<PlanetSimulation>(input_particles, settings.end_time.value(), settings.delta_t.value());
+        simulation = std::make_unique<PlanetSimulation>(input_particles, settings.simulation.end_time.value(),
+                                                        settings.simulation.delta_t.value());
         break;
 
       case 2:
-        simulation =
-            std::make_unique<CollisionSimulation>(input_particles, settings.end_time.value(), settings.delta_t.value());
+        simulation = std::make_unique<CollisionSimulation>(input_particles, settings.simulation.end_time.value(),
+                                                           settings.simulation.delta_t.value());
         break;
 
       case 3:
         simulation = std::make_unique<CutoffSimulation>(
-            input_particles, settings.domain.value(), settings.end_time.value(), settings.delta_t.value(),
-            settings.cutoff_radius.value(), settings.borders.value(), settings.is2D);
+            input_particles, settings.simulation.domain.value(), settings.simulation.end_time.value(),
+            settings.simulation.delta_t.value(), settings.simulation.cutoff_radius.value(),
+            settings.simulation.borders.value(), settings.simulation.is2D);
         break;
       default:
-        spdlog::error("Invalid worksheet number {}", settings.worksheet.value());
+        spdlog::error("Invalid worksheet number {}", settings.simulation.worksheet.value());
         exit(EXIT_FAILURE);
     };
 
-    double current_time = settings.start_time;
+    double current_time = settings.simulation.start_time;
     int iteration = 0;
 
     // for this loop, we assume: current x, current f and current v are known
-    while (current_time < settings.end_time.value_or(settings.start_time)) {
+    while (current_time < settings.simulation.end_time.value_or(settings.simulation.start_time)) {
       simulation->iteration();
       iteration++;
 
-      if (iteration % settings.frequency == 0) {
-        plotParticles(input_particles, iteration, settings.outputFolder);
+      if (iteration % settings.output.frequency == 0) {
+        plotParticles(input_particles, iteration, settings.output.directory);
       }
       spdlog::info("Iteration {} finished.", iteration);
 
-      current_time += settings.delta_t.value();
+      current_time += settings.simulation.delta_t.value();
     }
 
     spdlog::info("output written. Terminating...");
