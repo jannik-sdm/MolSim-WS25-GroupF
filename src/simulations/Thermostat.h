@@ -16,11 +16,11 @@ class Thermostat {
   int &alive_particles;
 
   bool is2D;
+
   /**
-   * @brief The initial temperature of the system.
-   * Systems without initial velocities have to be initialized via brownian motion to have non-zero temperature.
+   * @brief The current temperature of the system
    */
-  double initial_temperature;
+  double current_temperature;
   /**
    * The target temperature the simulation should reach after applying the thermostat (potentially many times)
    */
@@ -37,7 +37,8 @@ class Thermostat {
 
  public:
   Thermostat(std::vector<Particle> &particles, int n, double target_temperature, double maximum_temperature_change,
-             int &alive_particles, bool is2D, double initial_temperature = -0.1);
+             int &alive_particles, bool is2D, double initial_temperature = -0.1,
+             double average_brownian_velocity = -0.1);
 
   /**
    * @brief Calculates the current temperature of the simulation
@@ -63,4 +64,14 @@ class Thermostat {
    * @return Sum of the kinetic energy of all the particles
    */
   double calculateEkin();
+
+  /**
+   * @brief initializes the simulation with the brownian motion, if the velocities are zero
+   */
+  void initializeBrownianMotionZero(double initial_temperature);
+
+  /**
+   * @brief initializes the simulation with the brownian motion, if the velocities are non-zero
+   */
+  void initializeBrownianMotion(double brownian_motion_avg_velocity);
 };
