@@ -35,12 +35,13 @@
 .idea/
 .vscode/
 .zed/
+.cache/clangd
 
 # Build folders.
 # This rule ignores any folder in the project root that contains "build"
 /*build*/
 doxys_documentation/
-*out/*
+out*/
 
 # GDB & Perf Tooling
 .gdb_history
