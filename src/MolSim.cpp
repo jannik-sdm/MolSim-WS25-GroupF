@@ -2,6 +2,8 @@
  * @file MolSim.cpp
  *
  */
+#include <spdlog/spdlog.h>
+
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -14,10 +16,6 @@
 #include "simulations/CollisionSimulation.h"
 #include "simulations/CutoffSimulation.h"
 #include "simulations/PlanetSimulation.h"
-#include "spdlog/async.h"
-#include "spdlog/sinks/basic_file_sink.h"
-#include "spdlog/sinks/stdout_color_sinks-inl.h"
-#include "spdlog/spdlog.h"
 
 /**
  * @brief plot the particles to a xyz-file or to a vtk-file.
