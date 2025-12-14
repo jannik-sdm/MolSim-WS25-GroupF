@@ -13,6 +13,7 @@
 #include "container/linkedCells/LinkedCells.h"
 #include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
+#include "outputWriter/YAMLWriter.h"
 #include "simulations/CollisionSimulation.h"
 #include "simulations/CutoffSimulation.h"
 #include "simulations/PlanetSimulation.h"
