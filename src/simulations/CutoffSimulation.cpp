@@ -255,30 +255,3 @@ void CutoffSimulation::initializeBrownianMotion() {
     p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, (is2D ? 2 : 3)));
   }
 }
-
-double CutoffSimulation::calculateEkin() {
-  double ekin = 0;
-  for (auto &p : particles) {
-    if (p.getState() < 0) continue;
-    const double v = ArrayUtils::L2Norm(p.getV());
-    ekin += 0.5 * p.getM() * v * v;
-  }
-  return ekin;
-}
-
-double CutoffSimulation::calculateCurrentTemperature() {
-  const int dimensions = (is2D ? 2 : 3);
-  const double temperature = (2 * calculateEkin()) / (dimensions * alive_particles);
-  return temperature;
-}
-
-double CutoffSimulation::calculateScalingFactor(double target_temperature) {
-  return std::sqrt(target_temperature / calculateCurrentTemperature());
-}
-
-void CutoffSimulation::applyScalingFactor(double scaling_factor) {
-  for (auto &p : particles) {
-    if (p.getState() < 0) continue;
-    p.setV(scaling_factor * p.getV());
-  }
-}

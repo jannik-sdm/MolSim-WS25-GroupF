@@ -79,29 +79,4 @@ class CutoffSimulation : public Simulation {
    * @brief getter for the tests
    */
   LinkedCells &getLinkedCells() { return linkedCells; }
-
-  /**
-   * @brief Calculates the kinetic energy of the simulation (sum of energy of all particles)
-   * @return kinetic energy of all the particles
-   */
-  double calculateEkin();
-
-  /**
-   * @brief Calculates the current temperature of the simulation
-   * @return current temperature of the simulation
-   */
-  double calculateCurrentTemperature();
-
-  /**
-   * @brief Calculates the scaling factor beta based on the target temperature
-   * @param target_temperature the target temperature we want the simulation to reach
-   * @return scaling factor beta
-   */
-  double calculateScalingFactor(double target_temperature);
-
-  /**
-   * @brief Applies the scaling factor beta to each velocity
-   * @param scaling_factor scaling factor beta applied to each velocity
-   */
-  void applyScalingFactor(double scaling_factor);
 };
