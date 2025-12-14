@@ -53,17 +53,14 @@ Settings::PARSE_RESULT Settings::parseArguments(int argc, char *argv[]) {
       switch (opt) {
         case 'e':
           end_time = std::stod(optarg);
-          spdlog::debug("endtime set to: {}", end_time);
           break;
 
         case 'd':
           delta_t = std::stod(optarg);
-          spdlog::debug("delta_t set to: {}", delta_t);
           break;
 
         case 'w':
           worksheet = std::stoul(optarg);
-          spdlog::debug("week set to: {}", worksheet);
           break;
 
         case 's':
@@ -85,18 +82,15 @@ Settings::PARSE_RESULT Settings::parseArguments(int argc, char *argv[]) {
 
         case 'b':
           brown_motion_avg_velocity = std::stod(optarg);
-          spdlog::debug("brown_motion_mean set to: {}", brown_motion_avg_velocity);
           break;
 
         case 'o':
           outputFolder = optarg;
           createOutputDirectory(optarg);
-          spdlog::debug("output folder set to: {}", outputFolder.string());
           break;
 
         case 'f':
           frequency = std::stoul(optarg);
-          spdlog::debug("frequency set to: {}", frequency);
           break;
 
         case 'l': {

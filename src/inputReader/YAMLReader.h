@@ -32,4 +32,26 @@ class YAMLReader {
    * @param settings Where to store settings
    */
   static void parse(std::vector<Particle> &particles, std::istream &file, Settings &settings);
+
+  static std::array<BorderType, 6> string_to_border_type(std::array<std::string, 6> border_strings) {
+    std::array<BorderType, 6> result;
+    const std::unordered_map<std::string, BorderType> lookup = {
+        {"outflow", OUTFLOW},
+        {"reflection", REFLECTION},
+        {"periodic", PERIODIC},
+        {"naive_reflection", NAIVE_REFLECTION},
+    };
+
+    for (size_t i = 0; i < border_strings.size(); i++) {
+      auto border_type = lookup.find(border_strings[i]);
+      if (border_type == lookup.end()) {
+        spdlog::error("Border Type {} does not exist", border_strings[i]);
+        result[i] = OUTFLOW;
+      }
+
+      result[i] = border_type->second;
+    }
+
+    return result;
+  }
 };
