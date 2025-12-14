@@ -23,8 +23,8 @@ class TestLinkedCells : public ::testing::Test {
 
   // Runs before each test
   void SetUp() override {
-    particles.emplace_back(std::array<double, 3>{0.5, 0.5, 0.5}, std::array<double, 3>{0, 0, 0}, 1.0, 0);
-    particles.emplace_back(std::array<double, 3>{2.5, 2.5, 2.5}, std::array<double, 3>{0, 0, 0}, 1.0, 0);
+    particles.emplace_back(std::array<double, 3>{0.5, 0.5, 0.5}, std::array<double, 3>{0, 0, 0}, 1.0);
+    particles.emplace_back(std::array<double, 3>{2.5, 2.5, 2.5}, std::array<double, 3>{0, 0, 0}, 1.0);
 
     container = std::make_unique<LinkedCells>(particles, domain, cutoff);
   }

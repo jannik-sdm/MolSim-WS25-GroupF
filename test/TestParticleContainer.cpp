@@ -12,7 +12,7 @@ TestParticleContainer::TestParticleContainer() {
                                static_cast<double>((i + 81) * 12 % 41) * 2.4};
     double m = static_cast<double>(i);
 
-    container->particles.emplace_back(x, v, m, i);
+    container->particles.emplace_back(x, v, m);
   }
 }
 
@@ -25,7 +25,7 @@ TestParticleContainer::TestParticleContainer() {
 TEST_F(TestParticleContainer, IterationWorks) {
   int i = 0;
   for (Particle &particle : container->particles) {
-    EXPECT_EQ(particle.getType(), i);
+    EXPECT_EQ(&particle, &container->particles.at(i));
 
     if (i++ >= NUM_PARTICLES) {
       FAIL();
