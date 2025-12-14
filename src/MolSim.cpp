@@ -119,7 +119,8 @@ int main(int argc, char *argsv[]) {
 
 #endif
 
-  outputWriter::exportYAML(input_particles, settings);
+  if (settings.output.export_filename.has_value())
+    outputWriter::exportYAML(input_particles, settings, settings.output.export_filename.value());
   return 0;
 }
 

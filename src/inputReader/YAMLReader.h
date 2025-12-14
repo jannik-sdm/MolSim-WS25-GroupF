@@ -94,6 +94,9 @@ struct convert<Settings::Output> {
 
     node["directory"] = rhs.directory.string();
     node["prefix"] = rhs.prefix;
+
+    if (rhs.export_filename) node["export_filename"] = rhs.export_filename.value().string();
+
     node["frequency"] = rhs.frequency;
 
     auto log_level = spdlog::level::to_string_view(rhs.log_level);
@@ -118,6 +121,9 @@ struct convert<Settings::Output> {
 
     auto prefix = node["prefix"];
     if (prefix) rhs.prefix = std::filesystem::path(prefix.as<std::string>());
+
+    auto export_filename = node["export_filename"];
+    if (export_filename) rhs.export_filename = std::filesystem::path(export_filename.as<std::string>());
 
     auto frequency = node["frequency"];
     if (frequency) rhs.frequency = frequency.as<unsigned int>();

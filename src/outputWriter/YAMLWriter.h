@@ -2,6 +2,7 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include <filesystem>
 #include <vector>
 
 #include "Particle.h"
@@ -11,7 +12,7 @@
 
 namespace outputWriter {
 
-void exportYAML(std::vector<Particle> &particles, Settings &settings) {
+void exportYAML(std::vector<Particle> &particles, Settings &settings, std::filesystem::path filepath) {
   YAML::Node node;
   node["output"] = settings.output;
   node["simulation"] = settings.simulation;
@@ -28,7 +29,12 @@ void exportYAML(std::vector<Particle> &particles, Settings &settings) {
   YAML::Emitter out;
   out << node;
 
-  std::ofstream file("dump.yaml");
+  std::ofstream file(filepath);
+  if (!file.good()) {
+    spdlog::error("Failed to open {}", filepath.string());
+    return;
+  }
+
   file << out.c_str();
 }
 }  // namespace outputWriter
