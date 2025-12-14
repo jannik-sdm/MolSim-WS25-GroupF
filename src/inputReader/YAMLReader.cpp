@@ -17,8 +17,10 @@
 void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Settings &settings) {
   YAML::Node config = YAML::Load(file);
 
-  settings.output = config["output"].as<Settings::Output>();
-  settings.simulation = config["simulation"].as<Settings::Simulation>();
+  auto output = config["output"];
+  if (output) settings.output = config["output"].as<Settings::Output>();
+  auto simulation = config["simulation"];
+  if (simulation) settings.simulation = config["simulation"].as<Settings::Simulation>();
 
   YAML::Node parts = config["particles"];
   for (auto p : parts) {
