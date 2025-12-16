@@ -30,9 +30,9 @@ double Thermostat::calculateEkin() {
   for (auto &p : particles) {
     if (p.getState() < 0) continue;
     const double v = ArrayUtils::L2Norm(p.getV());
-    ekin += 0.5 * p.getM() * v * v;
+    ekin += p.getM() * v * v;
   }
-  return ekin;
+  return 0.5 * ekin;
 }
 
 double Thermostat::calculateCurrentTemperature() {
