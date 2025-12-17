@@ -101,7 +101,8 @@ TEST_F(CutoffSimulationTest, CreatesGhostsInCorner) {
 
 TEST_F(CutoffSimulationTest, ReflectiveBoundaryGeneratesRepulsiveForce) {
   // Configure REFLECTION boundaries
-  borders = {REFLECTION, REFLECTION, REFLECTION, REFLECTION, REFLECTION, REFLECTION};
+  borders = {BorderType::REFLECTION, BorderType::REFLECTION, BorderType::REFLECTION,
+             BorderType::REFLECTION, BorderType::REFLECTION, BorderType::REFLECTION};
 
   // Place a particle very close to the Left Wall (x=0)
   // repulsing_distance is usually approx 1.12 (for sigma=1).
@@ -135,7 +136,8 @@ TEST_F(CutoffSimulationTest, ReflectiveBoundaryGeneratesRepulsiveForce) {
 
 TEST_F(CutoffSimulationTest, OutflowBoundaryKillsParticle) {
   // Configure OUTFLOW boundaries
-  borders = {OUTFLOW, OUTFLOW, OUTFLOW, OUTFLOW, OUTFLOW, OUTFLOW};
+  borders = {BorderType::OUTFLOW, BorderType::OUTFLOW, BorderType::OUTFLOW,
+             BorderType::OUTFLOW, BorderType::OUTFLOW, BorderType::OUTFLOW};
 
   // Create a particle inside the domain (e.g., x=0.5)
   Vector3 pos = {0.5, 5.0, 5.0};

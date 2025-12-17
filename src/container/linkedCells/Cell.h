@@ -8,13 +8,20 @@
 #include "container/directSum/ParticleContainer.h"
 
 /**
- * Cell Type
- * REGULAR = Cell
+ * @brief Cell Type
+ * Default cells are Regular
  */
-enum CellType { REGULAR, BORDER, GHOST };
+enum class CellType { REGULAR, BORDER, GHOST };
 
-enum BorderType { OUTFLOW, REFLECTION, PERIODIC, NAIVE_REFLECTION };
+/**
+ * @brief Border type
+ */
+enum class BorderType { OUTFLOW, REFLECTION, PERIODIC, NAIVE_REFLECTION };
 
+/**
+ * @class Cell
+ * @brief Represents one cell in a linked cells container
+ */
 class Cell {
  public:
   /**
@@ -37,6 +44,7 @@ class Cell {
    * Describes, if it is an inner cell (regular), an edge cell or a ghost cell
    */
   CellType cell_type;
+
   /**
    * Describes what kind of Boundary this cell has on each side. Regular inner cells will have boundary type OUTFLOW in
    * each direction: borders[0] -> (0,0,0) (0,1,1) -> links borders[1] -> (0,0,0) (1,0,1) -> unten borders[2] -> (0,0,0)
@@ -50,7 +58,7 @@ class Cell {
   Cell(ParticleContainer particleContainer, CellType type);
 
   // default constructur:
-  Cell() : cell_type(REGULAR) { borders.fill(OUTFLOW); }
+  Cell() : cell_type(CellType::REGULAR) { borders.fill(BorderType::OUTFLOW); }
 
   CellType getCellType();
   std::vector<Particle *> getParticles();
@@ -59,16 +67,16 @@ class Cell {
 
 inline BorderType string_to_border_type(std::string str) {
   const std::unordered_map<std::string, BorderType> lookup = {
-      {"outflow", OUTFLOW},
-      {"reflection", REFLECTION},
-      {"periodic", PERIODIC},
-      {"naive_reflection", NAIVE_REFLECTION},
+      {"outflow", BorderType::OUTFLOW},
+      {"reflection", BorderType::REFLECTION},
+      {"periodic", BorderType::PERIODIC},
+      {"naive_reflection", BorderType::NAIVE_REFLECTION},
   };
 
   auto x = lookup.find(str);
   if (x == lookup.end()) {
     spdlog::warn("Invalid border type \"{}\"", str);
-    return OUTFLOW;
+    return BorderType::OUTFLOW;
   }
 
   return x->second;

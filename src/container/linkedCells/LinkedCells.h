@@ -61,7 +61,7 @@ Describes how many cells the overall structure has in Z-direction   */
    * @param cutoff cutoff radius set in the simluation
    */
   LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff,
-              std::array<BorderType, 6> borders = {OUTFLOW});
+              std::array<BorderType, 6> borders = {BorderType::OUTFLOW});
   /**
    * Finds the neighbour-cells of the given cell and returns their cell-array indexes
    * @param cellIndex 1D cell index of the current cell

@@ -22,8 +22,10 @@ class CutoffSimulationTest : public ::testing::Test {
 
   // Borders: All Reflective for this test
   std::array<BorderType, 6> borders = {
-      REFLECTION, REFLECTION, REFLECTION,  // Left, Bottom, Back
-      REFLECTION, REFLECTION, REFLECTION   // Right, Top, Front
+      BorderType::REFLECTION, BorderType::REFLECTION,
+      BorderType::REFLECTION,  // Left, Bottom, Back
+      BorderType::REFLECTION, BorderType::REFLECTION,
+      BorderType::REFLECTION  // Right, Top, Front
   };
 
   void SetUp() override {

@@ -152,15 +152,15 @@ struct convert<Settings::Simulation> {
 
       for (auto border : rhs.borders.value()) {
         switch (border) {
-          case OUTFLOW:
+          case BorderType::OUTFLOW:
             n.push_back("outflow");
             break;
 
-          case REFLECTION:
+          case BorderType::REFLECTION:
             n.push_back("reflection");
             break;
 
-          case PERIODIC:
+          case BorderType::PERIODIC:
             n.push_back("periodic");
             break;
 

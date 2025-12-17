@@ -147,10 +147,10 @@ void CutoffSimulation::moveParticles() {
         // get shared border current_cell, new_cell
         int borderIndex = linkedCells.getSharedBorder(i, k);
         BorderType border = current_cell.borders[borderIndex];
-        if (border == OUTFLOW) {
+        if (border == BorderType::OUTFLOW) {
           p->setType(-1);  // mark particle as dead
           spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
-        } else if (border == NAIVE_REFLECTION) {
+        } else if (border == BorderType::NAIVE_REFLECTION) {
           // First go back to the Old Position and then reflect the Velocity and calculate the new Position
           // This is not acurate, because the particle is not reflected AT the border,
           // but since simply turning the velocity is not acurate either, this should be a good enough solution
@@ -191,7 +191,7 @@ void CutoffSimulation::updateGhost() {
   }
   for (int cell_index = 0; cell_index < linkedCells.cells.size(); cell_index++) {
     auto &cell = linkedCells.cells[cell_index];
-    if (cell.cell_type != BORDER) continue;
+    if (cell.cell_type != CellType::BORDER) continue;
     for (auto particle : cell.particles) {
       // iterate over all particles of the BORDER cell and create ghost particles for each of them
       createGhostParticles(*particle, cell_index, cell);
@@ -202,7 +202,7 @@ void CutoffSimulation::updateGhost() {
 void CutoffSimulation::createGhostParticles(Particle &particle, const int cell_index, Cell &cell) {
   for (int l = 0; l < 6; l++) {
     if (is2D && (l == 2 || l == 5)) continue;
-    if (cell.borders[l] != REFLECTION) continue;
+    if (cell.borders[l] != BorderType::REFLECTION) continue;
 
     // create ghost particles for every reflection border
 
