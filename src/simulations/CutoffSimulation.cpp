@@ -50,7 +50,7 @@ void CutoffSimulation::updateF() {
         if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoffRadius) continue;
 
         // spdlog::warn("{} <-> {}", p1->toString(), p2->toString());
-        Vector3 f = Physics::lennardJonesForce(*p1, *p2, sigma, epsilon);
+        Vector3 f = Physics::LennardJones::force(*p1, *p2, sigma, epsilon);
         // spdlog::warn("{} <-> {}", p1->toString(), p2->toString());
         // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
         p1->addF(f);
@@ -84,7 +84,7 @@ void CutoffSimulation::updateF() {
             spdlog::trace("reached radius check for ghost particles");
             if (distance >= this->repulsing_distance || distance > cutoffRadius) continue;
 
-            Vector3 f = Physics::lennardJonesForce(*p1, p2, sigma, epsilon);
+            Vector3 f = Physics::LennardJones::force(*p1, p2, sigma, epsilon);
             p1->addF(f);
             spdlog::trace("adding force of ghost particle: {} {} {}", f[0], f[1], f[2]);
             // dont need to subtract force of ghost particles, since they are updated after anyways
@@ -94,7 +94,7 @@ void CutoffSimulation::updateF() {
           for (const auto p2 : c2.particles) {
             if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoffRadius) continue;
 
-            Vector3 f = Physics::lennardJonesForce(*p1, *p2, sigma, epsilon);
+            Vector3 f = Physics::LennardJones::force(*p1, *p2, sigma, epsilon);
             // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
             p1->addF(f);
             p2->subF(f);
@@ -111,7 +111,7 @@ void CutoffSimulation::updateX() {
     if (particle.getType() < 0) continue;
     spdlog::trace("Updating X:");
     spdlog::trace("-> Old Position: ({},{},{})", particle.getX()[0], particle.getX()[1], particle.getX()[2]);
-    particle.setX(Physics::calculateX(particle, delta_t));
+    particle.setX(Physics::StoermerVerlet::position(particle, delta_t));
     spdlog::trace("-> New: ({},{},{})", particle.getX()[0], particle.getX()[1], particle.getX()[2]);
   }
 }
@@ -121,7 +121,7 @@ void CutoffSimulation::updateV() {
     if (particle.getType() < 0) continue;
     spdlog::trace("Updating V:");
     spdlog::trace("-> Old Velocity: ({},{},{})", particle.getV()[0], particle.getV()[1], particle.getV()[2]);
-    particle.setV(Physics::calculateV(particle, delta_t));
+    particle.setV(Physics::StoermerVerlet::velocity(particle, delta_t));
     spdlog::trace("-> New Velocity: ({},{},{})", particle.getV()[0], particle.getV()[1], particle.getV()[2]);
   }
 }
@@ -158,15 +158,15 @@ void CutoffSimulation::moveParticles() {
           Vector3 v = p->getV();
           v[borderIndex % 3] *= -1;
           Vector3 neg = {-1, -1, -1};
-          p->setV(neg * p->getV());          // Turn Velocity
-          Vector3 oldF = p->getOldF();       // Save OldF
-          p->setF(neg * p->getF());          // Turn F
-          Physics::calculateX(*p, delta_t);  // Calculate old Position
+          p->setV(neg * p->getV());                        // Turn Velocity
+          Vector3 oldF = p->getOldF();                     // Save OldF
+          p->setF(neg * p->getF());                        // Turn F
+          Physics::StoermerVerlet::position(*p, delta_t);  // Calculate old Position
           p->setF(oldF);
-          p->setF(neg * p->getF());          // Reset old Force
-          p->setV(v);                        // Set new Velocity
-          Physics::calculateX(*p, delta_t);  // Calculate new Position
-          continue;                          // Don't move the Particle into a Ghost Cell
+          p->setF(neg * p->getF());                        // Reset old Force
+          p->setV(v);                                      // Set new Velocity
+          Physics::StoermerVerlet::position(*p, delta_t);  // Calculate new Position
+          continue;                                        // Don't move the Particle into a Ghost Cell
         } else {
           spdlog::error("A Particle escaped from the domain, even, if it shouldn't");
         }

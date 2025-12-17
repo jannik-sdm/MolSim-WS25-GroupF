@@ -43,7 +43,7 @@ const double delta_t = 1.0;
 TEST(Position, NoVelocityNoForce) {
   auto p = Particle({0, 0, 0}, {0, 0, 0}, 1);
 
-  Vector3 x = Physics::calculateX(p, delta_t);
+  Vector3 x = Physics::StoermerVerlet::position(p, delta_t);
 
   ASSERT_VECTOR3_EQ(p.getX(), x);
 
@@ -56,7 +56,7 @@ TEST(Position, NoVelocityNoForce) {
 
   auto p2 = Particle(position, {0, 0, 0}, 1);
 
-  Vector3 x2 = Physics::calculateX(p2, delta_t);
+  Vector3 x2 = Physics::StoermerVerlet::position(p2, delta_t);
 
   ASSERT_VECTOR3_EQ(p2.getX(), x2);
 }
@@ -72,7 +72,7 @@ TEST(Position, FixedVelocityNoForce) {
   const Vector3 velocity = {1, 1, 1};
   auto p = Particle({0, 0, 0}, velocity, 1);
 
-  Vector3 x = Physics::calculateX(p, delta_t);
+  Vector3 x = Physics::StoermerVerlet::position(p, delta_t);
   const Vector3 difference = delta_t * velocity;
 
   ASSERT_VECTOR3_EQ((p.getX() + difference), x);
@@ -86,7 +86,7 @@ TEST(Position, FixedVelocityNoForce) {
 
   auto p2 = Particle(position, velocity, 1);
 
-  Vector3 x2 = Physics::calculateX(p2, delta_t);
+  Vector3 x2 = Physics::StoermerVerlet::position(p2, delta_t);
 
   ASSERT_VECTOR3_EQ((p2.getX() + difference), x2);
 }
@@ -108,7 +108,7 @@ TEST(Position, RandomVelocityNoForce) {
 
   auto p = Particle({0, 0, 0}, velocity, 1);
 
-  Vector3 x = Physics::calculateX(p, delta_t);
+  Vector3 x = Physics::StoermerVerlet::position(p, delta_t);
   const Vector3 difference = delta_t * velocity;
 
   ASSERT_VECTOR3_EQ((p.getX() + difference), x);
@@ -118,7 +118,7 @@ TEST(Position, RandomVelocityNoForce) {
 
   auto p2 = Particle(position, velocity, 1);
 
-  Vector3 x2 = Physics::calculateX(p2, delta_t);
+  Vector3 x2 = Physics::StoermerVerlet::position(p2, delta_t);
 
   ASSERT_VECTOR3_EQ((p2.getX() + difference), x2);
 }
@@ -134,7 +134,7 @@ TEST(Position, NoVelocityFixedForce) {
   auto p = Particle({0, 0, 0}, {0, 0, 0}, 1);
   p.setF({2, 2, 2});
 
-  Vector3 x = Physics::calculateX(p, delta_t);
+  Vector3 x = Physics::StoermerVerlet::position(p, delta_t);
   Vector3 difference = {delta_t, delta_t, delta_t};
 
   ASSERT_VECTOR3_EQ((p.getX() + difference), x);
@@ -149,7 +149,7 @@ TEST(Position, NoVelocityFixedForce) {
   auto p2 = Particle(position, {0, 0, 0}, 1);
   p2.setF({2, 2, 2});
 
-  Vector3 x2 = Physics::calculateX(p2, delta_t);
+  Vector3 x2 = Physics::StoermerVerlet::position(p2, delta_t);
 
   ASSERT_VECTOR3_EQ((p2.getX() + difference), x2);
 }
@@ -172,7 +172,7 @@ TEST(Position, NoVelocityRandomForce) {
   auto p = Particle({0, 0, 0}, {0, 0, 0}, 1);
   p.setF(force);
 
-  Vector3 x = Physics::calculateX(p, delta_t);
+  Vector3 x = Physics::StoermerVerlet::position(p, delta_t);
   const Vector3 difference = (delta_t / 2) * force;
 
   ASSERT_VECTOR3_EQ((p.getX() + difference), x);
@@ -183,7 +183,7 @@ TEST(Position, NoVelocityRandomForce) {
   auto p2 = Particle(position, {0, 0, 0}, 1);
   p2.setF(force);
 
-  Vector3 x2 = Physics::calculateX(p2, delta_t);
+  Vector3 x2 = Physics::StoermerVerlet::position(p2, delta_t);
 
   ASSERT_VECTOR3_EQ((p2.getX() + difference), x2);
 }
@@ -198,7 +198,7 @@ TEST(Position, NoVelocityRandomForce) {
  */
 TEST(Velocity, NoForce) {
   auto p = Particle({0, 0, 0}, {0, 0, 0}, 1);
-  Vector3 v = Physics::calculateV(p, delta_t);
+  Vector3 v = Physics::StoermerVerlet::velocity(p, delta_t);
 
   ASSERT_VECTOR3_EQ(p.getV(), v);
 
@@ -211,7 +211,7 @@ TEST(Velocity, NoForce) {
 
   p.setV(velocity);
 
-  Vector3 v2 = Physics::calculateV(p, delta_t);
+  Vector3 v2 = Physics::StoermerVerlet::velocity(p, delta_t);
 
   ASSERT_VECTOR3_EQ(p.getV(), v2);
 }
@@ -229,7 +229,7 @@ TEST(Velocity, FixedForce) {
   p.setF(force);
   p.setF(force);  // call twice so that old_f is equal to new_f
 
-  Vector3 v = Physics::calculateV(p, delta_t);
+  Vector3 v = Physics::StoermerVerlet::velocity(p, delta_t);
   Vector3 difference = force;
 
   ASSERT_VECTOR3_EQ((p.getV() + difference), v);
@@ -243,7 +243,7 @@ TEST(Velocity, FixedForce) {
 
   p.setV(velocity);
 
-  Vector3 v2 = Physics::calculateV(p, delta_t);
+  Vector3 v2 = Physics::StoermerVerlet::velocity(p, delta_t);
 
   ASSERT_VECTOR3_EQ((p.getV() + difference), v2);
 }
@@ -267,7 +267,7 @@ TEST(Velocity, RandomForce) {
   p.setF(force);
   p.setF(force);  // call twice so that old_f is equal to new_f
 
-  Vector3 v = Physics::calculateV(p, delta_t);
+  Vector3 v = Physics::StoermerVerlet::velocity(p, delta_t);
   Vector3 difference = force;
 
   ASSERT_VECTOR3_EQ((p.getV() + difference), v);
@@ -277,7 +277,7 @@ TEST(Velocity, RandomForce) {
 
   p.setV(velocity);
 
-  Vector3 v2 = Physics::calculateV(p, delta_t);
+  Vector3 v2 = Physics::StoermerVerlet::velocity(p, delta_t);
 
   ASSERT_VECTOR3_EQ((p.getV() + difference), v2);
 }
@@ -287,7 +287,7 @@ TEST(PlanetForce, FixedMass) {
   auto p1 = Particle({2, 0, 0}, {0, 0, 0}, 1);
   auto p2 = Particle({1, 0, 0}, {0, 0, 0}, 1);
 
-  Vector3 f = Physics::planetForce(p1, p2);
+  Vector3 f = Physics::Planet::force(p1, p2);
   Vector3 expected = p2.getX() - p1.getX();
 
   ASSERT_VECTOR3_EQ(expected, f);
@@ -304,7 +304,7 @@ TEST(PlanetForce, RandomMass) {
   auto p1 = Particle({2, 0, 0}, {0, 0, 0}, m1);
   auto p2 = Particle({1, 0, 0}, {0, 0, 0}, m2);
 
-  Vector3 f = Physics::planetForce(p1, p2);
+  Vector3 f = Physics::Planet::force(p1, p2);
   Vector3 expected = m1 * m2 * (p2.getX() - p1.getX());
 
   ASSERT_VECTOR3_EQ(expected, f);
@@ -315,7 +315,7 @@ TEST(LennardJonesForce, FixedMass) {
   auto p1 = Particle({2, 0, 0}, {0, 0, 0}, 1);
   auto p2 = Particle({1, 0, 0}, {0, 0, 0}, 1);
 
-  Vector3 f = Physics::lennardJonesForce(p1, p2, 1, 1);
+  Vector3 f = Physics::LennardJones::force(p1, p2, 1, 1);
   Vector3 expected = 24 * (p1.getX() - p2.getX());
 
   ASSERT_VECTOR3_EQ(expected, f);

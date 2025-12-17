@@ -24,7 +24,7 @@ void PlanetSimulation::iteration() {
 void PlanetSimulation::updateF() {
   for (auto &p : particleContainer) p.setF({0, 0, 0});
   for (auto [p1, p2] : particleContainer.pairs()) {
-    Vector3 f = Physics::planetForce(p1, p2);
+    Vector3 f = Physics::Planet::force(p1, p2);
 
     p1.addF(f);
     p2.subF(f);
@@ -33,12 +33,12 @@ void PlanetSimulation::updateF() {
 
 void PlanetSimulation::updateX() {
   for (auto &p : particleContainer) {
-    p.setX(Physics::calculateX(p, delta_t));
+    p.setX(Physics::StoermerVerlet::position(p, delta_t));
   }
 }
 
 void PlanetSimulation::updateV() {
   for (auto &p : particleContainer) {
-    p.setV(Physics::calculateV(p, delta_t));
+    p.setV(Physics::StoermerVerlet::velocity(p, delta_t));
   }
 }

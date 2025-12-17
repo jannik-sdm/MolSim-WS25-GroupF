@@ -20,7 +20,7 @@ CollisionSimulation::CollisionSimulation(std::vector<Particle> &particles, const
 void CollisionSimulation::updateF() {
   for (auto &p : particleContainer) p.setF({0, 0, 0});
   for (auto [p1, p2] : particleContainer.pairs()) {
-    Vector3 f = Physics::lennardJonesForce(p1, p2, sigma, epsilon);
+    Vector3 f = Physics::LennardJones::force(p1, p2, sigma, epsilon);
 
     p1.addF(f);
     p2.subF(f);
