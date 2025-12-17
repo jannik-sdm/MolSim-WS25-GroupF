@@ -65,7 +65,8 @@ void CutoffSimulation::updateF() {
 
     // skip ghost cells
     if (c1.cell_type == CellType::GHOST) continue;
-    std::array<int, 26> neighbourCellsIndex = linkedCells.getNeighbourCells(i);
+    NeighBourIndices neighbourCellsIndex = linkedCells.getNeighbourCells(i);
+
     for (const int j : neighbourCellsIndex) {
       auto &c2 = linkedCells.cells[j];
       // newton optimization, but ONLY if c2 is not a Ghost cell, because if this calculation is skipped, particles are

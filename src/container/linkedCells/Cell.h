@@ -19,6 +19,12 @@ enum class CellType { REGULAR, BORDER, GHOST };
 enum class BorderType { OUTFLOW, REFLECTION, PERIODIC, NAIVE_REFLECTION };
 
 /**
+ * @brief Alias for BorderTypes
+ *
+ */
+using NeighBourIndices = std::array<int, 26>;
+
+/**
  * @class Cell
  * @brief Represents one cell in a linked cells container
  */
@@ -53,9 +59,12 @@ class Cell {
    */
   std::array<BorderType, 6> borders;
 
-  std::array<int, 26> neighbors;
-
-  Cell(ParticleContainer particleContainer, CellType type);
+  /**
+   * @brief Neighbouring cells
+   *
+   * Contains indices to all neighbouring cells.
+   */
+  NeighBourIndices neighbors;
 
   // default constructur:
   Cell() : cell_type(CellType::REGULAR) { borders.fill(BorderType::OUTFLOW); }
