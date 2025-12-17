@@ -119,4 +119,34 @@ Describes how many cells the overall structure has in Z-direction   */
    * border, but through an edge or a corner!
    */
   int getSharedBorder(int ownIndex1d, int otherIndex1d);
+
+  /**
+   * @brief Checks if a given cell is a ghost cell
+   *
+   * A cell is a ghost cell when it is at the edge of the domain,
+   * i.e when it has a cell index of 0 or the maximum along the respective axis
+   *
+   * @param x x coordinate of 3d cell index
+   * @param y y coordinate of 3d cell index
+   * @param z z coordinate of 3d cell index
+   * @return true if the particle is at the edge of the domian
+   */
+  bool isGhostCell(int x, int y, int z) {
+    return (x == 0 || y == 0 || z == 0 || x == numCellsX - 1 || y == numCellsY - 1 || z == numCellsZ - 1);
+  }
+
+  /**
+   * @brief Checks if a given cell is a border cell
+   *
+   * A cell is a ghost cell when it is at the edge of the domain,
+   * i.e when it has a cell index of 1 or one less than the maximum along the respective axis
+   *
+   * @param x x coordinate of 3d cell index
+   * @param y y coordinate of 3d cell index
+   * @param z z coordinate of 3d cell index
+   * @return true if the particle is at the edge of the domian
+   */
+  bool isBorderCell(int x, int y, int z) {
+    return (x == 1 || y == 1 || z == 1 || x == numCellsX - 2 || y == numCellsY - 2 || z == numCellsZ - 2);
+  }
 };

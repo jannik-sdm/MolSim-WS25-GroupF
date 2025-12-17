@@ -32,34 +32,39 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
     auto [x, y, z] = index1dToIndex3d(i);
     if (x == 0 || y == 0 || z == 0 || x == numCellsX - 1 || y == numCellsY - 1 || z == numCellsZ - 1) {
       cells[i].cell_type = CellType::GHOST;
+      continue;  // ghost cells don't need neighbours
     }
+
+    setNeighbourCells(i);
+
     // check if cell should be a border cell
-    else {
-      setNeighbourCells(i);
-      if (x == 1 || y == 1 || z == 1 || x == numCellsX - 2 || y == numCellsY - 2 || z == numCellsZ - 2) {
-        cells[i].cell_type = CellType::BORDER;
-        // Set Border Types
-        if (x == 1) {
-          cells[i].borders[0] = border[0];
-        }
-        if (y == 1) {
-          cells[i].borders[1] = border[3];
-        }
-        if (z == 1) {
-          cells[i].borders[2] = border[1];
-        }
-        if (x == numCellsX - 2) {
-          cells[i].borders[3] = border[4];
-        }
-        if (y == numCellsY - 2) {
-          cells[i].borders[4] = border[2];
-        }
-        if (z == numCellsZ - 2) {
-          cells[i].borders[5] = border[5];
-        }
+    if (isBorderCell(x, y, z)) {
+      cells[i].cell_type = CellType::BORDER;
+      // Set Border Types
+      if (x == 1) {
+        cells[i].borders[0] = border[0];
       }
-      // remaining cells are REGULAR by default
+      if (y == 1) {
+        cells[i].borders[1] = border[3];
+      }
+      if (z == 1) {
+        cells[i].borders[2] = border[1];
+      }
+      if (x == numCellsX - 2) {
+        cells[i].borders[3] = border[4];
+      }
+      if (y == numCellsY - 2) {
+        cells[i].borders[4] = border[2];
+      }
+      if (z == numCellsZ - 2) {
+        cells[i].borders[5] = border[5];
+      }
+
+      continue;
     }
+
+    // remaining cells are REGULAR by default
+    cells[i].cell_type = CellType::REGULAR;
   }
 
   // add particles to the correct cell
