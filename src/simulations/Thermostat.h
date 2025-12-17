@@ -2,6 +2,7 @@
 // Created by jannik on 12/14/25.
 //
 #pragma once
+#include <cmath>
 #include <vector>
 
 #include "../Particle.h"
@@ -39,7 +40,6 @@ class Thermostat {
   Thermostat(std::vector<Particle> &particles, int n, double target_temperature, double maximum_temperature_change,
              int &alive_particles, bool is2D, double initial_temperature = -0.1,
              double average_brownian_velocity = -0.1);
-
   /**
    * @brief Calculates the current temperature of the simulation
    * @return current temperature of the simulation
@@ -47,17 +47,22 @@ class Thermostat {
   double calculateCurrentTemperature();
 
   /**
+   * @brief Performs one update of the velocities to change the temperature to the target temperature
+   */
+  void updateTemperature();
+
+ private:
+  /**
    * @brief Calculates the scaling factor beta based on the target temperature
    * @return scaling factor beta
    */
- private:
   double calculateScalingFactor();
 
   /**
-   * @brief Applies the scaling factor beta to each velocity
-   * @param scaling_factor scaling factor beta applied to each velocity
+   * @brief Calculates the maximum possible scaling factor that the simulation is able to use
+   * @return scaling factor beta_max
    */
-  void applyScalingFactor(double scaling_factor);
+  double calculateMaximumScalingFactor();
 
   /**
    * @brief Calculates the kinetic energy of the simulation (sum of energy of all particles)

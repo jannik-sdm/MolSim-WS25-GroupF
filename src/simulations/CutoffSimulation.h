@@ -8,9 +8,9 @@
 
 #include "container/linkedCells/LinkedCells.h"
 #include "simulations/Simulation.h"
+#include "simulations/Thermostat.h"
 
 class CutoffSimulation : public Simulation {
- private:
   const double epsilon = 5;
   const double sigma = 1;
   const double brownian_motion_avg_velocity = 0.1;
@@ -24,9 +24,10 @@ class CutoffSimulation : public Simulation {
   const double repulsing_distance;
   LinkedCells linkedCells;
   std::vector<Particle> &particles;
+  Thermostat thermostat;
 
   /**
-   * a counter for the amount of particles that are still alive
+   * A counter for the amount of particles that are still alive
    */
   int alive_particles = 0;
 
@@ -74,6 +75,11 @@ class CutoffSimulation : public Simulation {
    * @brief Initializes the particles with the brownian motion
    */
   void initializeBrownianMotion();
+  /**
+   * @brief Initializes a thermostat to control the temperature of the simulation
+   */
+  void addThermostat(int n, double target_temperature, double maximum_temperature_change, double initial_temperature,
+                     double average_brownian_velocity);
 
   /**
    * @brief getter for the tests

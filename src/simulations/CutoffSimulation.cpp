@@ -17,6 +17,7 @@ CutoffSimulation::CutoffSimulation(std::vector<Particle> &particles, Vector3 dim
       cutoffRadius(cutoffRadius),
       linkedCells(particles, dimension, cutoffRadius, border),
       particles(particles),
+      thermostat(thermostat),
       repulsing_distance(std::pow(2, 1.0 / 6.0) * sigma),
       is2D(is2D) {
   for (auto &p : particles)
@@ -254,4 +255,10 @@ void CutoffSimulation::initializeBrownianMotion() {
   for (auto &p : linkedCells.particles) {
     p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, (is2D ? 2 : 3)));
   }
+}
+
+void CutoffSimulation::addThermostat(int n, double target_temperature, double maximum_temperature_change,
+                                     double initial_temperature, double average_brownian_velocity) {
+  thermostat = Thermostat(particles, n, target_temperature, maximum_temperature_change, alive_particles, is2D,
+                          initial_temperature, average_brownian_velocity);
 }

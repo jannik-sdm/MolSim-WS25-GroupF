@@ -25,6 +25,7 @@ Thermostat::Thermostat(std::vector<Particle> &particles, int n, double target_te
   }
   current_temperature = calculateCurrentTemperature();
 }
+
 double Thermostat::calculateEkin() {
   double ekin = 0;
   for (auto &p : particles) {
@@ -45,7 +46,23 @@ double Thermostat::calculateCurrentTemperature() {
 
 double Thermostat::calculateScalingFactor() { return std::sqrt(target_temperature / calculateCurrentTemperature()); }
 
-void Thermostat::applyScalingFactor(double scaling_factor) {
+double Thermostat::calculateMaximumScalingFactor() {
+  const int sign = current_temperature < target_temperature ? 1 : -1;
+  return std::sqrt((current_temperature + sign * maximum_temperature_change) / current_temperature);
+}
+
+void Thermostat::updateTemperature() {
+  double scaling_factor = calculateScalingFactor();
+  // new temperature can be calculated without taking into account v' by applying the squared scaling factor to the
+  // current temperature
+  const double new_temperature = scaling_factor * scaling_factor * current_temperature;
+  const double delta = fabs(current_temperature - new_temperature);
+  if (delta > maximum_temperature_change) {
+    // scaling factor is too large for the system to handle ==> need to calculate maximum scaling factor
+    // TODO: maybe optimize by storing the maximum scaling factor, but have to be careful if we overshoot the targeted
+    // TODO: temperature and the sign of delta_t has to change
+    scaling_factor = calculateMaximumScalingFactor();
+  }
   for (auto &p : particles) {
     if (p.getState() < 0) continue;
     p.setV(scaling_factor * p.getV());
