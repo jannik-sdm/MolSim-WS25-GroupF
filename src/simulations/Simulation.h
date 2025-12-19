@@ -3,16 +3,43 @@
 //
 
 #pragma once
-
+#include "outputWriter/VTKWriter.h"
+#include "outputWriter/XYZWriter.h"
+#include "outputWriter/YAMLWriter.h"
 /**
  * @brief Base class for simulations
  *
  * This class ensures that every simulation has a iterate method
  */
 class Simulation {
+ protected:
+  const double start_time;
+  const double end_time;
+  const double delta_t;
+  unsigned int current_iteration;
+
  public:
-  // desctructor to avoid memory leaks
+  Simulation(const double start_time, const double end_time, const double delta_t)
+      : start_time(start_time), end_time(end_time), delta_t(delta_t), current_iteration(0) {}
+  // destructor to avoid memory leaks
   virtual ~Simulation() = default;
+
+  template <typename Function>
+  void run(Function f) {
+    double current_time = start_time;
+    current_iteration = 0;
+
+    // for this loop, we assume: current x, current f and current v are known
+    while (current_time < end_time) {
+      iteration();
+
+      f(current_iteration);
+      spdlog::info("Iteration {} finished.", current_iteration);
+
+      current_time += delta_t;
+      current_iteration++;
+    }
+  };
 
   /**
    * @brief Performs one complete iteration of the simulation.

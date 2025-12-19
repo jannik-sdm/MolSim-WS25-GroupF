@@ -42,6 +42,10 @@ int main(int argc, char *argsv[]) {
     exit(EXIT_SUCCESS);
   }
 
+  if (!settings.simulation.end_time.has_value()) {
+    spdlog::error("Missing value for end_time");
+    exit(EXIT_SUCCESS);
+  }
   if (!settings.simulation.delta_t.has_value()) {
     spdlog::error("Missing value for delta_t");
     exit(EXIT_SUCCESS);
@@ -58,44 +62,54 @@ int main(int argc, char *argsv[]) {
 
     // select simulation
     std::unique_ptr<Simulation> simulation = nullptr;
+    std::unique_ptr<Thermostat> thermostat = nullptr;
 
     switch (settings.simulation.worksheet.value()) {
       case 1:
-        simulation = std::make_unique<PlanetSimulation>(input_particles, settings.simulation.end_time.value(),
+        simulation = std::make_unique<PlanetSimulation>(input_particles, settings.simulation.start_time,
+                                                        settings.simulation.end_time.value(),
                                                         settings.simulation.delta_t.value());
         break;
 
       case 2:
-        simulation = std::make_unique<CollisionSimulation>(input_particles, settings.simulation.end_time.value(),
+        simulation = std::make_unique<CollisionSimulation>(input_particles, settings.simulation.start_time,
+                                                           settings.simulation.end_time.value(),
                                                            settings.simulation.delta_t.value());
         break;
 
       case 3:
         simulation = std::make_unique<CutoffSimulation>(
-            input_particles, settings.simulation.domain.value(), settings.simulation.end_time.value(),
-            settings.simulation.delta_t.value(), settings.simulation.cutoff_radius.value(),
-            settings.simulation.borders.value(), settings.simulation.is2D);
+            input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
+            settings.simulation.delta_t.value(), settings.simulation.domain.value(),
+            settings.simulation.cutoff_radius.value(), settings.simulation.borders.value(), settings.simulation.is2D);
         break;
+      case 4: {
+        /** @TODO thermostat parameters these from yaml */
+        const int n = 100;
+        const double target_temperature = 30;
+        const double maximum_temperature_change = 0.5;
+        const double initial_temperature = 10;
+        const double average_brownian_motion = 10;
+
+        thermostat =
+            std::make_unique<Thermostat>(input_particles, n, target_temperature, maximum_temperature_change,
+                                         settings.simulation.is2D, initial_temperature, average_brownian_motion);
+        simulation = std::make_unique<CutoffSimulation>(
+            input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
+            settings.simulation.delta_t.value(), settings.simulation.domain.value(),
+            settings.simulation.cutoff_radius.value(), settings.simulation.borders.value(), settings.simulation.is2D);
+      } break;
+
       default:
         spdlog::error("Invalid worksheet number {}", settings.simulation.worksheet.value());
         exit(EXIT_FAILURE);
     };
 
-    double current_time = settings.simulation.start_time;
-    int iteration = 0;
-
-    // for this loop, we assume: current x, current f and current v are known
-    while (current_time < settings.simulation.end_time.value_or(settings.simulation.start_time)) {
-      simulation->iteration();
-      iteration++;
-
+    simulation->run([&input_particles, &settings](const unsigned int iteration) {
       if (iteration % settings.output.frequency == 0) {
-        plotParticles(input_particles, iteration, settings.output.directory);
+        plotParticles(input_particles, static_cast<int>(iteration), settings.output.directory);
       }
-      spdlog::info("Iteration {} finished.", iteration);
-
-      current_time += settings.simulation.delta_t.value();
-    }
+    });
 
     spdlog::info("output written. Terminating...");
     auto end_time_measure = std::chrono::high_resolution_clock::now();
@@ -123,7 +137,6 @@ int main(int argc, char *argsv[]) {
     outputWriter::exportYAML(input_particles, settings, settings.output.export_filename.value());
   return 0;
 }
-
 void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder) {
 #ifdef ENABLE_VTK_OUTPUT
   outputWriter::VTKWriter writer;

@@ -14,8 +14,6 @@ class CutoffSimulation : public Simulation {
   const double epsilon = 5;
   const double sigma = 1;
   const double brownian_motion_avg_velocity = 0.1;
-  const double end_time;
-  const double delta_t;
   const double cutoffRadius = 3.0;
   bool is2D;
   /**
@@ -24,7 +22,6 @@ class CutoffSimulation : public Simulation {
   const double repulsing_distance;
   LinkedCells linkedCells;
   std::vector<Particle> &particles;
-  Thermostat thermostat;
 
   /**
    * A counter for the amount of particles that are still alive
@@ -32,8 +29,19 @@ class CutoffSimulation : public Simulation {
   int alive_particles = 0;
 
  public:
-  CutoffSimulation(std::vector<Particle> &particles, Vector3 dimension, double end_time, double delta_t,
-                   double cutoffRadius, std::array<BorderType, 6> &border, bool is2D);
+  CutoffSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
+                   const double delta_t, const Vector3 &dimension, const double cutoff_radius,
+                   const std::array<BorderType, 6> &border, const bool is2D)
+      : Simulation(start_time, end_time, delta_t),
+        cutoffRadius(cutoff_radius),
+        is2D(is2D),
+        repulsing_distance(std::pow(2, 1.0 / 6.0) * sigma),
+        linkedCells(particles, dimension, cutoff_radius, border),
+        particles(particles) {
+    for (auto &p : particles)
+      if (p.getState() != -1) alive_particles++;
+    initializeBrownianMotion();
+  }
 
   /**
    * Performes one iteration of the simulation by updating the force, position and velocity of each particle

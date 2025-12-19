@@ -38,8 +38,7 @@ class Thermostat {
 
  public:
   Thermostat(std::vector<Particle> &particles, int n, double target_temperature, double maximum_temperature_change,
-             int &alive_particles, bool is2D, double initial_temperature = -0.1,
-             double average_brownian_velocity = -0.1);
+             bool is2D, double initial_temperature = -0.1, double average_brownian_velocity = -0.1);
   /**
    * @brief Calculates the current temperature of the simulation
    * @return current temperature of the simulation
@@ -79,4 +78,10 @@ class Thermostat {
    * @brief initializes the simulation with the brownian motion, if the velocities are non-zero
    */
   void initializeBrownianMotion(double brownian_motion_avg_velocity);
+
+  /**
+   *
+   * @return Count of alive particles
+   */
+  int calculateAliveParticles();
 };

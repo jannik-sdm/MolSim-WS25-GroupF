@@ -18,8 +18,18 @@
  * @see Physics::lennardJonesForce
  */
 class CollisionSimulation : public PlanetSimulation {
+ private:
+  /** @brief Value used for epsilon during force calculation, @see Physics::lennardJonesForce */
+  const double epsilon = 5;
+  /** @brief Value used for sigma during force calculation, @see Physics::lennardJonesForce */
+  const double sigma = 1;
+
  public:
-  CollisionSimulation(std::vector<Particle> &particles, double end_time, double delta_t);
+  CollisionSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
+                      const double delta_t)
+      : PlanetSimulation(particles, start_time, end_time, delta_t) {
+    initializeBrownianMotion();
+  }
   /**
    * @brief calculate the force for all particles
    *
@@ -28,11 +38,11 @@ class CollisionSimulation : public PlanetSimulation {
    */
   void updateF() override;
 
- private:
-  /** @brief Value used for epsilon durign force calculation, @see Physics::lennardJonesForce */
-  const double epsilon = 5;
-  /** @brief Value used for sigma during force calculation, @see Physics::lennardJonesForce */
-  const double sigma = 1;
-  /** @brief Average velocity used to initialize brownian motion */
-  const double brownian_motion_avg_velocity = 0.1;
+  /**
+   * @brief Add brownian motion
+   *
+   * Adds a brownian motion in the form of velocity to all particles
+   * @param brown_motion_avg_velocity
+   */
+  void initializeBrownianMotion(double brown_motion_avg_velocity = 0.1);
 };

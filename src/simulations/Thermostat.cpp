@@ -8,8 +8,8 @@
 #include "utils/MaxwellBoltzmannDistribution.h"
 
 Thermostat::Thermostat(std::vector<Particle> &particles, int n, double target_temperature,
-                       double maximum_temperature_change, int &alive_particles, bool is2D,
-                       double initial_temperature_optional, double average_brownian_velocity_optional)
+                       double maximum_temperature_change, bool is2D, double initial_temperature_optional,
+                       double average_brownian_velocity_optional)
     : particles(particles),
       n(n),
       target_temperature(target_temperature),
@@ -40,7 +40,7 @@ double Thermostat::calculateCurrentTemperature() {
   if (alive_particles == 0) return 0.0;
 
   const int dimensions = (is2D ? 2 : 3);
-  const double temperature = (2 * calculateEkin()) / (dimensions * alive_particles);
+  const double temperature = (2 * calculateEkin()) / (dimensions * calculateAliveParticles());
   return temperature;
 }
 
@@ -67,6 +67,17 @@ void Thermostat::updateTemperature() {
     if (p.getState() < 0) continue;
     p.setV(scaling_factor * p.getV());
   }
+}
+
+int Thermostat::calculateAliveParticles() {
+  int count = 0;
+  for (auto &p : particles) {
+    if (p.getState() != -1) {
+      count++;
+    }
+  }
+
+  return count;
 }
 
 void Thermostat::initializeBrownianMotionZero(double initial_temperature) {
