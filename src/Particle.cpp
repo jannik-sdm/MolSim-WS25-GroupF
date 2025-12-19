@@ -76,6 +76,8 @@ double Particle::getM() const { return m; }
 
 int Particle::getType() const { return type; }
 
+int Particle::getState() const { return state; }
+
 std::string Particle::toString() const {
   std::stringstream stream;
   stream << "Particle: X:" << x << " v: " << v << " f: " << f << " old_f: " << old_f << " type: " << type;

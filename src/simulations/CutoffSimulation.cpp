@@ -10,18 +10,6 @@
 #include "utils/ArrayUtils.h"
 #include "utils/MaxwellBoltzmannDistribution.h"
 
-CutoffSimulation::CutoffSimulation(std::vector<Particle> &particles, Vector3 dimension, double end_time, double delta_t,
-                                   double cutoffRadius, std::array<BorderType, 6> &border, bool is2D)
-    : end_time(end_time),
-      delta_t(delta_t),
-      cutoffRadius(cutoffRadius),
-      linkedCells(particles, dimension, cutoffRadius, border),
-      particles(particles),
-      repulsing_distance(std::pow(2, 1.0 / 6.0) * sigma),
-      is2D(is2D) {
-  initializeBrownianMotion();
-}
-
 void CutoffSimulation::iteration() {
   spdlog::debug("Updating Positions");
   updateX();
@@ -108,7 +96,7 @@ void CutoffSimulation::updateF() {
 void CutoffSimulation::updateX() {
   for (auto &particle : linkedCells.particles) {
     // skip dead particles
-    if (particle.getType() < 0) continue;
+    if (particle.getState() < 0) continue;
     spdlog::trace("Updating X:");
     spdlog::trace("-> Old Position: ({},{},{})", particle.getX()[0], particle.getX()[1], particle.getX()[2]);
     particle.setX(Physics::StoermerVerlet::position(particle, delta_t));
@@ -118,7 +106,7 @@ void CutoffSimulation::updateX() {
 
 void CutoffSimulation::updateV() {
   for (auto &particle : linkedCells.particles) {
-    if (particle.getType() < 0) continue;
+    if (particle.getState() < 0) continue;
     spdlog::trace("Updating V:");
     spdlog::trace("-> Old Velocity: ({},{},{})", particle.getV()[0], particle.getV()[1], particle.getV()[2]);
     particle.setV(Physics::StoermerVerlet::velocity(particle, delta_t));
@@ -149,7 +137,8 @@ void CutoffSimulation::moveParticles() {
         int borderIndex = linkedCells.getSharedBorder(i, k);
         BorderType border = current_cell.borders[borderIndex];
         if (border == BorderType::OUTFLOW) {
-          p->setType(-1);  // mark particle as dead
+          p->setState(-1);  // mark particle as dead
+          alive_particles--;
           spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
         } else if (border == BorderType::NAIVE_REFLECTION) {
           // First go back to the Old Position and then reflect the Velocity and calculate the new Position
