@@ -50,6 +50,13 @@ class Thermostat {
    */
   void updateTemperature();
 
+  /**
+   *
+   * @return getter for attribute n
+   */
+  int getN() {return n;}
+
+
  private:
   /**
    * @brief Calculates the scaling factor beta based on the target temperature
@@ -84,4 +91,5 @@ class Thermostat {
    * @return Count of alive particles
    */
   int calculateAliveParticles();
+
 };

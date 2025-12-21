@@ -11,6 +11,7 @@
 #include "simulations/Thermostat.h"
 
 class CutoffSimulation : public Simulation {
+ protected:
   const double epsilon = 5;
   const double sigma = 1;
   const double brownian_motion_avg_velocity = 0.1;
