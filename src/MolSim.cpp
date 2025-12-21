@@ -17,6 +17,7 @@
 #include "simulations/CollisionSimulation.h"
 #include "simulations/CutoffSimulation.h"
 #include "simulations/PlanetSimulation.h"
+#include "simulations/ThermostatSimulation.h"
 
 /**
  * @brief plot the particles to a xyz-file or to a vtk-file.
@@ -92,12 +93,13 @@ int main(int argc, char *argsv[]) {
         const double average_brownian_motion = 10;
 
         thermostat =
-            std::make_unique<Thermostat>(input_particles, n, target_temperature, maximum_temperature_change,
-                                         settings.simulation.is2D, initial_temperature, average_brownian_motion);
-        simulation = std::make_unique<CutoffSimulation>(
+            std::make_unique<Thermostat>(input_particles, settings.simulation.is2D, n, target_temperature,
+                                         maximum_temperature_change, initial_temperature, average_brownian_motion);
+        simulation = std::make_unique<ThermostatSimulation>(
             input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
             settings.simulation.delta_t.value(), settings.simulation.domain.value(),
-            settings.simulation.cutoff_radius.value(), settings.simulation.borders.value(), settings.simulation.is2D);
+            settings.simulation.cutoff_radius.value(), settings.simulation.borders.value(), settings.simulation.is2D,
+            *thermostat);
       } break;
 
       default:

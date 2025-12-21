@@ -84,11 +84,6 @@ class CutoffSimulation : public Simulation {
    * @brief Initializes the particles with the brownian motion
    */
   void initializeBrownianMotion();
-  /**
-   * @brief Initializes a thermostat to control the temperature of the simulation
-   */
-  void addThermostat(int n, double target_temperature, double maximum_temperature_change, double initial_temperature,
-                     double average_brownian_velocity);
 
   /**
    * @brief getter for the tests

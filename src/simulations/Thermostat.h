@@ -11,12 +11,6 @@ class Thermostat {
    * Reference to the particles of the simulation
    */
   std::vector<Particle> &particles;
-  /**
-   * Reference to the alive_particles field in the simulation to keep track of amount of particles still alive
-   */
-  int &alive_particles;
-
-  bool is2D;
 
   /**
    * @brief The current temperature of the system
@@ -36,33 +30,41 @@ class Thermostat {
    */
   int n;
 
+  /**
+   * Stores if the simulation is 2D, which is needed for the dimensions in the calculation
+   */
+  bool is2D;
+
  public:
-  Thermostat(std::vector<Particle> &particles, int n, double target_temperature, double maximum_temperature_change,
-             bool is2D, double initial_temperature = -0.1, double average_brownian_velocity = -0.1);
+  Thermostat(std::vector<Particle> &particles, bool is2D, int n, double target_temperature,
+             double maximum_temperature_change, double initial_temperature = -0.1,
+             double average_brownian_velocity = -0.1);
+  virtual ~Thermostat() = default;
+
   /**
    * @brief Calculates the current temperature of the simulation
    * @return current temperature of the simulation
    */
-  double calculateCurrentTemperature();
+  double calculateCurrentTemperature(int alive_particles);
 
   /**
    * @brief Performs one update of the velocities to change the temperature to the target temperature
+   * @param alive_particles The amount of particles still alive which is needed for the calculation
    */
-  void updateTemperature();
+  void updateTemperature(int alive_particles);
 
   /**
    *
    * @return getter for attribute n
    */
-  int getN() {return n;}
-
+  int getN() { return n; }
 
  private:
   /**
    * @brief Calculates the scaling factor beta based on the target temperature
    * @return scaling factor beta
    */
-  double calculateScalingFactor();
+  double calculateScalingFactor(int alive_particles);
 
   /**
    * @brief Calculates the maximum possible scaling factor that the simulation is able to use
@@ -91,5 +93,4 @@ class Thermostat {
    * @return Count of alive particles
    */
   int calculateAliveParticles();
-
 };

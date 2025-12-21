@@ -3,9 +3,7 @@
 //
 
 #pragma once
-#include "outputWriter/VTKWriter.h"
-#include "outputWriter/XYZWriter.h"
-#include "outputWriter/YAMLWriter.h"
+#include <spdlog/spdlog.h>
 /**
  * @brief Base class for simulations
  *
