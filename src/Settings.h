@@ -48,7 +48,7 @@ class Settings {
   /** @brief Which worksheet to run */
   unsigned int worksheet;
 
-  Settings(std::vector<Particle> &particles) : particles(particles){};
+  Settings(std::vector<Particle> &particles) : particles(particles) {};
 
   /**
    * @brief Parses the Arguments

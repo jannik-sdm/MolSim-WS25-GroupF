@@ -123,4 +123,21 @@ Describes how many cells the overall structure has in Z-direction   */
    * border, but through an edge or a corner!
    */
   int getSharedBorder(int ownIndex1d, int otherIndex1d);
+
+  /**
+   * Like getShared Border, but more stable
+   * @param ownIndex1d first 1D Inex of the neighbour Cells
+   * @param otherIndex1d second 1D Index of the neighbour Cells
+   * @return BorderType of the Border between two cells. ERROR, if the cells do not share a common border
+   * Instead one random Border this function returns the Border with the highest priority acording to the order in
+   * Cell.h
+   */
+  BorderType getSharedBorderType(int ownIndex1d, int otherIndex1d);
+  /**
+   * If a Border is periodic, a ghost cell has a correlated border cell at the other side of the domain. This function
+   * findes the this cell and returns its 1D-Index
+   * @param cellIndex Index of Ghost Cell, whose equivalent should be found
+   * @return 1D Index of the border cell, which is equivalent to the ghost cell
+   */
+  int getPeriodicEquivalentForGhost(int cellIndex);
 };

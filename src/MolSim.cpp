@@ -49,7 +49,7 @@ void initializeLogging() {
 }
 
 int main(int argc, char *argsv[]) {
-  //initializeLogging();
+  // initializeLogging();
 
   std::vector<Particle> input_particles;
   Settings settings = Settings(argc, argsv, input_particles);

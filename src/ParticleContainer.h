@@ -33,7 +33,7 @@ class PairIterator {
   size_t j;
 
  public:
-  PairIterator(std::vector<Particle> &particles, size_t i, size_t j) : particles(particles), i(i), j(j){};
+  PairIterator(std::vector<Particle> &particles, size_t i, size_t j) : particles(particles), i(i), j(j) {};
   std::pair<Particle &, Particle &> operator*();
   /**
    * Moves the iterator to the next distinct pair of particles
@@ -72,7 +72,7 @@ class PairRange {
   std::vector<Particle> &particles;
 
  public:
-  PairRange(std::vector<Particle> &particles) : particles(particles){};
+  PairRange(std::vector<Particle> &particles) : particles(particles) {};
 
   /**
    * @brief Begin iterating through distinct pairs

@@ -9,8 +9,11 @@
  * REGULAR = Cell
  */
 enum CellType { REGULAR, BORDER, GHOST };
-
-enum BorderType { OUTFLOW, REFLECTION, PERIODIC, NAIVE_REFLECTION };
+/**
+ * BorderType
+ *
+ */
+enum BorderType { ERROR, OUTFLOW, NAIVE_REFLECTION, REFLECTION, PERIODIC };
 
 class Cell {
  public:
@@ -41,6 +44,10 @@ class Cell {
    * (0,0,1) (1,1,1) -> hinten
    */
   std::array<BorderType, 6> borders;
+
+  /**
+   * Saves all neighbour cells of a Cell, that is no Ghost Cell
+  */
 
   std::array<int, 26> neighbors;
 

@@ -50,6 +50,30 @@ inline Vector3 lennardJonesForce(Particle &p1, Particle &p2, double sigma, doubl
 }
 
 /**
+ * @brief Calculate the Lennard Jones force between two particles
+ *
+ * Calculate the lennard jones force between two particles with the formula
+ * \f[
+ *   F_{ij} = * - \frac{24 \cdot \epsilon}{(\|x_i - x_j\|_2)^2}
+ *   (( \frac{\sigma}{\|x_i - x_j\|_2})^6
+ *   - 2 (\frac{\sigma}{\|x_i - x_j\|_2})^{12}) (x_i - x_j)
+ * \f]
+ *
+ * @param p1 First particle
+ * @param p2 Second particle
+ * @param sigma σ
+ * @param epsilon ɛ
+ * @param diff Vector between first and second particle
+ * @return Vector3
+ */
+inline Vector3 lennardJonesForce(Particle &p1, Particle &p2, double sigma, double epsilon, Vector3 diff) {
+  const double norm = ArrayUtils::L2Norm(diff);
+  const double coeff_1 = std::pow(sigma / norm, 6) - 2 * std::pow(sigma / norm, 12);
+  const double coeff_2 = -(24 * epsilon) / std::pow(norm, 2);
+  return coeff_1 * coeff_2 * (p1.getX() - p2.getX());
+}
+
+/**
  * @brief Calculate the new position
  *
  * Calculate the new position of a particle with the formula
@@ -80,7 +104,8 @@ inline Vector3 calculateX(Particle &p, double delta_t) {
  */
 inline Vector3 calculateV(Particle &p, double delta_t) {
   const double coeff = 1 / (2 * p.getM());
-  return p.getV() + delta_t * coeff * (p.getOldF() + p.getF());
+  Vector3 ret = p.getV() + delta_t * coeff * (p.getOldF() + p.getF());
+  return ret;
 }
 
 }  // namespace Physics
