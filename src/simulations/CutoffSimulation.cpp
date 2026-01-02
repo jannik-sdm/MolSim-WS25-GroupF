@@ -18,7 +18,6 @@ void CutoffSimulation::iteration() {
   spdlog::debug("Updating Velocities");
   updateV();
 }
-
 void CutoffSimulation::updateF() {
   // set the force of all particles to zero
   linkedCells.applyToParticles([](Particle &p) { p.setF({0, 0, 0}); });
@@ -46,13 +45,13 @@ void CutoffSimulation::updateV() {
     if (p.getState() < 0) return;
     spdlog::trace("Updating V:");
     spdlog::trace("-> Old Velocity: ({},{},{})", p.getV()[0], p.getV()[1], p.getV()[2]);
-    p.setX(Physics::StoermerVerlet::velocity(p, delta_t));
+    p.setV(Physics::StoermerVerlet::velocity(p, delta_t));
     spdlog::trace("-> New Velocity: ({},{},{})", p.getV()[0], p.getV()[1], p.getV()[2]);
   });
 }
 
 void CutoffSimulation::initializeBrownianMotion() {
-  linkedCells.applyToParticles([this](Particle p) {
+  linkedCells.applyToParticles([this](Particle &p) {
     p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, (is2D ? 2 : 3)));
   });
 }
