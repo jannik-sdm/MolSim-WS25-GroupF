@@ -55,7 +55,7 @@ class Settings {
     /** @brief Average brownian motion velocity to initialize the particles with */
     std::optional<double> brown_motion_avg_velocity;
     /** @brief acceleration factor of the gravity*/
-    double g_grav = -9.81;
+    std::optional<double> gravity;
   };
   struct Simulation simulation;
 

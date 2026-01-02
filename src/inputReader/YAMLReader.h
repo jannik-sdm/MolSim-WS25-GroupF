@@ -171,6 +171,7 @@ struct convert<Settings::Simulation> {
     }
 
     if (rhs.is2D) node["dimension"] = "2D";
+    if (rhs.gravity) node["gravity"] = rhs.gravity.value();
     if (rhs.brown_motion_avg_velocity) node["brown_motion_avg_velocity"] = rhs.brown_motion_avg_velocity.value();
 
     return node;
@@ -209,6 +210,9 @@ struct convert<Settings::Simulation> {
 
     auto dimension = node["dimension"];
     if (dimension) rhs.is2D = dimension.as<std::string>() == "2D";
+
+    auto gravity = node["gravity"];
+    if (gravity) rhs.gravity = gravity.as<double>();
 
     return true;
   }

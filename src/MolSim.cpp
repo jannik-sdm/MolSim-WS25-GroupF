@@ -74,7 +74,7 @@ int main(int argc, char *argsv[]) {
         simulation = std::make_unique<CutoffSimulation>(
             input_particles, settings.simulation.domain.value(), settings.simulation.end_time.value(),
             settings.simulation.delta_t.value(), settings.simulation.cutoff_radius.value(),
-            settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.g_grav);
+            settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0));
         break;
       default:
         spdlog::error("Invalid worksheet number {}", settings.simulation.worksheet.value());
