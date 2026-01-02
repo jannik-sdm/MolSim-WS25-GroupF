@@ -130,21 +130,22 @@ void CutoffSimulation::updateF() {
             for (const auto p2 : realCell.particles) {
               if (p1 == p2) continue;  // Nur zur Sicherheit
 
-              Vector3 diff = p2->getX() - p1->getX();
-              // Kürzesten Weg zwischen zwei Zellen ermitteln
-              for (int dim = 0; dim < 3; dim++) {
-                if (diff[dim] > linkedCells.domain_size[dim] * 0.5) {
-                  diff[dim] -= linkedCells.domain_size[dim];
-                } else if (diff[dim] <= -linkedCells.domain_size[dim] * 0.5) {
-                  diff[dim] += linkedCells.domain_size[dim];
-                }
-              }
+              // Calculate new Position relative to ghost cell
+              const std::array<int, 3> ghost = linkedCells.index1dToIndex3d(j);
+              const std::array<int, 3> real = linkedCells.index1dToIndex3d(realCellIndex);
+              Vector3 delta = {0.0};
+              for (int _i = 0; _i < 2; _i++)
+                delta[_i] = static_cast<double>(ghost[_i] - real[_i]) * linkedCells.cell_size[_i];
+              Vector3 new_pos = p2->getX() + delta;
 
-              double distance = ArrayUtils::L2Norm(diff);
+              double distance = ArrayUtils::L2Norm(p1->getX() - new_pos);
+
 
               if (distance <= cutoffRadius && distance > 0) {
-                Vector3 f = Physics::lennardJonesForce(*p1, *p2, sigma, epsilon, diff);
+                Particle np = Particle(*p2);
+                np.setX(new_pos);
 
+                Vector3 f = Physics::lennardJonesForce(*p1, np, sigma, epsilon);
                 p1->addF(f);
                 p2->subF(f);
               }
