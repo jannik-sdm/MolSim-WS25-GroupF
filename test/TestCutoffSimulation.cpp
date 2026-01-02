@@ -156,3 +156,26 @@ TEST_F(CutoffSimulationTest, OutflowBoundaryKillsParticle) {
   // The particle should be marked as Dead (-1)
   EXPECT_EQ(p.getType(), -1) << "Particle leaving the domain should be marked as dead (-1)";
 }
+
+TEST_F(CutoffSimulationTest, GravityEffectsParticles) {
+  //Set gravity to the value on earth
+  gravity = -9.81;
+
+  //Create a particle inside the domain
+  Vector3 pos = {5.0, 5.0, 5.0};
+  Vector3 vel = {0.0, 0.0, 0.0};
+  particles.emplace_back(pos, vel, 1.0);
+  InitSimulation();
+
+  //Ensure the force of the particle is 0 in the beginning
+  Particle &p = sim->getLinkedCells().particles[0];
+  p.setF({0.0, 0.0, 0.0});
+
+  //calculate the new force
+  sim->updateF();
+  Vector3 f = p.getF();
+
+  EXPECT_LT(f[1], 0.0) << "Particle should have negative force in y-dimension due to gravity";
+  EXPECT_NEAR(f[0], 0.0, 1e-5);
+  EXPECT_NEAR(f[2], 0.0, 1e-5);
+}
