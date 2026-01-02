@@ -213,12 +213,13 @@ int LinkedCells::getSharedBorder(const int ownIndex1d, const int otherIndex1d) {
   return 3;                        // All Neighbours at x = 1 Border (front)
 }
 
+//Stimmt noch nicht, falls eine Kombination aus Reflective und Periodic verwendet wird
 int LinkedCells::getPeriodicEquivalentForGhost(const int cellIndex) {
   std::array<int, 3> index3d = index1dToIndex3d(cellIndex);
   for (int j = 0; j < 3; j++) {
-    if (index3d[j] == numCells[j] - 1) {
+    if (index3d[j] >= numCells[j] - 1) {
       index3d[j] = 1;
-    } else if (index3d[j] == 0) {
+    } else if (index3d[j] <= 0) {
       index3d[j] = numCells[j] - 2;
     }
   }
@@ -260,7 +261,7 @@ BorderType LinkedCells::getSharedBorderType(const int ownIndex1d, const int othe
   }
   auto &borders = ownCell.borders;
   static const std::array<std::initializer_list<int>, 26> groups = {{
-      //                       x  y  z
+      //                     x  y  z
       {0, 1, 2},  // i = 0  -1 -1 -1
       {0, 1},     // i = 1  -1 -1  0
       {0, 1, 5},  // i = 2  -1 -1  1

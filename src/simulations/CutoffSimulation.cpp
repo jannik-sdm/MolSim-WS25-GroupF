@@ -122,7 +122,7 @@ void CutoffSimulation::updateF() {
              }
              p1->setX(tmp);
              */
-            // Echte Zelle zu Ghost Zelle finden
+            // Echte Zelle zu Ghost Zelle finden -> Funktioniert auch über mehrere Dimensionen
             int realCellIndex = linkedCells.getPeriodicEquivalentForGhost(j);
             auto &realCell = linkedCells.cells[realCellIndex];
             // N3
