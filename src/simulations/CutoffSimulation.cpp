@@ -11,14 +11,15 @@
 #include "utils/MaxwellBoltzmannDistribution.h"
 
 CutoffSimulation::CutoffSimulation(std::vector<Particle> &particles, Vector3 dimension, double end_time, double delta_t,
-                                   double cutoffRadius, std::array<BorderType, 6> &border, bool is2D)
+                                   double cutoffRadius, std::array<BorderType, 6> &border, bool is2D, double g_grav)
     : end_time(end_time),
       delta_t(delta_t),
       cutoffRadius(cutoffRadius),
       linkedCells(particles, dimension, cutoffRadius, border),
       particles(particles),
       repulsing_distance(std::pow(2, 1.0 / 6.0) * sigma),
-      is2D(is2D) {
+      is2D(is2D),
+      g_grav(g_grav){
   initializeBrownianMotion();
 }
 
@@ -37,7 +38,7 @@ void CutoffSimulation::iteration() {
 
 void CutoffSimulation::updateF() {
   // set the force of all particles to zero
-  for (Particle &particle : linkedCells.particles) particle.setF({0, 0, 0});
+  for (Particle &particle : linkedCells.particles) particle.setF({0, g_grav * particle.getM(), 0});
 
   // Calculate forces in own cell
   for (Cell &cell : linkedCells.cells) {
