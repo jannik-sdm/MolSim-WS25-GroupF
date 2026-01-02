@@ -13,12 +13,12 @@ class DirectSum {
   explicit DirectSum(std::vector<Particle> &particles) : particles(particles) {}
 
   template <typename Function, typename... Args>
-  inline void apply(Function f, Args &&...args) {
+  inline void applyToParticles(Function f, Args &&...args) {
     for (auto &p : particles) f(p, std::forward<Args>(args)...);
   }
 
   template <typename Function>
-  inline void applyDistinctPair(Function f) {
+  inline void applyToPairs(Function f) {
     for (auto i = particles.begin(); i != particles.end(); i++)
       for (auto j = std::next(i); j != particles.end(); j++) f(*i, *j);
   }

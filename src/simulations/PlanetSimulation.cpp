@@ -19,8 +19,8 @@ void PlanetSimulation::iteration() {
 }
 
 void PlanetSimulation::updateF() {
-  container.apply([](Particle &p) { p.setF({0, 0, 0}); });
-  container.applyDistinctPair([](Particle &p1, Particle &p2) {
+  container.applyToParticles([](Particle &p) { p.setF({0, 0, 0}); });
+  container.applyToPairs([](Particle &p1, Particle &p2) {
     const Vector3 f = Physics::Planet::force(p1, p2);
     p1.addF(f);
     p2.subF(f);
@@ -28,9 +28,9 @@ void PlanetSimulation::updateF() {
 }
 
 void PlanetSimulation::updateX() {
-  container.apply([this](Particle &p) { p.setX(Physics::StoermerVerlet::position(p, delta_t)); });
+  container.applyToParticles([this](Particle &p) { p.setX(Physics::StoermerVerlet::position(p, delta_t)); });
 }
 
 void PlanetSimulation::updateV() {
-  container.apply([this](Particle &p) { p.setV(Physics::StoermerVerlet::velocity(p, delta_t)); });
+  container.applyToParticles([this](Particle &p) { p.setV(Physics::StoermerVerlet::velocity(p, delta_t)); });
 }

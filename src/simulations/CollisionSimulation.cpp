@@ -9,8 +9,8 @@
 #include "utils/MaxwellBoltzmannDistribution.h"
 
 void CollisionSimulation::updateF() {
-  container.apply([](Particle &p) { p.setF({0, 0, 0}); });
-  container.applyDistinctPair([this](Particle &p1, Particle &p2) {
+  container.applyToParticles([](Particle &p) { p.setF({0, 0, 0}); });
+  container.applyToPairs([this](Particle &p1, Particle &p2) {
     const Vector3 f = Physics::LennardJones::force(p1, p2, sigma, epsilon);
     p1.addF(f);
     p2.subF(f);
@@ -18,7 +18,7 @@ void CollisionSimulation::updateF() {
 }
 
 void CollisionSimulation::initializeBrownianMotion(const double brown_motion_avg_velocity) {
-  container.apply([brown_motion_avg_velocity](Particle &p) {
+  container.applyToParticles([brown_motion_avg_velocity](Particle &p) {
     const Vector3 v = maxwellBoltzmannDistributedVelocity(brown_motion_avg_velocity, 2);
     p.setV(p.getV() + v);
   });
