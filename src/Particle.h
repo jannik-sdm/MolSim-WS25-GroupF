@@ -57,16 +57,23 @@ class Particle {
    */
   int type;
 
+  /**
+   * State of the particle.
+   * -1 := dead
+   * 0 := alive
+   */
+  int state;
+
  public:
   /**
    * @brief Empty constructor
    *
    * Constructs a new particle with all values set to zero
    *
-   * @param type Type of the particle
-   * @see Particle::type
+   * @param state State of the particle
+   * @see Particle::state
    */
-  explicit Particle(int type = 0);
+  explicit Particle(int state = 0);
 
   /**
    * @brief Copy constructor
@@ -137,6 +144,12 @@ class Particle {
   int getType() const;
 
   /**
+   *
+   * @return State of this particle
+   */
+  int getState() const;
+
+  /**
    * @brief Sets new effective Force and updates Old Force to the current Force
    * @param new_f new Force - 3D-"Vector" (std::array<double, 3>)
    */
@@ -173,6 +186,8 @@ class Particle {
   void setM(const double new_m);
 
   void setType(int new_type) { type = new_type; }
+
+  void setState(int new_state) { state = new_state; }
 
   /**
    * @brief Comparte two particles

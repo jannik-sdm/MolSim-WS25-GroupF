@@ -98,7 +98,7 @@ class PairRange {
  * This class stores particles in a container to allow for different iteration methods over the underlying data
  * structure. At the moment, linear iteration is handled by proxying the default iterator of std::vector
  */
-class ParticleContainer {
+class [[deprecated("Use DirectSum instead")]] ParticleContainer {
   /**
    * Type alias for the standard vector iterator
    */
