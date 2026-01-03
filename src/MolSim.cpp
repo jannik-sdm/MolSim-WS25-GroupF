@@ -86,8 +86,8 @@ int main(int argc, char *argsv[]) {
         break;
       case 4: {
         /** @TODO thermostat parameters these from yaml */
-        const int n = 100;
-        const double target_temperature = 30;
+        const int n = 10;
+        const double target_temperature = 40;
         const double maximum_temperature_change = 0.5;
         const double initial_temperature = 10;
         const double average_brownian_motion = 10;

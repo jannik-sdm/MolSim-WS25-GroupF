@@ -54,6 +54,14 @@ class Settings {
     bool is2D = false;
     /** @brief Average brownian motion velocity to initialize the particles with */
     std::optional<double> brown_motion_avg_velocity;
+    /** @brief Initial Temperatur*/
+    std::optional<double> t_initial;
+    /** @brief Destination value of the Temperature*/
+    std::optional<double> t_final;
+    /** @brief Maximum Change of temperature in one step*/
+    std::optional<double> t_max_change;
+    /** @brief Temperature update frequency. How many iterations should it take to re-check temperature*/
+    std::optional<unsigned int> t_frequency;
   };
   struct Simulation simulation;
 
