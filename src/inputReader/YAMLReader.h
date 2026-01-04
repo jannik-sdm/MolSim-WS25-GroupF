@@ -217,8 +217,10 @@ struct convert<Settings::Simulation> {
     if (t_init) rhs.t_initial = t_init.as<double>();
 
     auto t_final = node["temp_final"];
-    if (t_final) rhs.t_final = t_final.as<double>();
-    else if (t_init) rhs.t_final = node["t_initial"].as<double>();
+    if (t_final)
+      rhs.t_final = t_final.as<double>();
+    else if (t_init)
+      rhs.t_final = node["t_initial"].as<double>();
 
     auto t_max_step = node["temp_max_change"];
     if (t_max_step) rhs.t_max_change = t_max_step.as<double>();

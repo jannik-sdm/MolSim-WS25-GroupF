@@ -85,12 +85,10 @@ int main(int argc, char *argsv[]) {
             settings.simulation.cutoff_radius.value(), settings.simulation.borders.value(), settings.simulation.is2D);
         break;
       case 4: {
-
-        thermostat =
-            std::make_unique<Thermostat>(input_particles, settings.simulation.is2D, settings.simulation.t_frequency.value()
-              , settings.simulation.t_final.value(),
-                                         settings.simulation.t_max_change.value(), settings.simulation.t_initial.value(),
-                                         settings.simulation.brown_motion_avg_velocity.value());
+        thermostat = std::make_unique<Thermostat>(
+            input_particles, settings.simulation.is2D, settings.simulation.t_frequency.value(),
+            settings.simulation.t_final.value(), settings.simulation.t_max_change.value(),
+            settings.simulation.t_initial.value(), settings.simulation.brown_motion_avg_velocity.value());
         simulation = std::make_unique<ThermostatSimulation>(
             input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
             settings.simulation.delta_t.value(), settings.simulation.domain.value(),
