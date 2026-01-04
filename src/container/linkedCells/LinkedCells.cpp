@@ -167,7 +167,7 @@ int LinkedCells::getSharedBorder(int ownIndex1d, int otherIndex1d) {
   return 3;               // All Neighbours at x = 1 Border (front)
 }
 
-void LinkedCells::moveParticles() {
+/*void LinkedCells::moveParticles() {
   for (int i = 0; i < cells.size(); i++) {
     Cell &current_cell = cells[i];
 
@@ -219,6 +219,76 @@ void LinkedCells::moveParticles() {
     }
   }
   updateGhost();
+}*/
+
+void LinkedCells::moveParticles() {
+  for (int i = 0; i < cells.size(); i++) {
+    Cell &current_cell = cells[i];
+
+    for (int j = 0; j < current_cell.particles.size(); j++) {
+      auto p = current_cell.particles[j];
+      if (p->getType() < 0) continue;
+      const int k = coordinate3dToIndex1d(p->getX());
+
+      if (i == k) continue;
+
+      // move p to cell[j]
+
+      spdlog::trace("Moving particle with coordinate ({},{},{}) from cell {} to cell {}", p->getX()[0], p->getX()[1],
+                    p->getX()[2], i, k);
+      std::array<int, 3> i3D = index1dToIndex3d(i);
+      spdlog::trace("Old cell: ({},{},{})", i3D[0], i3D[1], i3D[2]);
+      Cell &new_cell = cells[k];
+      if (new_cell.cell_type != CellType::GHOST) {
+        new_cell.particles.push_back(p);
+      } else {
+        // get shared border current_cell, new_cell
+        BorderType border = getSharedBorderType(i, k);
+
+        if (border == OUTFLOW) {
+          p->setType(-1);  // mark particle as dead
+          spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
+        } else if (border == BorderType::NAIVE_REFLECTION) {
+          // First go back to the Old Position and then reflect the Velocity and calculate the new Position
+          // This is not acurate, because the particle is not reflected AT the border,
+          int borderIndex = getSharedBorder(i, k);
+          Vector3 v = p->getV();
+          v[borderIndex % 3] *= -1;
+          Vector3 neg = {-1, -1, -1};
+          p->setV(neg * p->getV());     // Turn Velocity
+          Vector3 oldF = p->getOldF();  // Save OldF
+          p->setF(neg * p->getF());     // Turn F
+          p->setF(oldF);
+          p->setF(neg * p->getF());  // Reset old Force
+          p->setV(v);                // Set new Velocity
+          continue;                  // Don't move the Particle into a Ghost Cell
+        } else if (border == PERIODIC) {
+          Vector3 x = p->getX();
+          spdlog::trace("Particle with position ({},{},{}) left domain at one side and entered it at the other side",
+                        x[0], x[1], x[2]);
+          for (int index = 0; index < 3; index++) {
+            if (x[index] < 0) x[index] += domain_size[index];
+            if (x[index] > domain_size[index]) x[index] -= domain_size[index];
+          }
+          p->setX(x);
+          std::array<int, 3> newCellIndex3d = coordinate3dToIndex3d(x[0], x[1], x[2]);
+          std::array<int, 3> oldCellIndex3d = index1dToIndex3d(i);
+          std::array<int, 3> ghostCellIndex3d = index1dToIndex3d(k);
+          int newCellIndex1d = index3dToIndex1d(newCellIndex3d[0], newCellIndex3d[1], newCellIndex3d[2]);
+          cells[newCellIndex1d].particles.push_back(p);
+
+        } else {
+          spdlog::error("A Particle escaped from the domain, even, if it shouldn't");
+        }
+      }
+      // erase p from cell[i] by swapping p to the back of the vector
+      current_cell.particles[j] = current_cell.particles.back();
+      current_cell.particles.pop_back();
+
+      // decrement j to prevent skipping the particle moved to position j from the back
+      j--;
+    }
+  }
 }
 
 void LinkedCells::updateGhost() {
@@ -285,4 +355,85 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
 
     ghost_cell.size_ghost_particles++;
   }
+}
+//Stimmt noch nicht, falls eine Kombination aus Reflective und Periodic verwendet wird
+int LinkedCells::getPeriodicEquivalentForGhost(const int cellIndex) {
+  std::array<int, 3> index3d = index1dToIndex3d(cellIndex);
+  for (int j = 0; j < 3; j++) {
+    if (index3d[j] >= numCells[j] - 1) {
+      index3d[j] = 1;
+    } else if (index3d[j] <= 0) {
+      index3d[j] = numCells[j] - 2;
+    }
+  }
+  /*if (index3d[0] == index1dToIndex3d(cellIndex)[0] && index3d[1] == index1dToIndex3d(cellIndex)[1] &&
+      index3d[2] == index1dToIndex3d(cellIndex)[2]) {
+    spdlog::error("some error with calculating a periodic cell of a ghost cell");
+  }*/
+  return index3dToIndex1d(index3d[0], index3d[1], index3d[2]);
+}
+
+BorderType best_of(const std::array<BorderType, 6> &borders, std::initializer_list<int> idx) {
+  BorderType best = ERROR;
+  for (int i : idx) {
+    best = std::max(best, static_cast<BorderType>(borders[i]));
+  }
+  return best;
+}
+BorderType LinkedCells::getSharedBorderType(const int ownIndex1d, const int otherIndex1d) {
+  auto &ownCell = cells[ownIndex1d];
+  std::array<int, 26> &neighbours = ownCell.neighbors;
+  int foundIndex = -1;
+  for (int i = 0; i < 26; i++) {
+    if (neighbours[i] == otherIndex1d) {
+      foundIndex = i;
+      break;
+    }
+  }
+  if (foundIndex < 0) {
+    // Check for Periodic borders
+    if (cells[otherIndex1d].cell_type == GHOST
+        // Nachsehen, ob eine der borders unserer Zelle Periodisch ist
+        && std::find(cells[ownIndex1d].borders.begin(), cells[ownIndex1d].borders.end(), PERIODIC) !=
+               cells[ownIndex1d].borders.end()) {
+      // Find real cell to a ghost cell
+      return getSharedBorderType(ownIndex1d, getPeriodicEquivalentForGhost(otherIndex1d));
+    }
+    spdlog::error("Did not found other cell as neighbour of own cell");
+    return ERROR;
+  }
+  auto &borders = ownCell.borders;
+  static const std::array<std::initializer_list<int>, 26> groups = {{
+      //                     x  y  z
+      {0, 1, 2},  // i = 0  -1 -1 -1
+      {0, 1},     // i = 1  -1 -1  0
+      {0, 1, 5},  // i = 2  -1 -1  1
+      {0, 2},     // i = 3  -1  0 -1
+      {0},        // i = 4  -1  0  0
+      {0, 5},     // i = 5  -1  0  1
+      {0, 4, 2},  // i = 6  -1  1 -1
+      {0, 4},     // i = 7  -1  1  0
+      {0, 4, 5},  // i = 8  -1  1  1
+      {1, 2},     // i = 9   0 -1 -1
+      {1},        // i = 10  0 -1  0
+      {1, 5},     // i = 11  0 -1  1
+      {2},        // i = 12  0  0 -1
+      //                       0  0  0
+      {5},        // i = 13  0  0  1
+      {4, 2},     // i = 14  0  1 -1
+      {4},        // i = 15  0  1  0
+      {4, 5},     // i = 16  0  1  1
+      {3, 1, 2},  // i = 17  1 -1 -1
+      {3, 1},     // i = 18  1 -1  0
+      {3, 1, 5},  // i = 19  1 -1  1
+      {3, 2},     // i = 20  1  0 -1
+      {3},        // i = 21  1  0  0
+      {3, 5},     // i = 22  1  0  1
+      {3, 4, 2},  // i = 23  1  1 -1
+      {3, 4},     // i = 24  1  1  0
+      {3, 4, 5}   // i = 25  1  1  1
+      // x=-1 -> 0, y=-1 -> 1, z=-1 -> 2, x=1 -> 3, y=1 -> 4, z=1 -> 5 für x,y,z = 0 kein Wert, weil in die Richtung ja
+      // dann keine Grenze existiert
+  }};
+  return best_of(borders, groups[foundIndex]);
 }
