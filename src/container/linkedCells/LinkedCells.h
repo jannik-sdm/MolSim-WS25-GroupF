@@ -9,6 +9,7 @@
 
 #include "container/directSum/ParticleContainer.h"
 #include "container/linkedCells/Cell.h"
+#include "utils/ArrayUtils.h"
 
 class LinkedCells {
  public:
@@ -21,6 +22,11 @@ class LinkedCells {
    * Reference to a Vector of all particles in the simulation
    */
   std::vector<Particle> &particles;
+
+  /**
+   * amount of particles still alive
+   */
+  int alive_particles = 0;
 
   /**
    * Domain size of the simulation
@@ -44,15 +50,26 @@ Describes how many cells the overall structure has in Y-direction
 
    */
   int numCellsZ;
-  /**
-Describes how many cells the overall structure has in Z-direction   */
-  // int numCellsZ;
+
   //  Für die Höhe, Länge und Breite einer einzelnen Zelle. Es kann sein, das wir die Info aber garnicht brauchen
+  /**
+  Describes the size of each cell  X-direction
+  */
   double cellSizeX;
+  /**
+  Describes the size of each cell  Y-direction
+  */
   double cellSizeY;
+  /**
+  Describes the size of each cell  Z-direction
+  */
   double cellSizeZ;
 
- public:
+  const double cutoffRadius = 3.0;
+
+  bool is2D;
+
+  double repulsing_distance;
   /**
    * Initializes the variables and cells with their cell-type and adds the respective particles to the cell
    * @param size_x domain size in x direction
@@ -60,8 +77,99 @@ Describes how many cells the overall structure has in Z-direction   */
    * @param size_z domain size in z direction
    * @param cutoff cutoff radius set in the simluation
    */
-  LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff,
-              std::array<BorderType, 6> borders = {BorderType::OUTFLOW});
+  LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff, bool is2D,
+              double repulsing_distance, std::array<BorderType, 6> borders = {BorderType::OUTFLOW});
+
+  /**
+   *
+   * @tparam Function
+   * @param f A function modifying a pair of particles
+   * @brief Iterates over all pairs of particles in the simulation, according to the linked cells algorithm and applies
+   * the function f
+   */
+  template <typename Function>
+  inline void applyToPairs(Function f) {
+    // set the force of all particles to zero
+    for (Particle &particle : particles) particle.setF({0, 0, 0});
+
+    // Calculate forces in own cell
+    for (Cell &cell : cells) {
+      for (int i = 0; i < cell.particles.size(); i++) {
+        const auto p1 = cell.particles[i];
+
+        for (int j = i + 1; j < cell.particles.size(); j++) {
+          const auto p2 = cell.particles[j];
+
+          if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoffRadius) continue;
+
+          // spdlog::warn("{} <-> {}", p1->toString(), p2->toString());
+          f(*p1, *p2);
+          // spdlog::warn("{} <-> {}", p1->toString(), p2->toString());
+          // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
+        }
+      }
+    }
+
+    // Calculate forces with neighbour cells
+    for (int i = 0; i < cells.size(); i++) {
+      auto &c1 = cells[i];
+
+      // skip ghost cells
+      if (c1.cell_type == CellType::GHOST) continue;
+      NeighBourIndices neighbourCellsIndex = getNeighbourCells(i);
+
+      for (const int j : neighbourCellsIndex) {
+        auto &c2 = cells[j];
+        // newton optimization, but ONLY if c2 is not a Ghost cell, because if this calculation is skipped, particles
+        // are not repulsed
+        if (j < i && c2.cell_type != CellType::GHOST) continue;
+
+        for (const auto p1 : c1.particles) {
+          // iterate over ghost particles if c2 is a ghost cell, else use normale particles
+          if (c2.cell_type == CellType::GHOST) {
+            for (int k = 0; k < c2.size_ghost_particles; k++) {
+              Particle &p2 = c2.ghost_particles[k];
+              const double distance = ArrayUtils::L2Norm(p1->getX() - p2.getX());
+              // for ghost particles the force should only be computed if its repulsing
+              // normally cutoffRadius >> repulsing_distance but i'm letting it stand since it's an or statement
+              spdlog::trace("reached radius check for ghost particles");
+              if (distance >= this->repulsing_distance || distance > cutoffRadius) continue;
+
+              f(*p1, p2);
+            }
+          } else {
+            // case for regular cells
+            for (const auto p2 : c2.particles) {
+              if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoffRadius) continue;
+
+              f(*p1, *p2);
+              // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
+            }
+          }
+        }
+      }
+    }
+  };
+
+  /**
+   *
+   * @tparam Function
+   * @param f A function modifying a particle
+   * @brief Iterates over all particles in the simulation and applies the function f
+   */
+  template <typename Function>
+  inline void applyToParticles(Function f) {
+    for (auto &p : particles) {
+      f(p);
+    }
+  };
+
+  /**
+   * @brief Moves the particles that left a cell into their new cell
+   */
+  void moveParticles();
+
+ private:
   /**
    * Finds the neighbour-cells of the given cell and returns their cell-array indexes
    * @param cellIndex 1D cell index of the current cell
@@ -149,4 +257,22 @@ Describes how many cells the overall structure has in Z-direction   */
   bool isBorderCell(int x, int y, int z) {
     return (x == 1 || y == 1 || z == 1 || x == numCellsX - 2 || y == numCellsY - 2 || z == numCellsZ - 2);
   }
+
+  /**
+   * @brief Adds ghost particles to the ghost cells adjacent to the reflective borders of the current border cell
+   * @param particle Particle for which we have to create ghost particles
+   * @param cell_index Index to the cell the particle is located in
+   * @param cell Reference of the cell the particle is located in
+   */
+  void createGhostParticles(Particle &particle, const int cell_index, Cell &cell);
+
+  /**
+   * @brief Creates ghost particles for all particles located in border cells and creates pointers to acces them
+   */
+  void updateGhost();
+
+  /**
+   * @brief Initializes the particles with the brownian motion
+   */
+  void initializeBrownianMotion();
 };

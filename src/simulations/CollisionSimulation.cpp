@@ -8,21 +8,18 @@
 #include "utils/ArrayUtils.h"
 #include "utils/MaxwellBoltzmannDistribution.h"
 
-CollisionSimulation::CollisionSimulation(std::vector<Particle> &particles, const double end_time, const double delta_t)
-    : PlanetSimulation(particles, end_time, delta_t) {
-  // initialize particles with brownian motion
-  for (auto &p : particleContainer) {
-    Vector3 v = maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, 2);
-    p.setV(p.getV() + v);
-  }
-}
-
 void CollisionSimulation::updateF() {
-  for (auto &p : particleContainer) p.setF({0, 0, 0});
-  for (auto [p1, p2] : particleContainer.pairs()) {
-    Vector3 f = Physics::LennardJones::force(p1, p2, sigma, epsilon);
-
+  container.applyToParticles([](Particle &p) { p.setF({0, 0, 0}); });
+  container.applyToPairs([this](Particle &p1, Particle &p2) {
+    const Vector3 f = Physics::LennardJones::force(p1, p2, sigma, epsilon);
     p1.addF(f);
     p2.subF(f);
-  }
+  });
+}
+
+void CollisionSimulation::initializeBrownianMotion(const double brown_motion_avg_velocity) {
+  container.applyToParticles([brown_motion_avg_velocity](Particle &p) {
+    const Vector3 v = maxwellBoltzmannDistributedVelocity(brown_motion_avg_velocity, 2);
+    p.setV(p.getV() + v);
+  });
 }
