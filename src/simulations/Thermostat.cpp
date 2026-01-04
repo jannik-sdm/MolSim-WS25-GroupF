@@ -52,6 +52,7 @@ double Thermostat::calculateMaximumScalingFactor() {
 }
 
 void Thermostat::updateTemperature(int alive_particles) {
+  current_temperature = calculateCurrentTemperature(alive_particles);
   double scaling_factor = calculateScalingFactor(alive_particles);
   // new temperature can be calculated without taking into account v' by applying the squared scaling factor to the
   // current temperature
