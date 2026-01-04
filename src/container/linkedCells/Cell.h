@@ -1,3 +1,6 @@
+//
+// Created by jv_fedora on 19.11.25.
+//
 #pragma once
 
 #include <spdlog/spdlog.h>
@@ -11,12 +14,12 @@
  * @brief Cell Type
  * Default cells are Regular
  */
-enum class CellType { REGULAR, BORDER, GHOST };
-
+enum CellType { REGULAR, BORDER, GHOST };
 /**
- * @brief Border type
+ * BorderType
+ *
  */
-enum class BorderType { OUTFLOW, REFLECTION, PERIODIC, NAIVE_REFLECTION };
+enum BorderType { ERROR, OUTFLOW, NAIVE_REFLECTION, REFLECTION, PERIODIC };
 
 /**
  * @brief Alias for BorderTypes

@@ -67,7 +67,7 @@ class Settings {
   };
   struct Simulation simulation;
 
-  Settings(std::vector<Particle> &particles) : particles(particles){};
+  Settings(std::vector<Particle> &particles) : particles(particles) {};
 
   /**
    * @brief Parse command line arguments

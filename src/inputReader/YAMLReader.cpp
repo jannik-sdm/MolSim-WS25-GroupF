@@ -1,4 +1,4 @@
-#include "inputReader/YAMLReader.h"
+#include "YAMLReader.h"
 
 #include <spdlog/spdlog.h>
 #include <yaml-cpp/yaml.h>
