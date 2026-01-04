@@ -36,9 +36,10 @@ class CutoffSimulation : public Simulation {
                    const std::array<BorderType, 6> &border, const bool is2D, double g_grav)
       : Simulation(start_time, end_time, delta_t),
         is2D(is2D),
-        linkedCells(particles, dimension, cutoff_radius, is2D, repulsing_distance, border),
-        particles(particles),
-        g_grav(g_grav){
+        g_grav(g_grav),
+  linkedCells(particles, dimension, cutoff_radius, is2D, repulsing_distance, border),
+  particles(particles)
+{
     initializeBrownianMotion();
   }
 

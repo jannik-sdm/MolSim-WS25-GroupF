@@ -21,7 +21,7 @@ void CutoffSimulation::iteration() {
 
 void CutoffSimulation::updateF() {
   // set the force of all particles to zero
-  linkedCells.applyToParticles([](Particle &p) { p.setF({0, 0, 0}); });
+  linkedCells.applyToParticles([this](Particle &p) { p.setF({0, g_grav * p.getM(), 0}); });
 
   linkedCells.applyToPairs([this](Particle &p1, Particle &p2) {
     Vector3 f = Physics::LennardJones::force(p1, p2, sigma, epsilon);

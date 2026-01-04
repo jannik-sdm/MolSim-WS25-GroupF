@@ -80,9 +80,13 @@ int main(int argc, char *argsv[]) {
 
       case 3:
         simulation = std::make_unique<CutoffSimulation>(
-            input_particles, settings.simulation.domain.value(), settings.simulation.end_time.value(),
-            settings.simulation.delta_t.value(), settings.simulation.cutoff_radius.value(),
+            input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
+            settings.simulation.delta_t.value(), settings.simulation.domain.value(),settings.simulation.cutoff_radius.value(),
             settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0));
+
+        /*(std::vector<Particle> &particles, const double start_time, const double end_time,
+                   const double delta_t, const Vector3 &dimension, const double cutoff_radius,
+                   const std::array<BorderType, 6> &border, const bool is2D, double g_grav)*/
         break;
       case 4: {
         thermostat = std::make_unique<Thermostat>(
@@ -92,7 +96,7 @@ int main(int argc, char *argsv[]) {
         simulation = std::make_unique<ThermostatSimulation>(
             input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
             settings.simulation.delta_t.value(), settings.simulation.domain.value(),
-            settings.simulation.cutoff_radius.value(), settings.simulation.borders.value(), settings.simulation.is2D,
+            settings.simulation.cutoff_radius.value(), settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0),
             *thermostat);
       } break;
 
