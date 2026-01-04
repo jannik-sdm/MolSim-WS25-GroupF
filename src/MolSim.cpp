@@ -80,9 +80,9 @@ int main(int argc, char *argsv[]) {
 
       case 3:
         simulation = std::make_unique<CutoffSimulation>(
-            input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
-            settings.simulation.delta_t.value(), settings.simulation.domain.value(),
-            settings.simulation.cutoff_radius.value(), settings.simulation.borders.value(), settings.simulation.is2D);
+            input_particles, settings.simulation.domain.value(), settings.simulation.end_time.value(),
+            settings.simulation.delta_t.value(), settings.simulation.cutoff_radius.value(),
+            settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0));
         break;
       case 4: {
         thermostat = std::make_unique<Thermostat>(
@@ -133,6 +133,7 @@ int main(int argc, char *argsv[]) {
     outputWriter::exportYAML(input_particles, settings, settings.output.export_filename.value());
   return 0;
 }
+
 void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder) {
 #ifdef ENABLE_VTK_OUTPUT
   outputWriter::VTKWriter writer;

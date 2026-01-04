@@ -62,6 +62,8 @@ class Settings {
     std::optional<double> t_max_change;
     /** @brief Temperature update frequency. How many iterations should it take to re-check temperature*/
     std::optional<unsigned int> t_frequency;
+    /** @brief acceleration factor of the gravity*/
+    std::optional<double> gravity;
   };
   struct Simulation simulation;
 

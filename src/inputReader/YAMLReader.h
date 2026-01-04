@@ -171,6 +171,7 @@ struct convert<Settings::Simulation> {
     }
 
     if (rhs.is2D) node["dimension"] = "2D";
+    if (rhs.gravity) node["gravity"] = rhs.gravity.value();
     if (rhs.brown_motion_avg_velocity) node["brown_motion_avg_velocity"] = rhs.brown_motion_avg_velocity.value();
     if (rhs.t_initial) node["temp_initial"] = rhs.t_initial.value();
     if (rhs.t_final) node["temp_final"] = rhs.t_final.value();
@@ -212,6 +213,9 @@ struct convert<Settings::Simulation> {
 
     auto dimension = node["dimension"];
     if (dimension) rhs.is2D = dimension.as<std::string>() == "2D";
+
+    auto gravity = node["gravity"];
+    if (gravity) rhs.gravity = gravity.as<double>();
 
     auto t_init = node["temp_initial"];
     if (t_init) rhs.t_initial = t_init.as<double>();

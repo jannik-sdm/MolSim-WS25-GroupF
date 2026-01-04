@@ -18,6 +18,7 @@ void CutoffSimulation::iteration() {
   spdlog::debug("Updating Velocities");
   updateV();
 }
+
 void CutoffSimulation::updateF() {
   // set the force of all particles to zero
   linkedCells.applyToParticles([](Particle &p) { p.setF({0, 0, 0}); });

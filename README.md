@@ -64,6 +64,7 @@ simulation:
   domain: [180, 90, 1] # Domain for LinkedCells simulations
   borders: [outflow,outflow,outflow,outflow,outflow,outflow] #Border Types for the 6 Borders of the Domain. Possible Border Types are: outflow, period, naive Reflection, reflection
   dimension: 2D #2D or 3D Domain
+  gravity: -9.81 #Factor of the acceleration of the gravity
 
 # Instructions to spawn particles
 particles:

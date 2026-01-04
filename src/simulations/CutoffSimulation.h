@@ -16,6 +16,7 @@ class CutoffSimulation : public Simulation {
   const double sigma = 1;
   const double brownian_motion_avg_velocity = 0.1;
   bool is2D;
+  const double g_grav;
   /**
    * Distance for when two particles are repulsing
    */
@@ -32,11 +33,12 @@ class CutoffSimulation : public Simulation {
   // später vlt fixen
   CutoffSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
                    const double delta_t, const Vector3 &dimension, const double cutoff_radius,
-                   const std::array<BorderType, 6> &border, const bool is2D)
+                   const std::array<BorderType, 6> &border, const bool is2D, double g_grav)
       : Simulation(start_time, end_time, delta_t),
         is2D(is2D),
         linkedCells(particles, dimension, cutoff_radius, is2D, repulsing_distance, border),
-        particles(particles) {
+        particles(particles),
+        g_grav(g_grav){
     initializeBrownianMotion();
   }
 

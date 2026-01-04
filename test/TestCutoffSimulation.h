@@ -19,6 +19,7 @@ class CutoffSimulationTest : public ::testing::Test {
   double end_time = 10.0;
   double delta_t = 0.001;
   bool is2D = false;
+  double gravity = 0;
 
   // Borders: All Reflective for this test
   std::array<BorderType, 6> borders = {
@@ -33,6 +34,6 @@ class CutoffSimulationTest : public ::testing::Test {
     particles.reserve(100);
   }
   void InitSimulation() {
-    sim = std::make_unique<CutoffSimulation>(particles, domain, end_time, delta_t, cutoff, borders, is2D);
+    sim = std::make_unique<CutoffSimulation>(particles, domain, end_time, delta_t, cutoff, borders, is2D, gravity);
   }
 };
