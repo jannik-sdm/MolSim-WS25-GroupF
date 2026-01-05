@@ -8,7 +8,7 @@
 #include "Particle.h"
 #include "simulations/CutoffSimulation.h"
 
-class CutoffSimulationTest : public ::testing::Test {
+class TestCutoffSimulation : public ::testing::Test {
  protected:
   std::vector<Particle> particles;
   std::unique_ptr<CutoffSimulation> sim;
@@ -16,6 +16,7 @@ class CutoffSimulationTest : public ::testing::Test {
   // Simulation Parameters
   Vector3 domain = {10.0, 10.0, 10.0};  // Large enough domain
   double cutoff = 2.5;
+  double start_time = 0;
   double end_time = 10.0;
   double delta_t = 0.001;
   bool is2D = false;
@@ -34,6 +35,22 @@ class CutoffSimulationTest : public ::testing::Test {
     particles.reserve(100);
   }
   void InitSimulation() {
-    sim = std::make_unique<CutoffSimulation>(particles, domain, end_time, delta_t, cutoff, borders, is2D, gravity);
+    sim = std::make_unique<CutoffSimulation>(particles, start_time, end_time, delta_t, domain, cutoff, borders, is2D,
+                                             gravity);
   }
+
+  void callUpdateGhost() { sim->getLinkedCells().updateGhost(); }
+
+  // Wrapper for private coordinate3dToIndex1d
+  int callCoordinate3dToIndex1d(double x, double y, double z) {
+    return sim->getLinkedCells().coordinate3dToIndex1d(x, y, z);
+  }
+
+  // Overload for Vector3
+  int callCoordinate3dToIndex1d(Vector3 pos) {
+    return sim->getLinkedCells().coordinate3dToIndex1d(pos[0], pos[1], pos[2]);
+  }
+
+  // Wrapper for public moveParticles (accessed via getLinkedCells)
+  void callMoveParticles() { sim->getLinkedCells().moveParticles(); }
 };

@@ -1,0 +1,10 @@
+//
+// Created by jannik on 1/5/26.
+//
+
+#ifndef MOLSIM_GROUPF_TESTTHERMOSTATSIMULATION_H
+#define MOLSIM_GROUPF_TESTTHERMOSTATSIMULATION_H
+
+class TestThermostatSimulation {};
+
+#endif  // MOLSIM_GROUPF_TESTTHERMOSTATSIMULATION_H
