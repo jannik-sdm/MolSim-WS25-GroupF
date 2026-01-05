@@ -82,8 +82,9 @@ int main(int argc, char *argsv[]) {
       case 3:
         simulation = std::make_unique<CutoffSimulation>(
             input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
-            settings.simulation.delta_t.value(), settings.simulation.domain.value(),settings.simulation.cutoff_radius.value(),
-            settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0));
+            settings.simulation.delta_t.value(), settings.simulation.domain.value(),
+            settings.simulation.cutoff_radius.value(), settings.simulation.borders.value(), settings.simulation.is2D,
+            settings.simulation.gravity.value_or(0.0));
 
         /*(std::vector<Particle> &particles, const double start_time, const double end_time,
                    const double delta_t, const Vector3 &dimension, const double cutoff_radius,
@@ -93,12 +94,12 @@ int main(int argc, char *argsv[]) {
         thermostat = std::make_unique<Thermostat>(
             input_particles, settings.simulation.is2D, settings.simulation.t_frequency.value(),
             settings.simulation.t_final.value(), settings.simulation.t_max_change.value(),
-            settings.simulation.t_initial.value(), settings.simulation.brown_motion_avg_velocity.value());
+            settings.simulation.t_initial.value(), settings.simulation.brown_motion_avg_velocity.value_or(0.0));
         simulation = std::make_unique<ThermostatSimulation>(
             input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
             settings.simulation.delta_t.value(), settings.simulation.domain.value(),
-            settings.simulation.cutoff_radius.value(), settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0),
-            *thermostat);
+            settings.simulation.cutoff_radius.value(), settings.simulation.borders.value(), settings.simulation.is2D,
+            settings.simulation.gravity.value_or(0.0), *thermostat);
       } break;
 
       default:
