@@ -289,6 +289,7 @@ void LinkedCells::moveParticles() {
       j--;
     }
   }
+  updateGhost();
 }
 
 void LinkedCells::updateGhost() {
@@ -356,7 +357,7 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
     ghost_cell.size_ghost_particles++;
   }
 }
-//Stimmt noch nicht, falls eine Kombination aus Reflective und Periodic verwendet wird
+// Stimmt noch nicht, falls eine Kombination aus Reflective und Periodic verwendet wird
 int LinkedCells::getPeriodicEquivalentForGhost(const int cellIndex) {
   std::array<int, 3> index3d = index1dToIndex3d(cellIndex);
   for (int j = 0; j < 3; j++) {
