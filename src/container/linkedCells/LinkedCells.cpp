@@ -27,6 +27,7 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
   numCellsX += 2;
   numCellsY += 2;
   numCellsZ += 2;
+  numCells = {numCellsX, numCellsY, numCellsZ};
 
   cells.resize(numCellsX * numCellsY * numCellsZ);
 
