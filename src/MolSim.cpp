@@ -27,11 +27,12 @@
 void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder);
 
 int main(int argc, char *argsv[]) {
-  // initializeLogging();
+  initializeLogging();
 
   std::vector<Particle> input_particles;
   Settings settings = Settings(input_particles);
   settings.parseArguments(argc, argsv);
+  spdlog::set_level(settings.output.log_level);
 
   if (input_particles.empty()) {
     spdlog::warn("No particles to simulate");
