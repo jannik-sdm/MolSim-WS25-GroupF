@@ -24,7 +24,7 @@
  *
  * If ENABLE_VTK_OUTPUT is set, this function creates a vtk-file. Otherwise it creates a xyz-file
  */
-void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder);
+void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path filename);
 
 int main(int argc, char *argsv[]) {
   initializeLogging();
@@ -106,13 +106,19 @@ int main(int argc, char *argsv[]) {
         exit(EXIT_FAILURE);
     };
 
-    simulation->run([&input_particles, &settings](const unsigned int iteration) {
-      if (iteration % settings.output.frequency == 0) {
-        plotParticles(input_particles, static_cast<int>(iteration), settings.output.directory);
-      }
-    });
+    if (settings.output.directory.has_value()) {
+      spdlog::info("Writing files to {}", settings.output.directory.value().string());
+      simulation->run([&input_particles, &settings](const unsigned int iteration) {
+        if (iteration % settings.output.frequency == 0) {
+          const auto filename = settings.output.directory.value() / settings.output.prefix;
+          plotParticles(input_particles, static_cast<int>(iteration), filename);
+        }
+      });
+    } else {
+      spdlog::warn("No output folder set, running simulation without plotting");
+      simulation->run([](const unsigned int _) {});
+    }
 
-    spdlog::info("output written. Terminating...");
     auto end_time_measure = std::chrono::high_resolution_clock::now();
     spdlog::info("Program has been running for {} ms",
                  std::chrono::duration_cast<std::chrono::milliseconds>(end_time_measure - start_time_measure).count());
@@ -139,11 +145,11 @@ int main(int argc, char *argsv[]) {
   return 0;
 }
 
-void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder) {
+void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path filename) {
 #ifdef ENABLE_VTK_OUTPUT
   outputWriter::VTKWriter writer;
 #else
   outputWriter::XYZWriter writer;
 #endif
-  writer.plotParticles(particles, outputFolder, iteration);
+  writer.plotParticles(particles, filename.string(), iteration);
 }
