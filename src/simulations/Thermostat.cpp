@@ -14,6 +14,7 @@ Thermostat::Thermostat(std::vector<Particle> &particles, bool is2D, int n, doubl
       target_temperature(target_temperature),
       maximum_temperature_change(maximum_temperature_change),
       is2D(is2D) {
+  /*
   if (initial_temperature_optional >= 0) {
     if (initial_temperature_optional >= 0.0) {
       initializeBrownianMotion(initial_temperature_optional);
@@ -21,6 +22,7 @@ Thermostat::Thermostat(std::vector<Particle> &particles, bool is2D, int n, doubl
   } else if (average_brownian_velocity_optional >= 0) {
     initializeBrownianMotion(average_brownian_velocity_optional);
   }
+  */
   current_temperature = calculateCurrentTemperature(calculateAliveParticles());
 }
 
@@ -52,7 +54,6 @@ double Thermostat::calculateMaximumScalingFactor() {
 }
 
 void Thermostat::updateTemperature(int alive_particles) {
-  current_temperature = calculateCurrentTemperature(alive_particles);
   double scaling_factor = calculateScalingFactor(alive_particles);
   // new temperature can be calculated without taking into account v' by applying the squared scaling factor to the
   // current temperature
@@ -68,6 +69,7 @@ void Thermostat::updateTemperature(int alive_particles) {
     if (p.getState() < 0) continue;
     p.setV(scaling_factor * p.getV());
   }
+  current_temperature = calculateCurrentTemperature(alive_particles);
 }
 
 int Thermostat::calculateAliveParticles() {
