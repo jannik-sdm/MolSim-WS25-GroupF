@@ -27,7 +27,8 @@ class ParticleGenerator {
    * @param[in] v Default Velocity for each particle
    */
   static void cuboid(std::vector<Particle> &particles, const Vector3 x, const std::array<unsigned int, 3> n,
-                     const double distance, const double mass, Vector3 v);
+                     const double distance, const double mass, const std::optional<double> epsilon,
+                     std::optional<double> sigma, Vector3 v);
 
   /**
    * @brief Generate a disc of particles
@@ -44,5 +45,6 @@ class ParticleGenerator {
    * @param velocity initial velocity of each particle
    */
   static void disc(std::vector<Particle> &particles, const Vector3 position, const int radius, const double distance,
-                   const double mass, const Vector3 velocity);
+                   const double mass, const std::optional<double> epsilon, std::optional<double> sigma,
+                   const Vector3 velocity);
 };

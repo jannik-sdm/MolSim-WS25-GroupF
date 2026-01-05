@@ -296,7 +296,7 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
       ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setM(particle.getM());
     } else {
       // need to push_back new particles
-      ghost_cell.ghost_particles.push_back(Particle(ghostParticleX, ghostParticleV, particle.getM()));
+      ghost_cell.ghost_particles.push_back(Particle(ghostParticleX, ghostParticleV, particle.getM(), particle.getEpsilon(), particle.getSigma()));
     }
 
     ghost_cell.size_ghost_particles++;

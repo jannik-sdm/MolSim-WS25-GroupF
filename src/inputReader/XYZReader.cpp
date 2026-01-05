@@ -11,6 +11,8 @@ void XYZReader::parse(std::vector<Particle> &particles, std::istream &file) {
   std::array<double, 3> x;
   std::array<double, 3> v;
   double m;
+  std::optional<double> epsilon;
+  std::optional<double> sigma;
   int num_particles = 0;
 
   std::string tmp_string;
@@ -45,7 +47,7 @@ void XYZReader::parse(std::vector<Particle> &particles, std::istream &file) {
       exit(-1);
     }
     datastream >> m;
-    particles.emplace_back(x, v, m);
+    particles.emplace_back(x, v, m, epsilon, sigma);
 
     getline(file, tmp_string);
     spdlog::debug("Read line: {}", tmp_string);
