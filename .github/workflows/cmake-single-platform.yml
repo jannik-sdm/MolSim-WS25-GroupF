@@ -36,12 +36,16 @@ jobs:
       - name: Configure CMake for Clang-Tidy
         run: cmake -B ${{github.workspace}}/build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DENABLE_DOXYGEN_TARGET=OFF
 
-      # run Clang-Tidy (replace 'my_project_target' with your actual target name or use a script)
+           # run Clang-Tidy (replace 'my_project_target' with your actual target name or use a script)
       - name: Run Clang-Tidy
         # working directory is root as default
-        run: |
+        run:
           find ${{github.workspace}}/src -name "*.cpp" | xargs clang-tidy -p ${{github.workspace}}/build -config-file=.clang-tidy -warnings-as-errors='*' --quiet
-      
+
+      # runs clang-format and fails if formatting is violated
+      - name: Run clang-format
+        run:
+          find ${{github.workspace}}/src -name "*.cpp" | xargs clang-format -style=file --dry-run -Werror
   build-and-test:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.

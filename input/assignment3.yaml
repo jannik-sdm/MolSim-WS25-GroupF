@@ -1,0 +1,24 @@
+output:
+  folder: "out/"
+  frequency: 10
+simulation:
+  end_time: 20
+  delta_t: 0.0005
+  brown_motion_avg_velocity: 0.1
+  cutoff_radius: 3.0
+  domain: [180, 90, 1]
+  borders: [reflection,reflection,reflection,reflection,reflection,reflection]
+  dimension: 2D
+particles:
+  - cuboid:
+      position: [20, 20, 0]
+      size: [100, 20, 1]
+      distance: 1.1225
+      mass: 1
+      velocity: [0, 0, 0]
+  - cuboid:
+      position: [70, 60, 0]
+      size: [20, 20, 1]
+      distance: 1.1225
+      mass: 1
+      velocity: [0, -10, 0]

@@ -17,7 +17,7 @@
  * This should (?) allow for static polymorphism, evaluated at compile time
  *
  * @tparam T Derived class for CRTP pattern.
- * @note <T> must implement `static void parse(std::vector<Particle>&, std::ifstream&)`.
+ * @note T must implement `static void parse(std::vector<Particle>&, std::ifstream&)`.
  *
  * @see https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
  */

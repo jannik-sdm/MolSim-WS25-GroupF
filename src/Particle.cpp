@@ -68,6 +68,8 @@ void Particle::setX(const Vector3 &new_x) { this->x = new_x; }
 
 void Particle::setV(const Vector3 &new_v) { this->v = new_v; }
 
+void Particle::setM(const double new_m) { this->m = new_m; }
+
 double Particle::getM() const { return m; }
 
 int Particle::getType() const { return type; }

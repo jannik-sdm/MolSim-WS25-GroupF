@@ -5,7 +5,8 @@
 
 class TestParticleContainer : public ::testing::Test {
  protected:
-  ParticleContainer container;
+  std::unique_ptr<ParticleContainer> container;
+  std::vector<Particle> particles;
   static const unsigned int NUM_PARTICLES = 10;
 
  public:

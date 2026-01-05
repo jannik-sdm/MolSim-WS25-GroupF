@@ -3,6 +3,8 @@
 #include "TestParticleContainer.h"
 
 TestParticleContainer::TestParticleContainer() {
+  container = std::make_unique<ParticleContainer>(particles);
+
   for (int i = 0; i < NUM_PARTICLES; i++) {
     std::array<double, 3> v = {static_cast<double>(i * 3 % 7), static_cast<double>(i * 5 % 8) / 3,
                                static_cast<double>((i + 12) * 3)};
@@ -10,7 +12,7 @@ TestParticleContainer::TestParticleContainer() {
                                static_cast<double>((i + 81) * 12 % 41) * 2.4};
     double m = static_cast<double>(i);
 
-    container.particles.emplace_back(x, v, m, i);
+    container->particles.emplace_back(x, v, m, i);
   }
 }
 
@@ -22,7 +24,7 @@ TestParticleContainer::TestParticleContainer() {
  */
 TEST_F(TestParticleContainer, IterationWorks) {
   int i = 0;
-  for (Particle &particle : container) {
+  for (Particle &particle : container->particles) {
     EXPECT_EQ(particle.getType(), i);
 
     if (i++ >= NUM_PARTICLES) {
@@ -54,7 +56,7 @@ TEST_F(TestParticleContainer, PairIterationWorks) {
   }
 
   int i = 0;
-  for (auto [p1, p2] : container.pairs()) {
+  for (auto [p1, p2] : container->pairs()) {
     EXPECT_EQ(p1.getType(), arr[i].first);
     EXPECT_EQ(p2.getType(), arr[i].second);
 
