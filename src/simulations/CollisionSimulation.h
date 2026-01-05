@@ -18,11 +18,6 @@
  * @see Physics::lennardJonesForce
  */
 class CollisionSimulation : public PlanetSimulation {
- private:
-  /** @brief Value used for epsilon during force calculation, @see Physics::lennardJonesForce */
-  const double epsilon = 5;
-  /** @brief Value used for sigma during force calculation, @see Physics::lennardJonesForce */
-  const double sigma = 1;
 
  public:
   CollisionSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,

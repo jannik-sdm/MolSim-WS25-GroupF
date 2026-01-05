@@ -9,6 +9,7 @@
 
 #include "container/directSum/ParticleContainer.h"
 #include "container/linkedCells/Cell.h"
+#include "simulations/Physics.h"
 #include "utils/ArrayUtils.h"
 
 class LinkedCells {
@@ -73,7 +74,6 @@ Describes how many cells the overall structure has in Y-direction
 
   bool is2D;
 
-  double repulsing_distance;
   /**
    * Initializes the variables and cells with their cell-type and adds the respective particles to the cell
    * @param size_x domain size in x direction
@@ -82,7 +82,7 @@ Describes how many cells the overall structure has in Y-direction
    * @param cutoff cutoff radius set in the simluation
    */
   LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff, bool is2D,
-              double repulsing_distance, std::array<BorderType, 6> borders = {BorderType::OUTFLOW});
+               std::array<BorderType, 6> borders = {BorderType::OUTFLOW});
 
   /**
    *
@@ -136,32 +136,7 @@ Describes how many cells the overall structure has in Y-direction
             spdlog::error("Wrong Border");
             continue;
           }  // Fehlerbehandlung
-          if (border == PERIODIC) { /*
-             //Alternative Implementierung: Die andere Variante scheint aber stabiler zu sein
-             //partikel p1 in die nähe des Periodic neighbours schieben
-             Vector3 tmp = p1->getX();
-             Vector3 x = tmp;
-             if (border < 3) {
-               x[border%3] += linkedCells.domain_size[border%3];
-             }else {
-               x[border%3] -= linkedCells.domain_size[border%3];
-             }
-             p1->setX(x);
-             // c2 von der Ghost Zelle auf die Gegenüberliegende Border Zelle verschieben
-             c2 = linkedCells.cells[linkedCells.getPeriodicEquivalentForGhost(j)];
-             for (const auto p2 : c2.particles) {
-               if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoffRadius) continue;
-               if (p1->getX()[0] == p2->getX()[0] && p1->getX()[1] == p2->getX()[1]) {
-                 spdlog::error("HILFE");
-               }
-               Vector3 f = Physics::lennardJonesForce(*p1, *p2, sigma, epsilon);
-               spdlog::trace("Adding ({},{},{}) to the force of Particle: ({},{},{})", f[0], f[1], f[2], p1->getX()[0],
-             p1->getX()[1], p1->getX()[2]); p1->addF(f);
-               //p2->subF(f);
-               spdlog::trace("new Force Normal Cell: ({},{},{})", p1->getF()[0], p1->getF()[1], p1->getF()[2]);
-             }
-             p1->setX(tmp);
-             */
+          if (border == PERIODIC) {
             // Echte Zelle zu Ghost Zelle finden -> Funktioniert auch über mehrere Dimensionen
             int realCellIndex = getPeriodicEquivalentForGhost(j);
             auto &realCell = cells[realCellIndex];
@@ -193,9 +168,11 @@ Describes how many cells the overall structure has in Y-direction
             for (int k = 0; k < c2.size_ghost_particles; k++) {
               Particle &p2 = c2.ghost_particles[k];
               const double distance = ArrayUtils::L2Norm(p1->getX() - p2.getX());
+              //since we don't know sigma in the beginning, we have to calculate the repulsing distance in each step individually
+              double repulsing_distance = calcRepulsingDistance(p1->getSigma(), p2.getSigma());
               // for ghost particles the force should only be computed if its repulsing
               // normally cutoffRadius >> repulsing_distance but i'm letting it stand since it's an or statement
-              if (distance >= this->repulsing_distance || distance > cutoffRadius) continue;
+              if (distance >= repulsing_distance || distance > cutoffRadius) continue;
 
               f(*p1, p2);
             }
@@ -357,4 +334,12 @@ Describes how many cells the overall structure has in Y-direction
    * @return 1D Index of the border cell, which is equivalent to the ghost cell
    */
   int getPeriodicEquivalentForGhost(int cellIndex);
+
+  /**
+   * Calculates the repulsing distance between a particle pair
+   * @param sigma1 ϵ of the first particle
+   * @param sigma2 ϵ of the second particle
+   * @return
+   */
+double calcRepulsingDistance(double sigma1, double sigma2);
 };
