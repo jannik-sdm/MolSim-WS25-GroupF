@@ -20,7 +20,7 @@ TEST_F(TestCutoffSimulation, CreatesGhostAtReflectiveBoundary) {
   Vector3 vel = {-1.0, 0.0, 0.0};
   particles.emplace_back(pos, vel, 1.0);
 
-  InitSimulation();
+  initSimulation();
 
   callUpdateGhost();
 
@@ -65,7 +65,7 @@ TEST_F(TestCutoffSimulation, IgnoresParticlesTooFarFromBorder) {
   Vector3 vel = {0.0, 0.0, 0.0};
   particles.emplace_back(pos, vel, 1.0);
 
-  InitSimulation();
+  initSimulation();
   callUpdateGhost();
 
   // Calculate Ghost Cell Index (Left side)
@@ -85,7 +85,7 @@ TEST_F(TestCutoffSimulation, CreatesGhostsInCorner) {
   Vector3 pos = {0.1, 0.1, 5.0};
   particles.emplace_back(pos, Vector3{0, 0, 0}, 1.0);
 
-  InitSimulation();
+  initSimulation();
   callUpdateGhost();
 
   // Check Left Ghost Cell (-0.1, 0.1, 5.0)
@@ -108,7 +108,7 @@ TEST_F(TestCutoffSimulation, ReflectiveBoundaryGeneratesRepulsiveForce) {
   Vector3 pos = {0.1, 5.0, 5.0};
   particles.emplace_back(pos, Vector3{-1.0, 0, 0}, 1.0);  // Moving towards wall
 
-  InitSimulation();
+  initSimulation();
   // Ensure force is zero
   Particle &p = sim->getLinkedCells().particles[0];
   p.setF({0.0, 0.0, 0.0});
@@ -140,7 +140,7 @@ TEST_F(TestCutoffSimulation, OutflowBoundaryKillsParticle) {
   // Create a particle inside the domain (e.g., x=0.5)
   Vector3 pos = {0.5, 5.0, 5.0};
   particles.emplace_back(pos, Vector3{1.0, 0, 0}, 1.0);  // Moving Right
-  InitSimulation();
+  initSimulation();
 
   // Simulate the particle moving OUT of the domain
   // manually update the position to be in the Ghost Layer (x = -0.5)
@@ -163,7 +163,7 @@ TEST_F(TestCutoffSimulation, GravityEffectsParticles) {
   Vector3 pos = {5.0, 5.0, 5.0};
   Vector3 vel = {0.0, 0.0, 0.0};
   particles.emplace_back(pos, vel, 1.0);
-  InitSimulation();
+  initSimulation();
 
   // Ensure the force of the particle is 0 in the beginning
   Particle &p = sim->getLinkedCells().particles[0];
