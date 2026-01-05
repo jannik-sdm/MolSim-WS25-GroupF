@@ -10,8 +10,8 @@
 #include "utils/ArrayUtils.h"
 
 LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff, bool is2D,
-                         double repulsing_distance, std::array<BorderType, 6> borders)
-    : particles(particles), domain_size(domain), is2D(is2D), repulsing_distance(repulsing_distance) {
+                          std::array<BorderType, 6> borders)
+    : particles(particles), domain_size(domain), is2D(is2D) {
   // calculate number of cells - should always be at least 1
   numCellsX = std::max(1, static_cast<int>(domain_size[0] / cutoff));
   numCellsY = std::max(1, static_cast<int>(domain_size[1] / cutoff));
@@ -27,6 +27,7 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
   numCellsX += 2;
   numCellsY += 2;
   numCellsZ += 2;
+  numCells = {numCellsX, numCellsY, numCellsZ};
 
   cells.resize(numCellsX * numCellsY * numCellsZ);
 
@@ -167,59 +168,6 @@ int LinkedCells::getSharedBorder(int ownIndex1d, int otherIndex1d) {
   return 3;               // All Neighbours at x = 1 Border (front)
 }
 
-/*void LinkedCells::moveParticles() {
-  for (int i = 0; i < cells.size(); i++) {
-    Cell &current_cell = cells[i];
-
-    for (int j = 0; j < current_cell.particles.size(); j++) {
-      auto p = current_cell.particles[j];
-
-      const int k = coordinate3dToIndex1d(p->getX());
-
-      if (i == k) continue;
-
-      // move p to cell[j]
-
-      spdlog::trace("Moving particle with coordinate ({},{},{}) from cell {} to cell {}", p->getX()[0], p->getX()[1],
-                    p->getX()[2], k, i);
-      Cell &new_cell = cells[k];
-      if (new_cell.cell_type != CellType::GHOST) {
-        new_cell.particles.push_back(p);
-      } else {
-        // get shared border current_cell, new_cell
-        int borderIndex = getSharedBorder(i, k);
-        BorderType border = current_cell.borders[borderIndex];
-        if (border == BorderType::OUTFLOW) {
-          p->setState(-1);  // mark particle as dead
-          alive_particles--;
-          spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
-        } else if (border == BorderType::NAIVE_REFLECTION) {
-          // First go back to the Old Position and then reflect the Velocity and calculate the new Position
-          // This is not acurate, because the particle is not reflected AT the border,
-          Vector3 v = p->getV();
-          v[borderIndex % 3] *= -1;
-          Vector3 neg = {-1, -1, -1};
-          p->setV(neg * p->getV());     // Turn Velocity
-          Vector3 oldF = p->getOldF();  // Save OldF
-          p->setF(neg * p->getF());     // Turn F
-          p->setF(oldF);
-          p->setF(neg * p->getF());  // Reset old Force
-          p->setV(v);                // Set new Velocity
-          continue;                  // Don't move the Particle into a Ghost Cell
-        } else {
-          spdlog::error("A Particle escaped from the domain, even, if it shouldn't");
-        }
-      }
-      // erase p from cell[i] by swapping p to the back of the vector
-      current_cell.particles[j] = current_cell.particles.back();
-      current_cell.particles.pop_back();
-
-      // decrement j to prevent skipping the particle moved to position j from the back
-      j--;
-    }
-  }
-  updateGhost();
-}*/
 
 void LinkedCells::moveParticles() {
   for (int i = 0; i < cells.size(); i++) {
@@ -272,8 +220,6 @@ void LinkedCells::moveParticles() {
           }
           p->setX(x);
           std::array<int, 3> newCellIndex3d = coordinate3dToIndex3d(x[0], x[1], x[2]);
-          std::array<int, 3> oldCellIndex3d = index1dToIndex3d(i);
-          std::array<int, 3> ghostCellIndex3d = index1dToIndex3d(k);
           int newCellIndex1d = index3dToIndex1d(newCellIndex3d[0], newCellIndex3d[1], newCellIndex3d[2]);
           cells[newCellIndex1d].particles.push_back(p);
 
@@ -324,7 +270,7 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
     // calculate the distance of the particle to the border l of the new cell it is moving into
     double deltaBorder = getBorderDistance(cell_index, l, ghostParticleX);
     double particle_distance = 2 * deltaBorder;
-    if (particle_distance >= repulsing_distance) {
+    if (particle_distance >= calcRepulsingDistance(particle.getSigma(), particle.getSigma())) {
       // ghost particle should only be created if it is repulsing to it's respective particle
       continue;
     }
@@ -351,7 +297,7 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
       ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setM(particle.getM());
     } else {
       // need to push_back new particles
-      ghost_cell.ghost_particles.push_back(Particle(ghostParticleX, ghostParticleV, particle.getM()));
+      ghost_cell.ghost_particles.push_back(Particle(ghostParticleX, ghostParticleV, particle.getM(), particle.getEpsilon(), particle.getSigma()));
     }
 
     ghost_cell.size_ghost_particles++;
@@ -437,4 +383,8 @@ BorderType LinkedCells::getSharedBorderType(const int ownIndex1d, const int othe
       // dann keine Grenze existiert
   }};
   return best_of(borders, groups[foundIndex]);
+}
+
+double LinkedCells::calcRepulsingDistance(double sigma1, double sigma2) {
+  return std::pow(2, 1.0 / 6.0) * Physics::LorentzBerthelot::sigma(sigma1, sigma2);
 }

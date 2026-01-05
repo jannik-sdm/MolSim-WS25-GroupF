@@ -14,6 +14,8 @@ void CuboidReader::parse(std::vector<Particle> &particles, std::istream &file) {
   Vector3 v;
   double distance;
   double mass;
+  double epsilon;
+  double sigma;
 
   std::string current_line;
 
@@ -27,9 +29,11 @@ void CuboidReader::parse(std::vector<Particle> &particles, std::istream &file) {
 
     data >> distance;
     data >> mass;
+    data >> epsilon;
+    data >> sigma;
 
     for (auto &vₖ : v) data >> vₖ;
 
-    ParticleGenerator::cuboid(particles, x, n, distance, mass, v);
+    ParticleGenerator::cuboid(particles, x, n, distance, mass, epsilon, sigma, v);
   }
 }

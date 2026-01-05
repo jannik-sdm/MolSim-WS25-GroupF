@@ -12,15 +12,9 @@
 
 class CutoffSimulation : public Simulation {
  protected:
-  const double epsilon = 5;
-  const double sigma = 1;
   const double brownian_motion_avg_velocity = 0.1;
   bool is2D;
   const double g_grav;
-  /**
-   * Distance for when two particles are repulsing
-   */
-  const double repulsing_distance = std::pow(2, 1.0 / 6.0) * sigma;
   LinkedCells linkedCells;
   std::vector<Particle> &particles;
 
@@ -37,7 +31,7 @@ class CutoffSimulation : public Simulation {
       : Simulation(start_time, end_time, delta_t),
         is2D(is2D),
         g_grav(g_grav),
-  linkedCells(particles, dimension, cutoff_radius, is2D, repulsing_distance, border),
+  linkedCells(particles, dimension, cutoff_radius, is2D, border),
   particles(particles)
 {
     initializeBrownianMotion();

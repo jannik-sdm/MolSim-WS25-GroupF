@@ -48,6 +48,8 @@ struct convert<Particle> {
     node["force"] = rhs.getF();
     node["old_force"] = rhs.getOldF();
     node["mass"] = rhs.getM();
+    node["sigma"] = rhs.getSigma();
+    node["epsilon"] = rhs.getEpsilon();
     node["type"] = rhs.getType();
 
     return node;
@@ -67,20 +69,26 @@ struct convert<Particle> {
     auto mass = node["mass"];
     if (!mass) return false;
 
+    auto epsilon = node["epsilon"];
+    if (!epsilon) return false;
+
+    auto sigma = node["sigma"];
+    if (!sigma) return false;
+
     auto force = node["force"];
     auto old_force = node["old_force"];
     auto type = node["type"];
 
     if (force && old_force && type)
-      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), force.as<Vector3>(),
+      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), epsilon.as<double>() , sigma.as<double>(), force.as<Vector3>(),
                      old_force.as<Vector3>(), type.as<double>());
     else if (force && old_force) {
-      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), force.as<Vector3>(),
+      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), epsilon.as<double>() , sigma.as<double>(),force.as<Vector3>(),
                      old_force.as<Vector3>());
     } else if (force) {
-      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), force.as<Vector3>());
+      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), epsilon.as<double>() , sigma.as<double>(), force.as<Vector3>());
     } else {
-      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>());
+      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), epsilon.as<double>() , sigma.as<double>());
     }
 
     return true;
