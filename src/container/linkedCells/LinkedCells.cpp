@@ -289,6 +289,7 @@ void LinkedCells::moveParticles() {
       j--;
     }
   }
+  updateGhost();
 }
 
 void LinkedCells::updateGhost() {
