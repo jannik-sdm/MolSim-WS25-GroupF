@@ -86,6 +86,10 @@ void Particle::setV(const Vector3 &new_v) { this->v = new_v; }
 
 void Particle::setM(const double new_m) { this->m = new_m; }
 
+void Particle::setSigma(const double new_sigma) { this->sigma = new_sigma; }
+
+void Particle::setEpsilon(const double new_epsilon) { this->epsilon = new_epsilon; }
+
 double Particle::getM() const { return m; }
 
 int Particle::getType() const { return type; }

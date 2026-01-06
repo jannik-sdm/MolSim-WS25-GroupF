@@ -158,20 +158,20 @@ TEST_F(CutoffSimulationTest, OutflowBoundaryKillsParticle) {
 }
 
 TEST_F(CutoffSimulationTest, GravityEffectsParticles) {
-  //Set gravity to the value on earth
+  // Set gravity to the value on earth
   gravity = -9.81;
 
-  //Create a particle inside the domain
+  // Create a particle inside the domain
   Vector3 pos = {5.0, 5.0, 5.0};
   Vector3 vel = {0.0, 0.0, 0.0};
   particles.emplace_back(pos, vel, 1.0);
   InitSimulation();
 
-  //Ensure the force of the particle is 0 in the beginning
+  // Ensure the force of the particle is 0 in the beginning
   Particle &p = sim->getLinkedCells().particles[0];
   p.setF({0.0, 0.0, 0.0});
 
-  //calculate the new force
+  // calculate the new force
   sim->updateF();
   Vector3 f = p.getF();
 
