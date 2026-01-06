@@ -36,39 +36,41 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
     auto [x, y, z] = index1dToIndex3d(i);
     if (x == 0 || y == 0 || z == 0 || x == numCellsX - 1 || y == numCellsY - 1 || z == numCellsZ - 1) {
       cells[i].cell_type = CellType::GHOST;
-      continue;  // ghost cells don't need neighbours
+      if (x== 0) {
+        cells[i].borders[2] = borders[0];
+      }
+      if (x == numCellsX - 1) {
+        cells[i].borders[0] = borders[2];
+      }// ghost cells don't need neighbours
+    }else {
+      setNeighbourCells(i);
+      // check if cell should be a border cell
+      if (isBorderCell(x, y, z)) {
+        cells[i].cell_type = CellType::BORDER;
+      }else {
+        cells[i].cell_type = CellType::REGULAR;
+      }
     }
-
-    setNeighbourCells(i);
-
-    // check if cell should be a border cell
-    if (isBorderCell(x, y, z)) {
-      cells[i].cell_type = CellType::BORDER;
-      // Set Border Types
-      if (x == 1) {
-        cells[i].borders[0] = borders[0];
-      }
-      if (y == 1) {
-        cells[i].borders[1] = borders[3];
-      }
-      if (z == 1) {
-        cells[i].borders[2] = borders[1];
-      }
-      if (x == numCellsX - 2) {
-        cells[i].borders[3] = borders[4];
-      }
-      if (y == numCellsY - 2) {
-        cells[i].borders[4] = borders[2];
-      }
-      if (z == numCellsZ - 2) {
-        cells[i].borders[5] = borders[5];
-      }
-
-      continue;
+    // Set Border Types
+    //Set Borders also for Ghost Cells
+    if (x == 1) {
+      cells[i].borders[0] = borders[0];
     }
-
-    // remaining cells are REGULAR by default
-    cells[i].cell_type = CellType::REGULAR;
+    if (y == 1) {
+      cells[i].borders[1] = borders[1];
+    }
+    if (z == 1) {
+      cells[i].borders[2] = borders[2];
+    }
+    if (x == numCellsX - 2) {
+      cells[i].borders[3] = borders[3];
+    }
+    if (y == numCellsY - 2) {
+      cells[i].borders[4] = borders[4];
+    }
+    if (z == numCellsZ - 2) {
+      cells[i].borders[5] = borders[5];
+    }
   }
 
   // add particles to the correct cell
@@ -261,47 +263,78 @@ void LinkedCells::updateGhost() {
 void LinkedCells::createGhostParticles(Particle &particle, const int cell_index, Cell &cell) {
   for (int l = 0; l < 6; l++) {
     if (is2D && (l == 2 || l == 5)) continue;
-    if (cell.borders[l] != BorderType::REFLECTION) continue;
+    if (cell.borders[l] == BorderType::REFLECTION) {
+      // create ghost particles for every reflection border
 
-    // create ghost particles for every reflection border
+      // X of ghost Particle
+      Vector3 ghostParticleX = particle.getX();
+      spdlog::trace("ghostParticleX: ({},{},{})", ghostParticleX[0], ghostParticleX[1], ghostParticleX[2]);
+      // calculate the distance of the particle to the border l of the new cell it is moving into
+      double deltaBorder = getBorderDistance(cell_index, l, ghostParticleX);
+      double particle_distance = 2 * deltaBorder;
+      if (particle_distance >= calcRepulsingDistance(particle.getSigma(), particle.getSigma())) {
+        // ghost particle should only be created if it is repulsing to it's respective particle
+        continue;
+      }
+      ghostParticleX[l % 3] += (l < 3) ? -particle_distance : particle_distance;
+      // V of ghost Particle
+      Vector3 ghostParticleV = particle.getV();
+      ghostParticleV[l % 3] *= -1;
+      // Save ghost Particle
+      int ghostCellIndex1d = coordinate3dToIndex1d(ghostParticleX);
+      spdlog::trace(
+          "Adding Ghost Particle with coordinates ({}, {}, {}) (Ghost Particle of ({},{},{}))to Cell with index {}/{}",
+          ghostParticleX[0], ghostParticleX[1], ghostParticleX[2], particle.getX()[0], particle.getX()[1],
+          particle.getX()[2], ghostCellIndex1d, cells.size());
+      Cell &ghost_cell = cells[ghostCellIndex1d];
+      int index_ghost_particle = ghost_cell.size_ghost_particles;
 
-    // X of ghost Particle
-    Vector3 ghostParticleX = particle.getX();
-    spdlog::trace("ghostParticleX: ({},{},{})", ghostParticleX[0], ghostParticleX[1], ghostParticleX[2]);
-    // calculate the distance of the particle to the border l of the new cell it is moving into
-    double deltaBorder = getBorderDistance(cell_index, l, ghostParticleX);
-    double particle_distance = 2 * deltaBorder;
-    if (particle_distance >= calcRepulsingDistance(particle.getSigma(), particle.getSigma())) {
-      // ghost particle should only be created if it is repulsing to it's respective particle
-      continue;
+      spdlog::trace("deltaBorder: {} distance: {}", 2 * deltaBorder,
+                    ArrayUtils::L2Norm(particle.getX() - ghostParticleX));
+
+      if (index_ghost_particle < ghost_cell.ghost_particles.size()) {
+        // vector has enough allocated space ==> reuse old particle objects
+        ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setX(ghostParticleX);
+        ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setV(ghostParticleV);
+        ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setM(particle.getM());
+        ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setEpsilon(particle.getEpsilon());
+        ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setSigma(particle.getSigma());
+
+      } else {
+        // need to push_back new particles
+        ghost_cell.ghost_particles.push_back(Particle(ghostParticleX, ghostParticleV, particle.getM(), particle.getEpsilon(), particle.getSigma()));
+      }
+
+      ghost_cell.size_ghost_particles++;
     }
-    ghostParticleX[l % 3] += (l < 3) ? -particle_distance : particle_distance;
-    // V of ghost Particle
-    Vector3 ghostParticleV = particle.getV();
-    ghostParticleV[l % 3] *= -1;
-    // Save ghost Particle
-    int ghostCellIndex1d = coordinate3dToIndex1d(ghostParticleX);
-    spdlog::trace(
-        "Adding Ghost Particle with coordinates ({}, {}, {}) (Ghost Particle of ({},{},{}))to Cell with index {}/{}",
-        ghostParticleX[0], ghostParticleX[1], ghostParticleX[2], particle.getX()[0], particle.getX()[1],
-        particle.getX()[2], ghostCellIndex1d, cells.size());
-    Cell &ghost_cell = cells[ghostCellIndex1d];
-    int index_ghost_particle = ghost_cell.size_ghost_particles;
+    if (cell.borders[l] == BorderType::PERIODIC) {
+      // Ghost Partikel Position zu der des echten Partikels berechnen
+      Vector3 ghostParticleX = particle.getX();
+      ghostParticleX[l%3] += (l < 3) ? domain_size[l%3] : -domain_size[l%3];
+      int ghostCellIndex1d = coordinate3dToIndex1d(ghostParticleX);
+      spdlog::trace(
+          "Adding Ghost Particle with coordinates ({}, {}, {}) (Ghost Particle of ({},{},{}))to Cell with index {}/{}",
+          ghostParticleX[0], ghostParticleX[1], ghostParticleX[2], particle.getX()[0], particle.getX()[1],
+          particle.getX()[2], ghostCellIndex1d, cells.size());
+      Cell &ghost_cell = cells[ghostCellIndex1d];
+      int index_ghost_particle = ghost_cell.size_ghost_particles;
 
-    spdlog::trace("deltaBorder: {} distance: {}", 2 * deltaBorder,
-                  ArrayUtils::L2Norm(particle.getX() - ghostParticleX));
+      if (index_ghost_particle < ghost_cell.ghost_particles.size()) {
+        // vector has enough allocated space ==> reuse old particle objects
+        ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setX(ghostParticleX);
+        ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setV(particle.getV());
+        ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setM(particle.getM());
+        ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setEpsilon(particle.getEpsilon());
+        ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setSigma(particle.getSigma());
 
-    if (index_ghost_particle < ghost_cell.ghost_particles.size()) {
-      // vector has enough allocated space ==> reuse old particle objects
-      ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setX(ghostParticleX);
-      ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setV(ghostParticleV);
-      ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setM(particle.getM());
-    } else {
-      // need to push_back new particles
-      ghost_cell.ghost_particles.push_back(Particle(ghostParticleX, ghostParticleV, particle.getM(), particle.getEpsilon(), particle.getSigma()));
+      } else {
+        // need to push_back new particles
+        ghost_cell.ghost_particles.push_back(Particle(ghostParticleX, particle.getV(), particle.getM(), particle.getEpsilon(), particle.getSigma()));
+      }
+      //Also Periodic Ghost can cause new Ghosts
+      createGhostParticles(ghost_cell.ghost_particles[ghost_cell.size_ghost_particles], ghostCellIndex1d, ghost_cell);
+      ghost_cell.size_ghost_particles++;
     }
-
-    ghost_cell.size_ghost_particles++;
   }
 }
 int LinkedCells::getPeriodicEquivalentForGhost(const int cellIndex, const int ghostCellIndex) {
