@@ -82,7 +82,7 @@ Describes how many cells the overall structure has in Y-direction
    * @param cutoff cutoff radius set in the simluation
    */
   LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff, bool is2D,
-               std::array<BorderType, 6> borders = {BorderType::OUTFLOW});
+              std::array<BorderType, 6> borders = {BorderType::OUTFLOW});
 
   /**
    *
@@ -113,85 +113,84 @@ Describes how many cells the overall structure has in Y-direction
 
     // Calculate forces with neighbour cells
     for (int i = 0; i < cells.size(); i++) {
-    auto &c1 = cells[i];
+      auto &c1 = cells[i];
 
-    // skip ghost cells
-    if (c1.cell_type == CellType::GHOST) continue;
-    std::array<int, 26> neighbourCellsIndex = getNeighbourCells(i);
-    for (const int j : neighbourCellsIndex) {
-      auto &c2 = cells[j];
-      // newton optimization, but ONLY if c2 is not a Ghost cell, because if this calculation is skipped, particles are
-      // not repulsed
-      if (j < i && c2.cell_type != CellType::GHOST) continue;
+      // skip ghost cells
+      if (c1.cell_type == CellType::GHOST) continue;
+      std::array<int, 26> neighbourCellsIndex = getNeighbourCells(i);
+      for (const int j : neighbourCellsIndex) {
+        auto &c2 = cells[j];
+        // newton optimization, but ONLY if c2 is not a Ghost cell, because if this calculation is skipped, particles
+        // are not repulsed
+        if (j < i && c2.cell_type != CellType::GHOST) continue;
 
-      for (const auto p1 : c1.particles) {
-        if (p1->getX()[0] < 0 || p1->getX()[1] < 0 || p1->getX()[2] < 0) {
-          spdlog::error("some error with the cell labeling");
-        }
-        // iterate over ghost particles if c2 is a ghost cell, else use normale particles
-        if (c2.cell_type == CellType::GHOST) {
-          // Herausfinden, ob Periodic, oder Reflective handling. Alle anderen haben keine Partikel in Ghost Zellen
-          BorderType border = getSharedBorderType(i, j);
-          if (border == ERROR) {
-            spdlog::error("Wrong Border");
-            continue;
-          }  // Fehlerbehandlung
-          if (border == PERIODIC) {
-            // Echte Zelle zu Ghost Zelle finden -> Funktioniert auch über mehrere Dimensionen
-            int realCellIndex = getPeriodicEquivalentForGhost(i,j);
-            auto &realCell = cells[realCellIndex];
-            // N3
-            if (realCellIndex < i) continue;
-            for (const auto p2 : realCell.particles) {
-              if (p1 == p2) continue;  // Nur zur Sicherheit
+        for (const auto p1 : c1.particles) {
+          if (p1->getX()[0] < 0 || p1->getX()[1] < 0 || p1->getX()[2] < 0) {
+            spdlog::error("some error with the cell labeling");
+          }
+          // iterate over ghost particles if c2 is a ghost cell, else use normale particles
+          if (c2.cell_type == CellType::GHOST) {
+            // Herausfinden, ob Periodic, oder Reflective handling. Alle anderen haben keine Partikel in Ghost Zellen
+            BorderType border = getSharedBorderType(i, j);
+            if (border == ERROR) {
+              spdlog::error("Wrong Border");
+              continue;
+            }  // Fehlerbehandlung
+            if (border == PERIODIC) {
+              // Echte Zelle zu Ghost Zelle finden -> Funktioniert auch über mehrere Dimensionen
+              int realCellIndex = getPeriodicEquivalentForGhost(i, j);
+              auto &realCell = cells[realCellIndex];
+              // N3
+              if (realCellIndex < i) continue;
+              for (const auto p2 : realCell.particles) {
+                if (p1 == p2) continue;  // Nur zur Sicherheit
 
-              // Calculate new Position relative to ghost cell
-              const std::array<int, 3> ghost = index1dToIndex3d(j);
-              const std::array<int, 3> real = index1dToIndex3d(realCellIndex);
-              Vector3 delta = {0.0};
-              for (int _i = 0; _i < 2; _i++)
-                delta[_i] = static_cast<double>(ghost[_i] - real[_i]) * cell_size[_i];
-              Vector3 new_pos = p2->getX() + delta;
+                // Calculate new Position relative to ghost cell
+                const std::array<int, 3> ghost = index1dToIndex3d(j);
+                const std::array<int, 3> real = index1dToIndex3d(realCellIndex);
+                Vector3 delta = {0.0};
+                for (int _i = 0; _i < 2; _i++) delta[_i] = static_cast<double>(ghost[_i] - real[_i]) * cell_size[_i];
+                Vector3 new_pos = p2->getX() + delta;
 
-              double distance = ArrayUtils::L2Norm(p1->getX() - new_pos);
+                double distance = ArrayUtils::L2Norm(p1->getX() - new_pos);
 
+                if (distance <= cutoffRadius && distance > 0) {
+                  Particle np = Particle(*p2);
+                  np.setX(new_pos);
 
-              if (distance <= cutoffRadius && distance > 0) {
-                Particle np = Particle(*p2);
-                np.setX(new_pos);
-
-                f(*p1, np);
+                  f(*p1, np);
+                }
               }
             }
-          }
-          if (border == REFLECTION) {
-            for (int k = 0; k < c2.size_ghost_particles; k++) {
-              Particle &p2 = c2.ghost_particles[k];
-              const double distance = ArrayUtils::L2Norm(p1->getX() - p2.getX());
-              //since we don't know sigma in the beginning, we have to calculate the repulsing distance in each step individually
-              double repulsing_distance = calcRepulsingDistance(p1->getSigma(), p2.getSigma());
-              // for ghost particles the force should only be computed if its repulsing
-              // normally cutoffRadius >> repulsing_distance but i'm letting it stand since it's an or statement
-              if (distance >= repulsing_distance || distance > cutoffRadius) continue;
+            if (border == REFLECTION) {
+              for (int k = 0; k < c2.size_ghost_particles; k++) {
+                Particle &p2 = c2.ghost_particles[k];
+                const double distance = ArrayUtils::L2Norm(p1->getX() - p2.getX());
+                // since we don't know sigma in the beginning, we have to calculate the repulsing distance in each step
+                // individually
+                double repulsing_distance = calcRepulsingDistance(p1->getSigma(), p2.getSigma());
+                // for ghost particles the force should only be computed if its repulsing
+                // normally cutoffRadius >> repulsing_distance but i'm letting it stand since it's an or statement
+                if (distance >= repulsing_distance || distance > cutoffRadius) continue;
 
-              f(*p1, p2);
+                f(*p1, p2);
+              }
             }
-          }
-        } else {
-          // case for regular cells
-          for (const auto p2 : c2.particles) {
-            if (*p1 == *p2) continue;
-            if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoffRadius) continue;
-            //Kontroll Checks: kann entfernt werden, sobald das Programm wieder funktioniert
-            if (p1->getX()[0] == p2->getX()[0] && p1->getX()[1] == p2->getX()[1]) {
-              spdlog::error("HILFE");
+          } else {
+            // case for regular cells
+            for (const auto p2 : c2.particles) {
+              if (*p1 == *p2) continue;
+              if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoffRadius) continue;
+              // Kontroll Checks: kann entfernt werden, sobald das Programm wieder funktioniert
+              if (p1->getX()[0] == p2->getX()[0] && p1->getX()[1] == p2->getX()[1]) {
+                spdlog::error("HILFE");
+              }
+              f(*p1, *p2);
             }
-            f(*p1, *p2);
           }
         }
       }
     }
-  }
   };
 
   /**
@@ -319,13 +318,13 @@ Describes how many cells the overall structure has in Y-direction
    */
   void initializeBrownianMotion();
   /**
- * Like getShared Border, but more stable
- * @param ownIndex1d first 1D Inex of the neighbour Cells
- * @param otherIndex1d second 1D Index of the neighbour Cells
- * @return BorderType of the Border between two cells. ERROR, if the cells do not share a common border
- * Instead one random Border this function returns the Border with the highest priority acording to the order in
- * Cell.h
- */
+   * Like getShared Border, but more stable
+   * @param ownIndex1d first 1D Inex of the neighbour Cells
+   * @param otherIndex1d second 1D Index of the neighbour Cells
+   * @return BorderType of the Border between two cells. ERROR, if the cells do not share a common border
+   * Instead one random Border this function returns the Border with the highest priority acording to the order in
+   * Cell.h
+   */
   BorderType getSharedBorderType(int ownIndex1d, int otherIndex1d);
 
   /**
@@ -338,7 +337,8 @@ Describes how many cells the overall structure has in Y-direction
   /**
    * If a Border is periodic, a ghost cell has a correlated border cell at the other side of the domain. This function
    * findes the this cell and returns its 1D-Index
-   * @param cellIndex to find the right border types, it is important to know the border cell, of wich the neighbours ghost should be periodic
+   * @param cellIndex to find the right border types, it is important to know the border cell, of wich the neighbours
+   * ghost should be periodic
    * @param ghostCellIndex Index of Ghost Cell, whose equivalent should be found
    * @return 1D Index of the border cell, which is equivalent to the ghost cell
    */
@@ -350,5 +350,5 @@ Describes how many cells the overall structure has in Y-direction
    * @param sigma2 ϵ of the second particle
    * @return
    */
-double calcRepulsingDistance(double sigma1, double sigma2);
+  double calcRepulsingDistance(double sigma1, double sigma2);
 };

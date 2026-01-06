@@ -31,9 +31,8 @@ class CutoffSimulation : public Simulation {
       : Simulation(start_time, end_time, delta_t),
         is2D(is2D),
         g_grav(g_grav),
-  linkedCells(particles, dimension, cutoff_radius, is2D, border),
-  particles(particles)
-{
+        linkedCells(particles, dimension, cutoff_radius, is2D, border),
+        particles(particles) {
     initializeBrownianMotion();
   }
 

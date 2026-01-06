@@ -10,7 +10,7 @@
 #include "utils/ArrayUtils.h"
 
 LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff, bool is2D,
-                          std::array<BorderType, 6> borders)
+                         std::array<BorderType, 6> borders)
     : particles(particles), domain_size(domain), is2D(is2D) {
   // calculate number of cells - should always be at least 1
   numCellsX = std::max(1, static_cast<int>(domain_size[0] / cutoff));
@@ -168,7 +168,6 @@ int LinkedCells::getSharedBorder(int ownIndex1d, int otherIndex1d) {
   return 3;               // All Neighbours at x = 1 Border (front)
 }
 
-
 void LinkedCells::moveParticles() {
   for (int i = 0; i < cells.size(); i++) {
     Cell &current_cell = cells[i];
@@ -298,7 +297,8 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
       ghost_cell.ghost_particles[ghost_cell.size_ghost_particles].setM(particle.getM());
     } else {
       // need to push_back new particles
-      ghost_cell.ghost_particles.push_back(Particle(ghostParticleX, ghostParticleV, particle.getM(), particle.getEpsilon(), particle.getSigma()));
+      ghost_cell.ghost_particles.push_back(
+          Particle(ghostParticleX, ghostParticleV, particle.getM(), particle.getEpsilon(), particle.getSigma()));
     }
 
     ghost_cell.size_ghost_particles++;
@@ -306,19 +306,19 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
 }
 int LinkedCells::getPeriodicEquivalentForGhost(const int cellIndex, const int ghostCellIndex) {
   auto borders = cells[cellIndex].borders;
-  //Überblick: Welche Borders hat die GhostZelle mit der echten gemeinsam?
+  // Überblick: Welche Borders hat die GhostZelle mit der echten gemeinsam?
   auto borderTypes = getSharedBordersIndex(cellIndex, ghostCellIndex);
   std::array<int, 3> index3d = index1dToIndex3d(ghostCellIndex);
   for (int borderIndex : borderTypes) {
-    //Wenn eine Border nicht periodisch ist muss an ihr auch nicht gespiegelt werden
-    if (borders[borderIndex] != PERIODIC)continue;
-    int dim = borderIndex %3;
-    //Check für zusätzliche Sicherheit: War die Border wirklich zu einer Ghost Zelle
+    // Wenn eine Border nicht periodisch ist muss an ihr auch nicht gespiegelt werden
+    if (borders[borderIndex] != PERIODIC) continue;
+    int dim = borderIndex % 3;
+    // Check für zusätzliche Sicherheit: War die Border wirklich zu einer Ghost Zelle
     if (index3d[dim] >= numCells[dim] - 1) {
       index3d[dim] = 1;
     } else if (index3d[dim] <= 0) {
       index3d[dim] = numCells[dim] - 2;
-  }
+    }
   }
   /*if (index3d[0] == index1dToIndex3d(cellIndex)[0] && index3d[1] == index1dToIndex3d(cellIndex)[1] &&
       index3d[2] == index1dToIndex3d(cellIndex)[2]) {
@@ -346,7 +346,7 @@ std::vector<int> LinkedCells::getSharedBordersIndex(const int ownIndex1d, const 
   }
   if (foundIndex < 0) {
     // Check for Periodic borders
-    //Dieser Fall darf nicht vorkommen!
+    // Dieser Fall darf nicht vorkommen!
     /*
     if (cells[otherIndex1d].cell_type == GHOST
         // Nachsehen, ob eine der borders unserer Zelle Periodisch ist
