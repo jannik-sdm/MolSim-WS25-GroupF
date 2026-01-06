@@ -65,8 +65,8 @@ void CutoffSimulation::updateV() {
   });
 }
 
-void CutoffSimulation::initializeBrownianMotion() {
-  linkedCells.applyToParticles([this](Particle &p) {
-    p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(brownian_motion_avg_velocity, (is2D ? 2 : 3)));
+void CutoffSimulation::initializeBrownianMotion(double brown_motion_avg_velocity) {
+  linkedCells.applyToParticles([this, brown_motion_avg_velocity](Particle &p) {
+    p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(brown_motion_avg_velocity, (is2D ? 2 : 3)));
   });
 }

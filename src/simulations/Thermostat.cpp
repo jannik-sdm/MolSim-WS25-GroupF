@@ -7,21 +7,13 @@
 #include "utils/MaxwellBoltzmannDistribution.h"
 
 Thermostat::Thermostat(std::vector<Particle> &particles, bool is2D, int n, double target_temperature,
-                       double maximum_temperature_change, double initial_temperature_optional,
-                       double average_brownian_velocity_optional)
+                       double maximum_temperature_change)
     : particles(particles),
       n(n),
       target_temperature(target_temperature),
       maximum_temperature_change(maximum_temperature_change),
       is2D(is2D) {
-  /*
-  if (initial_temperature_optional >= 0) {
-    if (initial_temperature_optional >= 0.0) {
-      initializeBrownianMotion(initial_temperature_optional);
-    }
-  } else if (average_brownian_velocity_optional >= 0) {
-    initializeBrownianMotion(average_brownian_velocity_optional);
-  }*/
+
   current_temperature = calculateCurrentTemperature(calculateAliveParticles());
 }
 

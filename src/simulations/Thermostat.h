@@ -37,8 +37,7 @@ class Thermostat {
 
  public:
   Thermostat(std::vector<Particle> &particles, bool is2D, int n, double target_temperature,
-             double maximum_temperature_change, double initial_temperature = -0.1,
-             double average_brownian_velocity = -0.1);
+             double maximum_temperature_change);
   virtual ~Thermostat() = default;
 
   /**

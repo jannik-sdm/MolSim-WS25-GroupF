@@ -20,9 +20,11 @@
 class CollisionSimulation : public PlanetSimulation {
  public:
   CollisionSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
-                      const double delta_t)
+                      const double delta_t, const std::optional<double> brown_motion_avg_velocity)
       : PlanetSimulation(particles, start_time, end_time, delta_t) {
-    initializeBrownianMotion();
+    if (brown_motion_avg_velocity.has_value()) {
+      initializeBrownianMotion(brown_motion_avg_velocity.value());
+    }
   }
   /**
    * @brief calculate the force for all particles
@@ -38,5 +40,5 @@ class CollisionSimulation : public PlanetSimulation {
    * Adds a brownian motion in the form of velocity to all particles
    * @param brown_motion_avg_velocity
    */
-  void initializeBrownianMotion(double brown_motion_avg_velocity = 0.1);
+  void initializeBrownianMotion(double brown_motion_avg_velocity);
 };
