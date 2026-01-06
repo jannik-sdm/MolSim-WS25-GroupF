@@ -15,7 +15,7 @@ class ThermostatSimulation : public CutoffSimulation {
  public:
   ThermostatSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
                        const double delta_t, const Vector3 &dimension, const double cutoff_radius,
-                       const std::array<BorderType, 6> &border, const bool is2D, double g_grav, Thermostat &thermostat)
+                       const std::array<BorderType, 6> &border, const bool is2D, const double g_grav, Thermostat &thermostat)
       : CutoffSimulation(particles, start_time, end_time, delta_t, dimension, cutoff_radius, border, is2D, g_grav),
         thermostat(thermostat) {}
   virtual ~ThermostatSimulation() = default;

@@ -138,7 +138,7 @@ Describes how many cells the overall structure has in Y-direction
           }  // Fehlerbehandlung
           if (border == PERIODIC) {
             // Echte Zelle zu Ghost Zelle finden -> Funktioniert auch über mehrere Dimensionen
-            int realCellIndex = getPeriodicEquivalentForGhost(j);
+            int realCellIndex = getPeriodicEquivalentForGhost(i,j);
             auto &realCell = cells[realCellIndex];
             // N3
             if (realCellIndex < i) continue;
@@ -327,13 +327,22 @@ Describes how many cells the overall structure has in Y-direction
  * Cell.h
  */
   BorderType getSharedBorderType(int ownIndex1d, int otherIndex1d);
+
+  /**
+   * Returns all borders between two neighbours and not only the most important one
+   * @param ownIndex1d first 1D Inex of the neighbour Cells
+   * @param otherIndex1d second 1D Index of the neighbour Cells
+   * @return Vector, that contains all (up to 3) borderIndexes between two cells
+   */
+  std::vector<int> getSharedBordersIndex(const int ownIndex1d, const int otherIndex1d);
   /**
    * If a Border is periodic, a ghost cell has a correlated border cell at the other side of the domain. This function
    * findes the this cell and returns its 1D-Index
-   * @param cellIndex Index of Ghost Cell, whose equivalent should be found
+   * @param cellIndex to find the right border types, it is important to know the border cell, of wich the neighbours ghost should be periodic
+   * @param ghostCellIndex Index of Ghost Cell, whose equivalent should be found
    * @return 1D Index of the border cell, which is equivalent to the ghost cell
    */
-  int getPeriodicEquivalentForGhost(int cellIndex);
+  int getPeriodicEquivalentForGhost(int cellIndex, int ghostCellIndex);
 
   /**
    * Calculates the repulsing distance between a particle pair

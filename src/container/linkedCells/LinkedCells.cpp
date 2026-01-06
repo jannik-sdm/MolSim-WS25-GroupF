@@ -303,15 +303,21 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
     ghost_cell.size_ghost_particles++;
   }
 }
-// Stimmt noch nicht, falls eine Kombination aus Reflective und Periodic verwendet wird
-int LinkedCells::getPeriodicEquivalentForGhost(const int cellIndex) {
-  std::array<int, 3> index3d = index1dToIndex3d(cellIndex);
-  for (int j = 0; j < 3; j++) {
-    if (index3d[j] >= numCells[j] - 1) {
-      index3d[j] = 1;
-    } else if (index3d[j] <= 0) {
-      index3d[j] = numCells[j] - 2;
-    }
+int LinkedCells::getPeriodicEquivalentForGhost(const int cellIndex, const int ghostCellIndex) {
+  auto borders = cells[cellIndex].borders;
+  //Überblick: Welche Borders hat die GhostZelle mit der echten gemeinsam?
+  auto borderTypes = getSharedBordersIndex(cellIndex, ghostCellIndex);
+  std::array<int, 3> index3d = index1dToIndex3d(ghostCellIndex);
+  for (int borderIndex : borderTypes) {
+    //Wenn eine Border nicht periodisch ist muss an ihr auch nicht gespiegelt werden
+    if (borders[borderIndex] != PERIODIC)continue;
+    int dim = borderIndex %3;
+    //Check für zusätzliche Sicherheit: War die Border wirklich zu einer Ghost Zelle
+    if (index3d[dim] >= numCells[dim] - 1) {
+      index3d[dim] = 1;
+    } else if (index3d[dim] <= 0) {
+      index3d[dim] = numCells[dim] - 2;
+  }
   }
   /*if (index3d[0] == index1dToIndex3d(cellIndex)[0] && index3d[1] == index1dToIndex3d(cellIndex)[1] &&
       index3d[2] == index1dToIndex3d(cellIndex)[2]) {
@@ -320,14 +326,14 @@ int LinkedCells::getPeriodicEquivalentForGhost(const int cellIndex) {
   return index3dToIndex1d(index3d[0], index3d[1], index3d[2]);
 }
 
-BorderType best_of(const std::array<BorderType, 6> &borders, std::initializer_list<int> idx) {
+BorderType best_of(const std::array<BorderType, 6> &borders, std::vector<int> idx) {
   BorderType best = ERROR;
   for (int i : idx) {
     best = std::max(best, static_cast<BorderType>(borders[i]));
   }
   return best;
 }
-BorderType LinkedCells::getSharedBorderType(const int ownIndex1d, const int otherIndex1d) {
+std::vector<int> LinkedCells::getSharedBordersIndex(const int ownIndex1d, const int otherIndex1d) {
   auto &ownCell = cells[ownIndex1d];
   std::array<int, 26> &neighbours = ownCell.neighbors;
   int foundIndex = -1;
@@ -339,18 +345,21 @@ BorderType LinkedCells::getSharedBorderType(const int ownIndex1d, const int othe
   }
   if (foundIndex < 0) {
     // Check for Periodic borders
+    //Dieser Fall darf nicht vorkommen!
+    /*
     if (cells[otherIndex1d].cell_type == GHOST
         // Nachsehen, ob eine der borders unserer Zelle Periodisch ist
         && std::find(cells[ownIndex1d].borders.begin(), cells[ownIndex1d].borders.end(), PERIODIC) !=
                cells[ownIndex1d].borders.end()) {
       // Find real cell to a ghost cell
-      return getSharedBorderType(ownIndex1d, getPeriodicEquivalentForGhost(otherIndex1d));
-    }
+      return getSharedBordersIndex(ownIndex1d, getPeriodicEquivalentForGhost(ownIndex1d, otherIndex1d));
+    }*/
     spdlog::error("Did not found other cell as neighbour of own cell");
-    return ERROR;
+    std::initializer_list<int> error = {-1};
+    return error;
   }
   auto &borders = ownCell.borders;
-  static const std::array<std::initializer_list<int>, 26> groups = {{
+  static const std::array<std::vector<int>, 26> groups = {{
       //                     x  y  z
       {0, 1, 2},  // i = 0  -1 -1 -1
       {0, 1},     // i = 1  -1 -1  0
@@ -382,7 +391,11 @@ BorderType LinkedCells::getSharedBorderType(const int ownIndex1d, const int othe
       // x=-1 -> 0, y=-1 -> 1, z=-1 -> 2, x=1 -> 3, y=1 -> 4, z=1 -> 5 für x,y,z = 0 kein Wert, weil in die Richtung ja
       // dann keine Grenze existiert
   }};
-  return best_of(borders, groups[foundIndex]);
+  return groups[foundIndex];
+}
+BorderType LinkedCells::getSharedBorderType(const int ownIndex1d, const int otherIndex1d) {
+  auto ownCell = cells[ownIndex1d];
+  return best_of(ownCell.borders, getSharedBordersIndex(ownIndex1d, otherIndex1d));
 }
 
 double LinkedCells::calcRepulsingDistance(double sigma1, double sigma2) {
