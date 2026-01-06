@@ -149,7 +149,8 @@ Describes how many cells the overall structure has in Y-direction
               const std::array<int, 3> ghost = index1dToIndex3d(j);
               const std::array<int, 3> real = index1dToIndex3d(realCellIndex);
               Vector3 delta = {0.0};
-              for (int _i = 0; _i < 2; _i++)
+              int dim = is2D ? 2 : 3;
+              for (int _i = 0; _i < dim; _i++)
                 delta[_i] = static_cast<double>(ghost[_i] - real[_i]) * cell_size[_i];
               Vector3 new_pos = p2->getX() + delta;
 
