@@ -8,7 +8,7 @@ simulation:
   brown_motion_avg_velocity: 0.1
   cutoff_radius: 3.0
   domain: [300, 54, 1]
-  borders: [reflection,periodic,outflow,reflection,periodic,outflow]
+  borders: [periodic,reflection,outflow,periodic,reflection,outflow]
   dimension: 2D
   gravity: -12.44
   temp_initial: 40
