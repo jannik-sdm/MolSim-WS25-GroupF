@@ -1,8 +1,8 @@
 output:
-  folder: "../out/small"
+  folder: "../out/42_small"
   frequency: 10
 simulation:
-  worksheet: 3
+  worksheet: 4
   delta_t: 0.0005
   end_time: 25
   brown_motion_avg_velocity: 0.1
