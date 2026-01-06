@@ -175,7 +175,7 @@ void LinkedCells::moveParticles() {
 
     for (int j = 0; j < current_cell.particles.size(); j++) {
       auto p = current_cell.particles[j];
-      if (p->getType() < 0) continue;
+      if (p->getState() < 0) continue;
       const int k = coordinate3dToIndex1d(p->getX());
 
       if (i == k) continue;
@@ -194,8 +194,9 @@ void LinkedCells::moveParticles() {
         BorderType border = getSharedBorderType(i, k);
 
         if (border == OUTFLOW) {
-          p->setType(-1);  // mark particle as dead
+          p->setState(-1);  // mark particle as dead
           spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
+          alive_particles--;
         } else if (border == BorderType::NAIVE_REFLECTION) {
           // First go back to the Old Position and then reflect the Velocity and calculate the new Position
           // This is not acurate, because the particle is not reflected AT the border,
