@@ -18,7 +18,6 @@
  * @see Physics::lennardJonesForce
  */
 class CollisionSimulation : public PlanetSimulation {
-
  public:
   CollisionSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
                       const double delta_t)

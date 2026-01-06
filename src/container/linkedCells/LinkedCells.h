@@ -82,7 +82,7 @@ Describes how many cells the overall structure has in Y-direction
    * @param cutoff cutoff radius set in the simluation
    */
   LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff, bool is2D,
-               std::array<BorderType, 6> borders = {BorderType::OUTFLOW});
+              std::array<BorderType, 6> borders = {BorderType::OUTFLOW});
 
   /**
    *
@@ -138,14 +138,15 @@ Describes how many cells the overall structure has in Y-direction
                 if (ArrayUtils::L2Norm(p1->getX() - p2.getX()) > cutoffRadius) continue;
                 f(*p1, p2);
               }
-            }else {
+            } else {
               for (int k = 0; k < c2.size_ghost_particles; k++) {
                 Particle &p2 = c2.ghost_particles[k];
                 const double distance = ArrayUtils::L2Norm(p1->getX() - p2.getX());
                 // for ghost particles the force should only be computed if its repulsing
                 // normally cutoffRadius >> repulsing_distance but i'm letting it stand since it's an or statement
                 spdlog::trace("reached radius check for ghost particles");
-                if (distance >= calcRepulsingDistance(p1->getSigma(), p2.getSigma()) || distance > cutoffRadius) continue;
+                if (distance >= calcRepulsingDistance(p1->getSigma(), p2.getSigma()) || distance > cutoffRadius)
+                  continue;
 
                 f(*p1, p2);
               }
@@ -289,13 +290,13 @@ Describes how many cells the overall structure has in Y-direction
    */
   void initializeBrownianMotion();
   /**
- * Like getShared Border, but more stable
- * @param ownIndex1d first 1D Inex of the neighbour Cells
- * @param otherIndex1d second 1D Index of the neighbour Cells
- * @return BorderType of the Border between two cells. ERROR, if the cells do not share a common border
- * Instead one random Border this function returns the Border with the highest priority acording to the order in
- * Cell.h
- */
+   * Like getShared Border, but more stable
+   * @param ownIndex1d first 1D Inex of the neighbour Cells
+   * @param otherIndex1d second 1D Index of the neighbour Cells
+   * @return BorderType of the Border between two cells. ERROR, if the cells do not share a common border
+   * Instead one random Border this function returns the Border with the highest priority acording to the order in
+   * Cell.h
+   */
   BorderType getSharedBorderType(int ownIndex1d, int otherIndex1d);
 
   /**
@@ -308,7 +309,8 @@ Describes how many cells the overall structure has in Y-direction
   /**
    * If a Border is periodic, a ghost cell has a correlated border cell at the other side of the domain. This function
    * findes the this cell and returns its 1D-Index
-   * @param cellIndex to find the right border types, it is important to know the border cell, of wich the neighbours ghost should be periodic
+   * @param cellIndex to find the right border types, it is important to know the border cell, of wich the neighbours
+   * ghost should be periodic
    * @param ghostCellIndex Index of Ghost Cell, whose equivalent should be found
    * @return 1D Index of the border cell, which is equivalent to the ghost cell
    */
@@ -320,5 +322,5 @@ Describes how many cells the overall structure has in Y-direction
    * @param sigma2 ϵ of the second particle
    * @return
    */
-double calcRepulsingDistance(double sigma1, double sigma2);
+  double calcRepulsingDistance(double sigma1, double sigma2);
 };

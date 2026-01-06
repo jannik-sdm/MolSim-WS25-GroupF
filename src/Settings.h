@@ -19,9 +19,9 @@ class Settings {
  public:
   struct Output {
     /** @brief Path to the directory to write output files to */
-    std::filesystem::path directory = "./";
+    std::optional<std::filesystem::path> directory;
     /** @brief Prefix for the filename */
-    std::string prefix = "";
+    std::string prefix = "iter";
     /** @brief Frequency of files writen \f$(iteration mod frequency = 0)\f$. Set this to 0 to disable file output */
     unsigned int frequency = 10;
 
@@ -83,10 +83,6 @@ class Settings {
    */
   static void printHelp();
 
- private:
-  /** @brief Container to store parsed particles in */
-  std::vector<Particle> &particles;
-
   /**
    * @brief Create a output directory
    *
@@ -95,7 +91,11 @@ class Settings {
    *
    * @param directory path to the output directory
    */
-  void createOutputDirectory(std::filesystem::path directory);
+  static void createOutputDirectory(std::filesystem::path directory);
+
+ private:
+  /** @brief Container to store parsed particles in */
+  std::vector<Particle> &particles;
 };
 
 /**

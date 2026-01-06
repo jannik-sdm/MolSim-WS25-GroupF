@@ -69,10 +69,11 @@ class Particle {
    * ϵ-Value for Lorentz-Berthelot mixing rule
    */
   double epsilon;
- /**
-  * σ-Value for Lorentz-Berthelot mixing rule
-  */
+  /**
+   * σ-Value for Lorentz-Berthelot mixing rule
+   */
   double sigma;
+
  public:
   /**
    * @brief Empty constructor
@@ -108,19 +109,22 @@ class Particle {
 
   /**
   ** @brief Construct a new Particle object with explicit ϵ and σ
-   *
-   * @param x_arg Position of the new particle
-   * @param v_arg Velocity of the new particle
-   * @param m_arg Mass of the new particle
-   * @param type_arg Type of the new particle
-   * @param epsilon ϵ-Value of the new particle
-   * @param sigma σ-Value of the new particle
-   *
-   */
-  Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_arg, std::optional<double> epsilon, std::optional<double> sigma, const Vector3 &f_arg = {0},
-           const Vector3 &old_f_arg = {0}, const int type_arg = 0);
-// Ein Optional für sigma und epsilon hat den Vorteil, dass ich mir im Voraus nicht ewig den Kopf darüber zerbrechen muss, ob ich den Wert schon habe oder nicht.
-  //In Kombination mit den optionalen Werten für f und old_f würde dies nur unnötig komplexe if-Verschachtelungen verursachen
+  *
+  * @param x_arg Position of the new particle
+  * @param v_arg Velocity of the new particle
+  * @param m_arg Mass of the new particle
+  * @param type_arg Type of the new particle
+  * @param epsilon ϵ-Value of the new particle
+  * @param sigma σ-Value of the new particle
+  *
+  */
+  Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_arg, std::optional<double> epsilon,
+           std::optional<double> sigma, const Vector3 &f_arg = {0}, const Vector3 &old_f_arg = {0},
+           const int type_arg = 0);
+  // Ein Optional für sigma und epsilon hat den Vorteil, dass ich mir im Voraus nicht ewig den Kopf darüber zerbrechen
+  // muss, ob ich den Wert schon habe oder nicht.
+  // In Kombination mit den optionalen Werten für f und old_f würde dies nur unnötig komplexe if-Verschachtelungen
+  // verursachen
   /**
    * @brief Destroy the Particle object
    */
@@ -212,13 +216,13 @@ class Particle {
    * @brief Sets Sigma
    * @param new_sigma
    */
-void setSigma(const double new_sigma);
+  void setSigma(const double new_sigma);
 
-    /**
+  /**
    * @brief sets Epsilon
    * @param new_epsilon
    */
-void setEpsilon(const double new_epsilon);
+  void setEpsilon(const double new_epsilon);
 
   void setType(int new_type) { type = new_type; }
 
@@ -255,4 +259,3 @@ void setEpsilon(const double new_epsilon);
  * @return std::ostream&
  */
 std::ostream &operator<<(std::ostream &stream, Particle &p);
-

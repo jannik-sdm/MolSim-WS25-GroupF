@@ -9,7 +9,7 @@
 #include <sstream>
 #include <vector>
 
-//#include "../../cmake-build-debug/_deps/googletest-src/googlemock/include/gmock/gmock-matchers.h"
+// #include "../../cmake-build-debug/_deps/googletest-src/googlemock/include/gmock/gmock-matchers.h"
 #include "Settings.h"
 #include "container/linkedCells/Cell.h"
 #include "utils/ArrayUtils.h"
@@ -38,8 +38,9 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Set
       if (cuboid["epsilon"]) epsilon = cuboid["epsilon"].as<double>();
       if (cuboid["sigma"]) sigma = cuboid["sigma"].as<double>();
 
-      spdlog::debug("Generating cuboid: position={} size={} distance={} mass={} velocity={} sigma={} epsilon={}", ArrayUtils::to_string(x),
-                    ArrayUtils::to_string(n), distance, mass, ArrayUtils::to_string(v), sigma.value_or(1), epsilon.value_or(5));
+      spdlog::debug("Generating cuboid: position={} size={} distance={} mass={} velocity={} sigma={} epsilon={}",
+                    ArrayUtils::to_string(x), ArrayUtils::to_string(n), distance, mass, ArrayUtils::to_string(v),
+                    sigma.value_or(1), epsilon.value_or(5));
 
       ParticleGenerator::cuboid(particles, x, n, distance, mass, epsilon, sigma, v);
     } else if (p["single"]) {
@@ -56,18 +57,21 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Set
         Vector3 f = single["force"].as<Vector3>();
         if (single["old_force"]) {
           Vector3 old_f = single["old_force"].as<Vector3>();
-          spdlog::debug("Generating single particle: position={}, velocity={}, mass={}, sigma={}, epsilon={}, force={}, old_force={}",
-                        ArrayUtils::to_string(x), ArrayUtils::to_string(v), mass, sigma.value_or(1), epsilon.value_or(5), ArrayUtils::to_string(f),
-                        ArrayUtils::to_string(old_f));
+          spdlog::debug(
+              "Generating single particle: position={}, velocity={}, mass={}, sigma={}, epsilon={}, force={}, "
+              "old_force={}",
+              ArrayUtils::to_string(x), ArrayUtils::to_string(v), mass, sigma.value_or(1), epsilon.value_or(5),
+              ArrayUtils::to_string(f), ArrayUtils::to_string(old_f));
           particles.emplace_back(x, v, mass, epsilon, sigma, f, old_f);
         } else {
           spdlog::debug("Generating single particle: position={}, velocity={}, mass={}, sigma={}, epsilon={}, force={}",
-                        ArrayUtils::to_string(x), ArrayUtils::to_string(v), mass, sigma.value_or(1), epsilon.value_or(5),ArrayUtils::to_string(f));
+                        ArrayUtils::to_string(x), ArrayUtils::to_string(v), mass, sigma.value_or(1),
+                        epsilon.value_or(5), ArrayUtils::to_string(f));
           particles.emplace_back(x, v, mass, epsilon, sigma, f);
         }
       } else {
-        spdlog::debug("Generating single particle: position={} mass={} velocity={}, sigma={}, epsilon={}", ArrayUtils::to_string(x), mass,
-                      ArrayUtils::to_string(v), sigma.value_or(1), epsilon.value_or(5));
+        spdlog::debug("Generating single particle: position={} mass={} velocity={}, sigma={}, epsilon={}",
+                      ArrayUtils::to_string(x), mass, ArrayUtils::to_string(v), sigma.value_or(1), epsilon.value_or(5));
         particles.emplace_back(x, v, mass, epsilon, sigma);
       }
     } else if (p["disc"]) {
@@ -84,7 +88,7 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Set
 
       spdlog::debug("Generating disc: position={} radius={} distance={} mass={} velocity={}",
                     ArrayUtils::to_string(position), radius, distance, mass, ArrayUtils::to_string(velocity));
-      ParticleGenerator::disc(particles, position, radius, distance, mass, epsilon,sigma, velocity);
+      ParticleGenerator::disc(particles, position, radius, distance, mass, epsilon, sigma, velocity);
     }
   }
 }

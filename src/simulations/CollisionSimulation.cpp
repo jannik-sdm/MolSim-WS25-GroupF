@@ -11,7 +11,7 @@
 void CollisionSimulation::updateF() {
   container.applyToParticles([](Particle &p) { p.setF({0, 0, 0}); });
   container.applyToPairs([this](Particle &p1, Particle &p2) {
-    double sigma= Physics::LorentzBerthelot::sigma(p1.getSigma(), p2.getSigma());
+    double sigma = Physics::LorentzBerthelot::sigma(p1.getSigma(), p2.getSigma());
     double epsilon = Physics::LorentzBerthelot::epsilon(p1.getEpsilon(), p2.getEpsilon());
     const Vector3 f = Physics::LennardJones::force(p1, p2, sigma, epsilon);
     p1.addF(f);

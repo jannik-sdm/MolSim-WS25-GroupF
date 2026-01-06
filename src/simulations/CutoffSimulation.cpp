@@ -46,12 +46,9 @@ void CutoffSimulation::updateX() {
     spdlog::trace("-> Old Position: ({},{},{})", p.getX()[0], p.getX()[1], p.getX()[2]);
     p.setX(Physics::StoermerVerlet::position(p, delta_t));
     spdlog::trace("-> New: ({},{},{})", p.getX()[0], p.getX()[1], p.getX()[2]);
-    if (p.getX()[0] < -linkedCells.cellSizeX ||
-        p.getX()[0] > linkedCells.domain_size[0] + linkedCells.cellSizeX ||
-        p.getX()[1] < -linkedCells.cellSizeY ||
-        p.getX()[1] > linkedCells.domain_size[1] + linkedCells.cellSizeY ||
-        p.getX()[2] < -linkedCells.cellSizeZ ||
-        p.getX()[2] > linkedCells.domain_size[2] + linkedCells.cellSizeZ) {
+    if (p.getX()[0] < -linkedCells.cellSizeX || p.getX()[0] > linkedCells.domain_size[0] + linkedCells.cellSizeX ||
+        p.getX()[1] < -linkedCells.cellSizeY || p.getX()[1] > linkedCells.domain_size[1] + linkedCells.cellSizeY ||
+        p.getX()[2] < -linkedCells.cellSizeZ || p.getX()[2] > linkedCells.domain_size[2] + linkedCells.cellSizeZ) {
       spdlog::error("Irgentwas stimmt nicht");
     }
   });
