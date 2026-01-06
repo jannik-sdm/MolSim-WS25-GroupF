@@ -107,14 +107,14 @@ int main(int argc, char *argsv[]) {
     };
 
     // Disable logging
-    // spdlog::set_level(spdlog::level::off);
+    spdlog::set_level(spdlog::level::off);
 
     // Source for duration measurement- https://stackoverflow.com/a/19312610
     auto start_time_iteration = std::chrono::high_resolution_clock::now();
 
 #ifdef ENABLE_TIME_MEASURE
     simulation->run([](const unsigned int _) {});
-    // spdlog::set_level(settings.output.log_level);
+    spdlog::set_level(settings.output.log_level);
 #else
   if (settings.output.directory.has_value()) {
     spdlog::info("Writing files to {}", settings.output.directory.value().string());
