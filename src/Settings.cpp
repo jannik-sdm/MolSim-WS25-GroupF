@@ -78,8 +78,9 @@ void Settings::parseArguments(int argc, char *argv[]) {
         case 'y':
           try {
             YAMLReader::readFile(particles, optarg, *this);
-          } catch (YAML::Exception) {
+          } catch (YAML::Exception e) {
             spdlog::error("Error parsing YAML file, aborting");
+            spdlog::error("{}", e.msg);
             exit(EXIT_FAILURE);
           }
           break;

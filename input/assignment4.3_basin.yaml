@@ -1,0 +1,27 @@
+output:
+  directory: "out/"
+  frequency: 10
+  export_filename: Task3.yaml
+simulation:
+  worksheet: 4
+  delta_t: 0.0005
+  end_time: 15
+  cutoff_radius: 3.0
+  domain: [303, 180, 1]
+  borders: [reflection,reflection,reflection,reflection,reflection,reflection]
+  dimension: 2D
+  gravity: -12.44
+  temp_initial: 0.5
+  temp_final: 40
+  temp_max_change: .inf
+  temp_frequency: 1000
+
+particles:
+  - cuboid:
+      position: [1.5, 2, 0]
+      size: [250, 50, 1]
+      velocity: [0, 0, 0]
+      distance: 1.2
+      mass: 1.0
+      epsilon: 1.0
+      sigma: 1.2

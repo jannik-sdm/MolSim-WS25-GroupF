@@ -31,6 +31,9 @@ void CutoffSimulation::updateF() {
     else
       epsilon = Physics::LorentzBerthelot::epsilon(p1.getEpsilon(), p2.getEpsilon());
     Vector3 f = Physics::LennardJones::force(p1, p2, sigma, epsilon);
+    if (f[0] > 10000 || f[1] > 10000 || f[2] > 10000) {
+      spdlog::error("Irgentwas stimmt nicht");
+    }
     p1.addF(f);
     p2.subF(f);
   });
@@ -43,6 +46,11 @@ void CutoffSimulation::updateX() {
     spdlog::trace("-> Old Position: ({},{},{})", p.getX()[0], p.getX()[1], p.getX()[2]);
     p.setX(Physics::StoermerVerlet::position(p, delta_t));
     spdlog::trace("-> New: ({},{},{})", p.getX()[0], p.getX()[1], p.getX()[2]);
+    if (p.getX()[0] < -linkedCells.cellSizeX || p.getX()[0] > linkedCells.domain_size[0] + linkedCells.cellSizeX ||
+        p.getX()[1] < -linkedCells.cellSizeY || p.getX()[1] > linkedCells.domain_size[1] + linkedCells.cellSizeY ||
+        p.getX()[2] < -linkedCells.cellSizeZ || p.getX()[2] > linkedCells.domain_size[2] + linkedCells.cellSizeZ) {
+      spdlog::error("Irgentwas stimmt nicht");
+    }
   });
   linkedCells.moveParticles();
 }

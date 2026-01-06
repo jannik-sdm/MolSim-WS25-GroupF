@@ -80,15 +80,17 @@ struct convert<Particle> {
     auto type = node["type"];
 
     if (force && old_force && type)
-      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), epsilon.as<double>() , sigma.as<double>(), force.as<Vector3>(),
-                     old_force.as<Vector3>(), type.as<double>());
+      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), epsilon.as<double>(),
+                     sigma.as<double>(), force.as<Vector3>(), old_force.as<Vector3>(), type.as<double>());
     else if (force && old_force) {
-      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), epsilon.as<double>() , sigma.as<double>(),force.as<Vector3>(),
-                     old_force.as<Vector3>());
+      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), epsilon.as<double>(),
+                     sigma.as<double>(), force.as<Vector3>(), old_force.as<Vector3>());
     } else if (force) {
-      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), epsilon.as<double>() , sigma.as<double>(), force.as<Vector3>());
+      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), epsilon.as<double>(),
+                     sigma.as<double>(), force.as<Vector3>());
     } else {
-      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), epsilon.as<double>() , sigma.as<double>());
+      rhs = Particle(position.as<Vector3>(), velocity.as<Vector3>(), mass.as<double>(), epsilon.as<double>(),
+                     sigma.as<double>());
     }
 
     return true;
@@ -100,7 +102,7 @@ struct convert<Settings::Output> {
   static Node encode(const Settings::Output &rhs) {
     Node node;
 
-    node["directory"] = rhs.directory.string();
+    if (rhs.directory) node["directory"] = rhs.directory.value().string();
     node["prefix"] = rhs.prefix;
 
     if (rhs.export_filename) node["export_filename"] = rhs.export_filename.value().string();
@@ -121,10 +123,7 @@ struct convert<Settings::Output> {
     auto directory = node["directory"];
     if (directory) {
       rhs.directory = std::filesystem::path(directory.as<std::string>());
-    } else {
-      // fallback to old key
-      auto folder = node["folder"];
-      if (folder) rhs.directory = std::filesystem::path(folder.as<std::string>());
+      Settings::createOutputDirectory(rhs.directory.value());
     }
 
     auto prefix = node["prefix"];
@@ -232,7 +231,7 @@ struct convert<Settings::Simulation> {
     if (t_final)
       rhs.t_final = t_final.as<double>();
     else if (t_init)
-      rhs.t_final = node["t_initial"].as<double>();
+      rhs.t_final = node["temp_initial"].as<double>();
 
     auto t_max_step = node["temp_max_change"];
     if (t_max_step) rhs.t_max_change = t_max_step.as<double>();
