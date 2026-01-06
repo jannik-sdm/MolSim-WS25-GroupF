@@ -208,6 +208,18 @@ class Particle {
    */
   void setM(const double new_m);
 
+  /**
+   * @brief Sets Sigma
+   * @param new_sigma
+   */
+void setSigma(const double new_sigma);
+
+    /**
+   * @brief sets Epsilon
+   * @param new_epsilon
+   */
+void setEpsilon(const double new_epsilon);
+
   void setType(int new_type) { type = new_type; }
 
   void setState(int new_state) { state = new_state; }
