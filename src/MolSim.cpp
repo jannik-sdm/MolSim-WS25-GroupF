@@ -53,18 +53,17 @@ int main(int argc, char *argsv[]) {
     exit(EXIT_SUCCESS);
   }
 
+  // select simulation
+  std::unique_ptr<Simulation> simulation = nullptr;
+  std::unique_ptr<Thermostat> thermostat = nullptr;
+
 #ifdef ENABLE_TIME_MEASURE
-  auto total_start_time_measure = std::chrono::high_resolution_clock::now();
+  std::chrono::milliseconds total_runtime(0);
+  std::vector<Particle> original = input_particles;  // keep a copy of the starting particles
 
   for (int i = 0; i < ENABLE_TIME_MEASURE; i++) {
+    spdlog::info("Benchmark iteration {}/{}", i + 1, ENABLE_TIME_MEASURE);
 #endif
-
-    // Source for duration measurement- https://stackoverflow.com/a/19312610
-    auto start_time_measure = std::chrono::high_resolution_clock::now();
-
-    // select simulation
-    std::unique_ptr<Simulation> simulation = nullptr;
-    std::unique_ptr<Thermostat> thermostat = nullptr;
 
     switch (settings.simulation.worksheet.value()) {
       case 1:
@@ -107,37 +106,51 @@ int main(int argc, char *argsv[]) {
         exit(EXIT_FAILURE);
     };
 
-    if (settings.output.directory.has_value()) {
-      spdlog::info("Writing files to {}", settings.output.directory.value().string());
-      simulation->run([&input_particles, &settings](const unsigned int iteration) {
-        if (iteration % settings.output.frequency == 0) {
-          const auto filename = settings.output.directory.value() / settings.output.prefix;
-          plotParticles(input_particles, static_cast<int>(iteration), filename);
-        }
-      });
-    } else {
-      spdlog::warn("No output folder set, running simulation without plotting");
-      simulation->run([](const unsigned int _) {});
-    }
+    // Disable logging
+    // spdlog::set_level(spdlog::level::off);
 
-    auto end_time_measure = std::chrono::high_resolution_clock::now();
-    spdlog::info("Program has been running for {} ms",
-                 std::chrono::duration_cast<std::chrono::milliseconds>(end_time_measure - start_time_measure).count());
+    // Source for duration measurement- https://stackoverflow.com/a/19312610
+    auto start_time_iteration = std::chrono::high_resolution_clock::now();
 
 #ifdef ENABLE_TIME_MEASURE
+    simulation->run([](const unsigned int _) {});
+    // spdlog::set_level(settings.output.log_level);
+#else
+  if (settings.output.directory.has_value()) {
+    spdlog::info("Writing files to {}", settings.output.directory.value().string());
+    simulation->run([&input_particles, &settings](const unsigned int iteration) {
+      if (iteration % settings.output.frequency == 0) {
+        const auto filename = settings.output.directory.value() / settings.output.prefix;
+        plotParticles(input_particles, static_cast<int>(iteration), filename);
+      }
+    });
+  } else {
+    spdlog::warn("No output folder set, running simulation without plotting");
+    simulation->run([](const unsigned int _) {});
+  }
+#endif
+
+    auto end_time_iteration = std::chrono::high_resolution_clock::now();
+    spdlog::info(
+        "Program has been running for {} ms",
+        std::chrono::duration_cast<std::chrono::milliseconds>(end_time_iteration - start_time_iteration).count());
+
+#ifdef ENABLE_TIME_MEASURE
+    // copy original particles to start simulation from scratch
+    input_particles.clear();
+    for (const auto &p : original) {
+      input_particles.push_back(p);
+    }
+
+    // add to total runtime
+    total_runtime += std::chrono::duration_cast<std::chrono::milliseconds>(end_time_iteration - start_time_iteration);
   }
 
-  auto total_end_time_measure = std::chrono::high_resolution_clock::now();
-  if (spdlog::get_level() <= spdlog::level::info) {
-    spdlog::info("Total runtime: {}ms", std::chrono::duration_cast<std::chrono::milliseconds>(total_end_time_measure -
-                                                                                              total_start_time_measure)
-                                            .count());
-  } else
-    std::cout << "Total Runtime: "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(total_end_time_measure -
-                                                                       total_start_time_measure)
-                     .count()
-              << "ms.\n";
+  // molecule updates per second = particles times iterations per second
+  double mups = input_particles.size() * settings.simulation.end_time.value() / settings.simulation.delta_t.value();
+  std::chrono::milliseconds average_runtime = total_runtime / ENABLE_TIME_MEASURE;
+  spdlog::info("Benchmark finished: total={}ms, average={}ms, mups={:.0f}mol/s", total_runtime.count(),
+               average_runtime.count(), mups);
 
 #endif
 

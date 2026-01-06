@@ -4,6 +4,7 @@
 
 #pragma once
 #include <spdlog/spdlog.h>
+
 /**
  * @brief Base class for simulations
  *
@@ -32,7 +33,9 @@ class Simulation {
       iteration();
 
       f(current_iteration);
+#ifndef ENABLE_TIME_MEASURE
       spdlog::info("Iteration {} finished.", current_iteration);
+#endif
 
       current_time += delta_t;
       current_iteration++;
