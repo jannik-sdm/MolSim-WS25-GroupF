@@ -94,7 +94,8 @@ int main(int argc, char *argsv[]) {
       case 4: {
         thermostat = std::make_unique<Thermostat>(
             input_particles, settings.simulation.is2D, settings.simulation.t_frequency.value(),
-            settings.simulation.t_final.value(), settings.simulation.t_max_change.value());
+            settings.simulation.t_final.value_or(settings.simulation.t_initial.value()),
+            settings.simulation.t_max_change.value_or(std::numeric_limits<double>::infinity()));
         simulation = std::make_unique<ThermostatSimulation>(
             input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
             settings.simulation.delta_t.value(),
