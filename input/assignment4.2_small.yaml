@@ -1,5 +1,5 @@
 output:
-  folder: "../out/42_small"
+  directory: "../out/42_small"
   frequency: 10
 simulation:
   worksheet: 4
