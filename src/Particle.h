@@ -136,7 +136,7 @@ class Particle {
            const Vector3 &old_f_arg, const int type_arg);
   /**
    * @brief Constructs a particle with all default values and all forces to 0
-  * @param x_arg Position of the new particle
+   * @param x_arg Position of the new particle
    * @param v_arg Velocity of the new particle
    * @param m_arg Mass of the new particle
    * @param type_arg Type of the new particle

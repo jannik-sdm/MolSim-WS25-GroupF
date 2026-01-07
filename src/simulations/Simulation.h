@@ -22,6 +22,7 @@ class Simulation {
       : start_time(start_time), end_time(end_time), delta_t(delta_t), current_iteration(0) {}
   // destructor to avoid memory leaks
   virtual ~Simulation() = default;
+  friend class TestThermostatSimulation;
 
   template <typename Function>
   void run(Function f) {

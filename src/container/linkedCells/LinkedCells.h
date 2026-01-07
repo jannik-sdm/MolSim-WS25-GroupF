@@ -74,6 +74,9 @@ Describes how many cells the overall structure has in Y-direction
 
   bool is2D;
 
+  friend class TestLinkedCells;
+  friend class TestCutoffSimulation;
+
   /**
    * Initializes the variables and cells with their cell-type and adds the respective particles to the cell
    * @param size_x domain size in x direction
