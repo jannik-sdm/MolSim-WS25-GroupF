@@ -13,7 +13,6 @@ Thermostat::Thermostat(std::vector<Particle> &particles, bool is2D, int n, doubl
       target_temperature(target_temperature),
       maximum_temperature_change(maximum_temperature_change),
       is2D(is2D) {
-
   current_temperature = calculateCurrentTemperature(calculateAliveParticles());
 }
 

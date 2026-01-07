@@ -2,9 +2,9 @@
 // Created by jannik on 12/17/25.
 //
 #include "simulations/ThermostatSimulation.h"
-#include "utils/MaxwellBoltzmannDistribution.h"
 
 #include "Physics.h"
+#include "utils/MaxwellBoltzmannDistribution.h"
 
 void ThermostatSimulation::updateV() {
   linkedCells.applyToParticles([this](Particle &p) { p.setV(Physics::StoermerVerlet::velocity(p, delta_t)); });
@@ -17,6 +17,6 @@ void ThermostatSimulation::updateV() {
 
 void ThermostatSimulation::initializeBrownianMotionWithTemperature(const double init_temperature) {
   linkedCells.applyToParticles([this, init_temperature](Particle &p) {
-    p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(sqrt(init_temperature/p.getM()), (is2D ? 2 : 3)));
+    p.setV(p.getV() + maxwellBoltzmannDistributedVelocity(sqrt(init_temperature / p.getM()), (is2D ? 2 : 3)));
   });
 }
