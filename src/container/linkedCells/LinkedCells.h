@@ -308,7 +308,7 @@ Describes how many cells the overall structure has in Y-direction
    * @param otherIndex1d second 1D Index of the neighbour Cells
    * @return Vector, that contains all (up to 3) borderIndexes between two cells
    */
-  std::vector<int> getSharedBordersIndex(const int ownIndex1d, const int otherIndex1d);
+  const std::vector<int> getSharedBordersIndex(const int ownIndex1d, const int otherIndex1d);
   /**
    * If a Border is periodic, a ghost cell has a correlated border cell at the other side of the domain. This function
    * findes the this cell and returns its 1D-Index

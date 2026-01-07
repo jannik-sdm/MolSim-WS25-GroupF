@@ -361,14 +361,15 @@ int LinkedCells::getPeriodicEquivalentForGhost(const int cellIndex, const int gh
   return index3dToIndex1d(index3d[0], index3d[1], index3d[2]);
 }
 
-BorderType best_of(const std::array<BorderType, 6> &borders, std::vector<int> idx) {
+inline BorderType best_of(const std::array<BorderType, 6> &borders, std::vector<int> idx) {
   BorderType best = ERROR;
   for (int i : idx) {
     best = std::max(best, static_cast<BorderType>(borders[i]));
   }
   return best;
 }
-std::vector<int> LinkedCells::getSharedBordersIndex(const int ownIndex1d, const int otherIndex1d) {
+
+const std::vector<int> LinkedCells::getSharedBordersIndex(const int ownIndex1d, const int otherIndex1d) {
   auto &ownCell = cells[ownIndex1d];
   std::array<int, 26> &neighbours = ownCell.neighbors;
   int foundIndex = -1;
@@ -429,7 +430,7 @@ std::vector<int> LinkedCells::getSharedBordersIndex(const int ownIndex1d, const 
   return groups[foundIndex];
 }
 BorderType LinkedCells::getSharedBorderType(const int ownIndex1d, const int otherIndex1d) {
-  auto ownCell = cells[ownIndex1d];
+  const auto &ownCell = cells[ownIndex1d];
   return best_of(ownCell.borders, getSharedBordersIndex(ownIndex1d, otherIndex1d));
 }
 
