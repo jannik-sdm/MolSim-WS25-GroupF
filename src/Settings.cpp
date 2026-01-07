@@ -91,7 +91,6 @@ void Settings::parseArguments(int argc, char *argv[]) {
 
         case 'o':
           output.directory = optarg;
-          createOutputDirectory(optarg);
           break;
 
         case 'f':

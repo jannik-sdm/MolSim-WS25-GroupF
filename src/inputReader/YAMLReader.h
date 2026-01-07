@@ -123,7 +123,6 @@ struct convert<Settings::Output> {
     auto directory = node["directory"];
     if (directory) {
       rhs.directory = std::filesystem::path(directory.as<std::string>());
-      Settings::createOutputDirectory(rhs.directory.value());
     }
 
     auto prefix = node["prefix"];

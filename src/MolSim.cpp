@@ -53,6 +53,12 @@ int main(int argc, char *argsv[]) {
     exit(EXIT_SUCCESS);
   }
 
+#ifndef ENABLE_TIME_MEASURE
+  if (settings.output.directory.has_value()) {
+    Settings::createOutputDirectory(settings.output.directory.value());
+  }
+#endif
+
   // select simulation
   std::unique_ptr<Simulation> simulation = nullptr;
   std::unique_ptr<Thermostat> thermostat = nullptr;
