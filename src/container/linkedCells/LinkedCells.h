@@ -135,7 +135,7 @@ Describes how many cells the overall structure has in Y-direction
           // iterate over ghost particles if c2 is a ghost cell, else use normale particles
           if (c2.cell_type == CellType::GHOST) {
             auto borderType = getSharedBorderType(i, j);
-            if (borderType == PERIODIC) {
+            if (borderType == BorderType::PERIODIC) {
               for (int k = 0; k < c2.size_ghost_particles; k++) {
                 Particle &p2 = c2.ghost_particles[k];
                 if (ArrayUtils::L2Norm(p1->getX() - p2.getX()) > cutoffRadius) continue;

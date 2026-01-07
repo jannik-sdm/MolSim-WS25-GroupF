@@ -14,12 +14,12 @@
  * @brief Cell Type
  * Default cells are Regular
  */
-enum CellType { REGULAR, BORDER, GHOST };
+enum class CellType : std::uint8_t { REGULAR, BORDER, GHOST };
 /**
  * BorderType
  *
  */
-enum BorderType { ERROR, OUTFLOW, NAIVE_REFLECTION, REFLECTION, PERIODIC };
+enum class BorderType : std::uint8_t { ERROR, OUTFLOW, NAIVE_REFLECTION, REFLECTION, PERIODIC };
 
 /**
  * @brief Alias for BorderTypes

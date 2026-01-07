@@ -194,7 +194,7 @@ void LinkedCells::moveParticles() {
         // get shared border current_cell, new_cell
         BorderType border = getSharedBorderType(i, k);
 
-        if (border == OUTFLOW) {
+        if (border == BorderType::OUTFLOW) {
           p->setState(-1);  // mark particle as dead
           spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
           alive_particles--;
@@ -212,7 +212,7 @@ void LinkedCells::moveParticles() {
           p->setF(neg * p->getF());  // Reset old Force
           p->setV(v);                // Set new Velocity
           continue;                  // Don't move the Particle into a Ghost Cell
-        } else if (border == PERIODIC) {
+        } else if (border == BorderType::PERIODIC) {
           Vector3 x = p->getX();
           spdlog::trace("Particle with position ({},{},{}) left domain at one side and entered it at the other side",
                         x[0], x[1], x[2]);
@@ -345,7 +345,7 @@ int LinkedCells::getPeriodicEquivalentForGhost(const int cellIndex, const int gh
   std::array<int, 3> index3d = index1dToIndex3d(ghostCellIndex);
   for (int borderIndex : borderTypes) {
     // Wenn eine Border nicht periodisch ist muss an ihr auch nicht gespiegelt werden
-    if (borders[borderIndex] != PERIODIC) continue;
+    if (borders[borderIndex] != BorderType::PERIODIC) continue;
     int dim = borderIndex % 3;
     // Check für zusätzliche Sicherheit: War die Border wirklich zu einer Ghost Zelle
     if (index3d[dim] >= numCells[dim] - 1) {
@@ -361,8 +361,8 @@ int LinkedCells::getPeriodicEquivalentForGhost(const int cellIndex, const int gh
   return index3dToIndex1d(index3d[0], index3d[1], index3d[2]);
 }
 
-inline BorderType best_of(const std::array<BorderType, 6> &borders, std::vector<int> idx) {
-  BorderType best = ERROR;
+inline BorderType best_of(const std::array<BorderType, 6> &borders, const std::vector<int> &idx) {
+  BorderType best = BorderType::ERROR;
   for (int i : idx) {
     best = std::max(best, static_cast<BorderType>(borders[i]));
   }
