@@ -88,6 +88,40 @@ inline Vector3 force(Particle &p1, Particle &p2, double sigma, double epsilon) {
   const double coeff_2 = -(24 * epsilon) / std::pow(norm, 2);
   return coeff_1 * coeff_2 * (p1.getX() - p2.getX());
 }
+
+/**
+* @brief Calculate the Lennard Jones force between two particles with some optimizations
+* @param p1 First particle
+* @param p2 Second particle
+* @param sigma2 precalculated sigma squared
+* @param epsilon_24 precalculated 24 * epsilon ɛ
+* @return Vector3
+*/
+
+inline Vector3 fastForce(Particle &p1, Particle &p2, double sigma2, double epsilon_24) {
+    Vector3 diff = p1.getX() - p2.getX();
+
+    // calculate norm^2 to prevent using square root
+    double r2 = diff[0]*diff[0] + diff[1]*diff[1] + diff[2]*diff[2];
+
+    // calculate (sigma^2 / norm^2)
+    // this is the base term for the next powers
+    double inv_r2 = 1.0 / r2;
+    double sig2_over_r2 = sigma2 * inv_r2; // (sigma/r)^2
+
+    // calculate (sigma/r)^6
+    // value^6 = (value^2)^3
+    double sig6_over_r6 = sig2_over_r2 * sig2_over_r2 * sig2_over_r2;
+
+    // calculate force scalar
+    // F = 24*eps/r^2 * ( 2*(sigma/r)^12 - (sigma/r)^6 )
+    // Note: 24*eps is precomputed as epsilon24
+    // Note: (sigma/r)^12 is just (sig6)^2
+
+    double forceScalar = epsilon_24 * inv_r2 * (sig6_over_r6 - 2.0 * sig6_over_r6 * sig6_over_r6);
+
+    return forceScalar * diff;
+}
 }  // namespace LennardJones
 
 namespace LorentzBerthelot {
