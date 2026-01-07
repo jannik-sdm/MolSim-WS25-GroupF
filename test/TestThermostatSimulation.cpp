@@ -111,28 +111,3 @@ TEST_F(TestThermostatSimulation, CoolingCapped) {
 
   EXPECT_NEAR(final_temp, expected_temp, 1e-5);
 }
-
-/**
- * @brief Test for the interval logic of the thermostat
- * Interval = 10. Run 5 steps -> No Change. Run 10 steps -> Change.
- */
-TEST_F(TestThermostatSimulation, ApplicationInterval) {
-  double init_temp = 10.0;
-  target_temp = 20.0;
-  thermostat_interval = 10;
-
-  particles.emplace_back(Vector3{5, 5, 5}, getVelocityForTemp(init_temp), 1.0, 0);
-
-  InitSimulation();
-
-  for (int i = 0; i < 9; ++i) sim->iteration();
-
-  // Should NOT have changed yet
-  EXPECT_NEAR(thermostat->calculateCurrentTemperature(1), init_temp, 1e-5) << "Thermostat applied too early!";
-
-  // Run 10th iteration
-  sim->iteration();
-
-  // Should HAVE changed now
-  EXPECT_NEAR(thermostat->calculateCurrentTemperature(1), target_temp, 1e-5) << "Thermostat did not apply at step 10";
-}

@@ -14,7 +14,8 @@
 TEST_F(TestYAMLReader, OutputFolder) {
   const std::string folder = "out/";
   std::stringstream input;
-  input << "output:\n  folder: " << '"' << folder << '"' << std::endl;
+
+  input << "output:\n  directory: " << '"' << folder << '"' << std::endl;
 
   YAMLReader::parse(particles, input, settings);
 

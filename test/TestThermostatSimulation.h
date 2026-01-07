@@ -39,6 +39,7 @@ class TestThermostatSimulation : public ::testing::Test {
 
     sim = std::make_unique<ThermostatSimulation>(particles, start_time, end_time, delta_t, std::nullopt, domain, cutoff,
                                                  borders, is2D, gravity, std::nullopt, *thermostat);
+    sim->current_iteration = 1;
   }
 
   // Helper to calculate velocity needed for a specific temperature
