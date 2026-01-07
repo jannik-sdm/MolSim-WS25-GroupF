@@ -150,48 +150,48 @@ class Particle {
   /**
    * @return Position of the particle
    */
-  const Vector3 &getX() const;
+  [[nodiscard]] const Vector3 &getX() const;
 
   /**
    * @return Velocity of the particle
    */
-  const Vector3 &getV() const;
+  [[nodiscard]] const Vector3 &getV() const;
 
   /**
    * @return Force effective on this particle
    */
-  const Vector3 &getF() const;
+  [[nodiscard]] const Vector3 &getF() const;
 
   /**
    * @return Force which was effective on this particle \f$ \Delta t \f$ ago
    */
-  const Vector3 &getOldF() const;
+  [[nodiscard]] const Vector3 &getOldF() const;
 
   /**
    * @return Mass of this particle
    */
-  double getM() const;
+  [[nodiscard]] double getM() const;
 
   /**
    * @return Type of this particle
    */
-  int getType() const;
+  [[nodiscard]] int getType() const;
 
   /**
    *
    * @return State of this particle
    */
-  int getState() const;
+  [[nodiscard]] int getState() const;
 
   /**
    *@return Epsilon of this particle
    */
-  double getEpsilon() const;
+  [[nodiscard]] double getEpsilon() const;
 
   /**
    *@return Sigma of this Particle
    */
-  double getSigma() const;
+  [[nodiscard]] double getSigma() const;
 
   /**
    * @brief Sets new effective Force and updates Old Force to the current Force
