@@ -29,7 +29,7 @@ void Settings::printHelp() {
                "  -h, --help                      Show this help text and terminates the program.\n\n"
                "Example:\n"
                "  MolSim -e 100.0 -c ../input/eingabe-cuboid.txt"
-            << std::endl;
+            << "\n";
 }
 
 void Settings::parseArguments(int argc, char *argv[]) {
