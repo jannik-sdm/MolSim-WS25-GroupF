@@ -122,7 +122,7 @@ void Settings::parseArguments(int argc, char *argv[]) {
   }
 }
 
-void Settings::createOutputDirectory(std::filesystem::path directory) {
+void Settings::createOutputDirectory(const std::filesystem::path &directory) {
   if (std::filesystem::exists(directory)) return;
 
   spdlog::warn("Output directory {} does not exist, creating it", directory.string());

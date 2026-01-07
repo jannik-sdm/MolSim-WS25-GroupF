@@ -24,7 +24,7 @@
  *
  * If ENABLE_VTK_OUTPUT is set, this function creates a vtk-file. Otherwise it creates a xyz-file
  */
-void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path filename);
+void plotParticles(std::vector<Particle> &particles, int iteration, const std::filesystem::path &filename);
 
 int main(int argc, char *argsv[]) {
   initializeLogging();
@@ -73,19 +73,17 @@ int main(int argc, char *argsv[]) {
         break;
 
       case 2:
-        simulation = std::make_unique<CollisionSimulation>(input_particles, settings.simulation.start_time,
-                                                           settings.simulation.end_time.value(),
-                                                           settings.simulation.delta_t.value(),
-                                                           settings.simulation.brown_motion_avg_velocity);
+        simulation = std::make_unique<CollisionSimulation>(
+            input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
+            settings.simulation.delta_t.value(), settings.simulation.brown_motion_avg_velocity);
         break;
 
       case 3:
         simulation = std::make_unique<CutoffSimulation>(
             input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
-            settings.simulation.delta_t.value(),
-            settings.simulation.brown_motion_avg_velocity,settings.simulation.domain.value(),
-            settings.simulation.cutoff_radius.value(), settings.simulation.borders.value(), settings.simulation.is2D,
-            settings.simulation.gravity.value_or(0.0));
+            settings.simulation.delta_t.value(), settings.simulation.brown_motion_avg_velocity,
+            settings.simulation.domain.value(), settings.simulation.cutoff_radius.value(),
+            settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0));
 
         /*(std::vector<Particle> &particles, const double start_time, const double end_time,
                    const double delta_t, const Vector3 &dimension, const double cutoff_radius,
@@ -98,11 +96,10 @@ int main(int argc, char *argsv[]) {
             settings.simulation.t_max_change.value_or(std::numeric_limits<double>::infinity()));
         simulation = std::make_unique<ThermostatSimulation>(
             input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
-            settings.simulation.delta_t.value(),
-            settings.simulation.brown_motion_avg_velocity,
-            settings.simulation.domain.value(),
-            settings.simulation.cutoff_radius.value(), settings.simulation.borders.value(), settings.simulation.is2D,
-            settings.simulation.gravity.value_or(0.0), settings.simulation.t_initial,*thermostat);
+            settings.simulation.delta_t.value(), settings.simulation.brown_motion_avg_velocity,
+            settings.simulation.domain.value(), settings.simulation.cutoff_radius.value(),
+            settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0),
+            settings.simulation.t_initial, *thermostat);
       } break;
 
       default:
@@ -163,7 +160,7 @@ int main(int argc, char *argsv[]) {
   return 0;
 }
 
-void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path filename) {
+void plotParticles(std::vector<Particle> &particles, int iteration, const std::filesystem::path &filename) {
 #ifdef ENABLE_VTK_OUTPUT
   outputWriter::VTKWriter writer;
 #else

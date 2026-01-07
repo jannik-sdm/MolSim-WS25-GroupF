@@ -91,7 +91,7 @@ class Settings {
    *
    * @param directory path to the output directory
    */
-  static void createOutputDirectory(std::filesystem::path directory);
+  static void createOutputDirectory(const std::filesystem::path &directory);
 
  private:
   /** @brief Container to store parsed particles in */
