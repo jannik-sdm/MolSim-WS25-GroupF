@@ -150,8 +150,9 @@ int main(int argc, char *argsv[]) {
   }
 
   // molecule updates per second = particles times iterations per second
-  double mups = input_particles.size() * settings.simulation.end_time.value() / settings.simulation.delta_t.value();
   std::chrono::milliseconds average_runtime = total_runtime / ENABLE_TIME_MEASURE;
+  double iterations = settings.simulation.end_time.value() / settings.simulation.delta_t.value();
+  double mups = input_particles.size() * iterations / average_runtime.count();
   spdlog::info("Benchmark finished: total={}ms, average={}ms, mups={:.0f}mol/s", total_runtime.count(),
                average_runtime.count(), mups);
 
