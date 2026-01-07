@@ -126,6 +126,15 @@ class Particle {
   // In Kombination mit den optionalen Werten für f und old_f würde dies nur unnötig komplexe if-Verschachtelungen
   // verursachen
   /**
+   * @brief Constructs a new particle with the nullopts for sigma and epsilon
+   * @param x_arg Position of the new particle
+   * @param v_arg Velocity of the new particle
+   * @param m_arg Mass of the new particle
+   * @param type_arg Type of the new particle
+   */
+  Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_arg, const Vector3 &f_arg,
+           const Vector3 &old_f_arg, const int type_arg);
+  /**
    * @brief Destroy the Particle object
    */
   virtual ~Particle();
