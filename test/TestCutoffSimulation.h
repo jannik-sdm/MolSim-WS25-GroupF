@@ -35,8 +35,8 @@ class TestCutoffSimulation : public ::testing::Test {
     particles.reserve(100);
   }
   void initSimulation() {
-    sim = std::make_unique<CutoffSimulation>(particles, start_time, end_time, delta_t, domain, cutoff, borders, is2D,
-                                             gravity);
+    sim = std::make_unique<CutoffSimulation>(particles, start_time, end_time, delta_t, std::nullopt, domain, cutoff,
+                                             borders, is2D, gravity);
   }
 
   void callUpdateGhost() { sim->getLinkedCells().updateGhost(); }

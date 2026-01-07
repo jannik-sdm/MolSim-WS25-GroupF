@@ -13,7 +13,7 @@ TEST_F(TestThermostatSimulation, HoldingTemperature) {
 
   // Create particle with exactly temperature = 20
   Vector3 v_init = getVelocityForTemp(target_temp);
-  particles.emplace_back(Vector3{5, 5, 5}, v_init, 1.0);
+  particles.emplace_back(Vector3{5, 5, 5}, v_init, 1.0, 0);
 
   InitSimulation();
 
@@ -35,7 +35,7 @@ TEST_F(TestThermostatSimulation, HeatingUncapped) {
   target_temp = 20.0;
   thermostat_interval = 1;
 
-  particles.emplace_back(Vector3{5, 5, 5}, getVelocityForTemp(init_temp), 1.0);
+  particles.emplace_back(Vector3{5, 5, 5}, getVelocityForTemp(init_temp), 1.0, 0);
 
   InitSimulation();
 
@@ -57,7 +57,7 @@ TEST_F(TestThermostatSimulation, CoolingUncapped) {
   target_temp = 10.0;
   thermostat_interval = 1;
 
-  particles.emplace_back(Vector3{5, 5, 5}, getVelocityForTemp(init_temp), 1.0);
+  particles.emplace_back(Vector3{5, 5, 5}, getVelocityForTemp(init_temp), 1.0, 0);
 
   InitSimulation();
   sim->iteration();
@@ -77,7 +77,7 @@ TEST_F(TestThermostatSimulation, HeatingCapped) {
   max_temp_change = 5.0;
   thermostat_interval = 1;
 
-  particles.emplace_back(Vector3{5, 5, 5}, getVelocityForTemp(init_temp), 1.0);
+  particles.emplace_back(Vector3{5, 5, 5}, getVelocityForTemp(init_temp), 1.0, 0);
 
   InitSimulation();
   sim->iteration();
@@ -100,7 +100,7 @@ TEST_F(TestThermostatSimulation, CoolingCapped) {
   max_temp_change = 5.0;
   thermostat_interval = 1;
 
-  particles.emplace_back(Vector3{5, 5, 5}, getVelocityForTemp(init_temp), 1.0);
+  particles.emplace_back(Vector3{5, 5, 5}, getVelocityForTemp(init_temp), 1.0, 0);
 
   InitSimulation();
   sim->iteration();
@@ -121,7 +121,7 @@ TEST_F(TestThermostatSimulation, ApplicationInterval) {
   target_temp = 20.0;
   thermostat_interval = 10;
 
-  particles.emplace_back(Vector3{5, 5, 5}, getVelocityForTemp(init_temp), 1.0);
+  particles.emplace_back(Vector3{5, 5, 5}, getVelocityForTemp(init_temp), 1.0, 0);
 
   InitSimulation();
 

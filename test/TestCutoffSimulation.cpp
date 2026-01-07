@@ -18,7 +18,7 @@ TEST_F(TestCutoffSimulation, CreatesGhostAtReflectiveBoundary) {
   // Velocity = (-1, 0, 0) moving towards the wall
   Vector3 pos = {0.1, 5.0, 5.0};
   Vector3 vel = {-1.0, 0.0, 0.0};
-  particles.emplace_back(pos, vel, 1.0);
+  particles.emplace_back(pos, vel, 1.0, 0);
 
   initSimulation();
 
@@ -63,7 +63,7 @@ TEST_F(TestCutoffSimulation, IgnoresParticlesTooFarFromBorder) {
 
   Vector3 pos = {2.0, 5.0, 5.0};
   Vector3 vel = {0.0, 0.0, 0.0};
-  particles.emplace_back(pos, vel, 1.0);
+  particles.emplace_back(pos, vel, 1.0, std::nullopt, std::nullopt);
 
   initSimulation();
   callUpdateGhost();
@@ -83,7 +83,7 @@ TEST_F(TestCutoffSimulation, IgnoresParticlesTooFarFromBorder) {
 TEST_F(TestCutoffSimulation, CreatesGhostsInCorner) {
   // Pos close to X=0 and Y=0
   Vector3 pos = {0.1, 0.1, 5.0};
-  particles.emplace_back(pos, Vector3{0, 0, 0}, 1.0);
+  particles.emplace_back(pos, Vector3{0, 0, 0}, 1.0, std::nullopt, std::nullopt);
 
   initSimulation();
   callUpdateGhost();
@@ -106,7 +106,7 @@ TEST_F(TestCutoffSimulation, ReflectiveBoundaryGeneratesRepulsiveForce) {
   // repulsing_distance is usually approx 1.12 (for sigma=1).
   // Position 0.1 is definitely within range to feel the wall.
   Vector3 pos = {0.1, 5.0, 5.0};
-  particles.emplace_back(pos, Vector3{-1.0, 0, 0}, 1.0);  // Moving towards wall
+  particles.emplace_back(pos, Vector3{-1.0, 0, 0}, 1.0, 0);  // Moving towards wall
 
   initSimulation();
   // Ensure force is zero
@@ -139,7 +139,7 @@ TEST_F(TestCutoffSimulation, OutflowBoundaryKillsParticle) {
 
   // Create a particle inside the domain (e.g., x=0.5)
   Vector3 pos = {0.5, 5.0, 5.0};
-  particles.emplace_back(pos, Vector3{1.0, 0, 0}, 1.0);  // Moving Right
+  particles.emplace_back(pos, Vector3{1.0, 0, 0}, 1.0, std::nullopt, std::nullopt);  // Moving Right
   initSimulation();
 
   // Simulate the particle moving OUT of the domain
@@ -152,7 +152,7 @@ TEST_F(TestCutoffSimulation, OutflowBoundaryKillsParticle) {
   callMoveParticles();
 
   // The particle should be marked as Dead (-1)
-  EXPECT_EQ(p.getType(), -1) << "Particle leaving the domain should be marked as dead (-1)";
+  EXPECT_EQ(p.getState(), -1) << "Particle leaving the domain should be marked as dead (-1)";
 }
 
 TEST_F(TestCutoffSimulation, GravityEffectsParticles) {
@@ -162,7 +162,7 @@ TEST_F(TestCutoffSimulation, GravityEffectsParticles) {
   // Create a particle inside the domain
   Vector3 pos = {5.0, 5.0, 5.0};
   Vector3 vel = {0.0, 0.0, 0.0};
-  particles.emplace_back(pos, vel, 1.0);
+  particles.emplace_back(pos, vel, 1.0, std::nullopt, std::nullopt);
   initSimulation();
 
   // Ensure the force of the particle is 0 in the beginning
@@ -171,7 +171,7 @@ TEST_F(TestCutoffSimulation, GravityEffectsParticles) {
 
   // calculate the new force
   sim->updateF();
-  Vector3 f = p.getF();
+  Vector3 f = p.getOldF();
 
   EXPECT_LT(f[1], 0.0) << "Particle should have negative force in y-dimension due to gravity";
   EXPECT_NEAR(f[0], 0.0, 1e-5);

@@ -37,8 +37,8 @@ class TestThermostatSimulation : public ::testing::Test {
   void InitSimulation() {
     thermostat = std::make_unique<Thermostat>(particles, is2D, thermostat_interval, target_temp, max_temp_change);
 
-    sim = std::make_unique<ThermostatSimulation>(particles, start_time, end_time, delta_t, domain, cutoff, borders,
-                                                 is2D, gravity, *thermostat);
+    sim = std::make_unique<ThermostatSimulation>(particles, start_time, end_time, delta_t, std::nullopt, domain, cutoff,
+                                                 borders, is2D, gravity, std::nullopt, *thermostat);
   }
 
   // Helper to calculate velocity needed for a specific temperature

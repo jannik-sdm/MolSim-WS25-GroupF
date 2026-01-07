@@ -3,7 +3,6 @@
 #include <gtest/gtest.h>
 
 #include "container/directSum/DirectSum.h"
-#include "container/directSum/ParticleContainer.h"
 
 class TestDirectSum : public ::testing::Test {
  protected:

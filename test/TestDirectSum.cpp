@@ -2,13 +2,18 @@
 
 #include "TestDirectSum.h"
 
+#include <memory>
+
+#include "container/directSum/DirectSum.h"
+#include "gtest/gtest.h"
+
 TestDirectSum::TestDirectSum() {
   for (int i = 0; i < NUM_PARTICLES; i++) {
     std::array<double, 3> v = {0, 0, 0};
     std::array<double, 3> x = {0, 0, 0};
     double m = i;
 
-    particles.emplace_back(x, v, m);
+    particles.emplace_back(x, v, m, 0);
   }
   container = std::make_unique<DirectSum>(particles);
 }

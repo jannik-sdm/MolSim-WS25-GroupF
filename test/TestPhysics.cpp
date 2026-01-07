@@ -41,7 +41,7 @@ const double delta_t = 1.0;
  * and a particle at a random position
  */
 TEST(Position, NoVelocityNoForce) {
-  auto p = Particle({0, 0, 0}, {0, 0, 0}, 1);
+  auto p = Particle({0, 0, 0}, {0, 0, 0}, 1, 0);
 
   Vector3 x = Physics::StoermerVerlet::position(p, delta_t);
 
@@ -54,7 +54,7 @@ TEST(Position, NoVelocityNoForce) {
   Vector3 position;
   std::generate(position.begin(), position.end(), [&]() { return dis(gen); });
 
-  auto p2 = Particle(position, {0, 0, 0}, 1);
+  auto p2 = Particle(position, {0, 0, 0}, 1, 0);
 
   Vector3 x2 = Physics::StoermerVerlet::position(p2, delta_t);
 
@@ -70,7 +70,7 @@ TEST(Position, NoVelocityNoForce) {
  */
 TEST(Position, FixedVelocityNoForce) {
   const Vector3 velocity = {1, 1, 1};
-  auto p = Particle({0, 0, 0}, velocity, 1);
+  auto p = Particle({0, 0, 0}, velocity, 1, 0);
 
   Vector3 x = Physics::StoermerVerlet::position(p, delta_t);
   const Vector3 difference = delta_t * velocity;
@@ -84,7 +84,7 @@ TEST(Position, FixedVelocityNoForce) {
   Vector3 position;
   std::generate(position.begin(), position.end(), [&]() { return dis(gen); });
 
-  auto p2 = Particle(position, velocity, 1);
+  auto p2 = Particle(position, velocity, 1, 0);
 
   Vector3 x2 = Physics::StoermerVerlet::position(p2, delta_t);
 
@@ -106,7 +106,7 @@ TEST(Position, RandomVelocityNoForce) {
   Vector3 velocity;
   std::generate(velocity.begin(), velocity.end(), [&]() { return dis(gen); });
 
-  auto p = Particle({0, 0, 0}, velocity, 1);
+  auto p = Particle({0, 0, 0}, velocity, 1, 0);
 
   Vector3 x = Physics::StoermerVerlet::position(p, delta_t);
   const Vector3 difference = delta_t * velocity;
@@ -116,7 +116,7 @@ TEST(Position, RandomVelocityNoForce) {
   Vector3 position;
   std::generate(position.begin(), position.end(), [&]() { return dis(gen); });
 
-  auto p2 = Particle(position, velocity, 1);
+  auto p2 = Particle(position, velocity, 1, 0);
 
   Vector3 x2 = Physics::StoermerVerlet::position(p2, delta_t);
 
@@ -131,7 +131,7 @@ TEST(Position, RandomVelocityNoForce) {
  * and a particle at a random position
  */
 TEST(Position, NoVelocityFixedForce) {
-  auto p = Particle({0, 0, 0}, {0, 0, 0}, 1);
+  auto p = Particle({0, 0, 0}, {0, 0, 0}, 1, 0);
   p.setF({2, 2, 2});
 
   Vector3 x = Physics::StoermerVerlet::position(p, delta_t);
@@ -146,7 +146,7 @@ TEST(Position, NoVelocityFixedForce) {
   Vector3 position;
   std::generate(position.begin(), position.end(), [&]() { return dis(gen); });
 
-  auto p2 = Particle(position, {0, 0, 0}, 1);
+  auto p2 = Particle(position, {0, 0, 0}, 1, 0);
   p2.setF({2, 2, 2});
 
   Vector3 x2 = Physics::StoermerVerlet::position(p2, delta_t);
@@ -169,7 +169,7 @@ TEST(Position, NoVelocityRandomForce) {
   Vector3 force;
   std::generate(force.begin(), force.end(), [&]() { return dis(gen); });
 
-  auto p = Particle({0, 0, 0}, {0, 0, 0}, 1);
+  auto p = Particle({0, 0, 0}, {0, 0, 0}, 1, 0);
   p.setF(force);
 
   Vector3 x = Physics::StoermerVerlet::position(p, delta_t);
@@ -180,7 +180,7 @@ TEST(Position, NoVelocityRandomForce) {
   Vector3 position;
   std::generate(position.begin(), position.end(), [&]() { return dis(gen); });
 
-  auto p2 = Particle(position, {0, 0, 0}, 1);
+  auto p2 = Particle(position, {0, 0, 0}, 1, 0);
   p2.setF(force);
 
   Vector3 x2 = Physics::StoermerVerlet::position(p2, delta_t);
@@ -197,7 +197,7 @@ TEST(Position, NoVelocityRandomForce) {
  * and a particle with a random velocity
  */
 TEST(Velocity, NoForce) {
-  auto p = Particle({0, 0, 0}, {0, 0, 0}, 1);
+  auto p = Particle({0, 0, 0}, {0, 0, 0}, 1, 0);
   Vector3 v = Physics::StoermerVerlet::velocity(p, delta_t);
 
   ASSERT_VECTOR3_EQ(p.getV(), v);
@@ -225,7 +225,7 @@ TEST(Velocity, NoForce) {
  */
 TEST(Velocity, FixedForce) {
   Vector3 force = {0, 0, 0};
-  auto p = Particle({0, 0, 0}, {0, 0, 0}, 1);
+  auto p = Particle({0, 0, 0}, {0, 0, 0}, 1, 0);
   p.setF(force);
   p.setF(force);  // call twice so that old_f is equal to new_f
 
@@ -263,7 +263,7 @@ TEST(Velocity, RandomForce) {
   Vector3 force;
   std::generate(force.begin(), force.end(), [&]() { return dis(gen); });
 
-  auto p = Particle({0, 0, 0}, {0, 0, 0}, 1);
+  auto p = Particle({0, 0, 0}, {0, 0, 0}, 1, 0);
   p.setF(force);
   p.setF(force);  // call twice so that old_f is equal to new_f
 
@@ -284,8 +284,8 @@ TEST(Velocity, RandomForce) {
 
 /* ========== Planet Force Tests ========== */
 TEST(PlanetForce, FixedMass) {
-  auto p1 = Particle({2, 0, 0}, {0, 0, 0}, 1);
-  auto p2 = Particle({1, 0, 0}, {0, 0, 0}, 1);
+  auto p1 = Particle({2, 0, 0}, {0, 0, 0}, 1, 0);
+  auto p2 = Particle({1, 0, 0}, {0, 0, 0}, 1, 0);
 
   Vector3 f = Physics::Planet::force(p1, p2);
   Vector3 expected = p2.getX() - p1.getX();
@@ -301,8 +301,8 @@ TEST(PlanetForce, RandomMass) {
   double m1 = dis(gen);
   double m2 = dis(gen);
 
-  auto p1 = Particle({2, 0, 0}, {0, 0, 0}, m1);
-  auto p2 = Particle({1, 0, 0}, {0, 0, 0}, m2);
+  auto p1 = Particle({2, 0, 0}, {0, 0, 0}, m1, 0);
+  auto p2 = Particle({1, 0, 0}, {0, 0, 0}, m2, 0);
 
   Vector3 f = Physics::Planet::force(p1, p2);
   Vector3 expected = m1 * m2 * (p2.getX() - p1.getX());
@@ -312,8 +312,8 @@ TEST(PlanetForce, RandomMass) {
 
 /* ========== Lennard Jones Force Tests ========== */
 TEST(LennardJonesForce, FixedMass) {
-  auto p1 = Particle({2, 0, 0}, {0, 0, 0}, 1);
-  auto p2 = Particle({1, 0, 0}, {0, 0, 0}, 1);
+  auto p1 = Particle({2, 0, 0}, {0, 0, 0}, 1, 0);
+  auto p2 = Particle({1, 0, 0}, {0, 0, 0}, 1, 0);
 
   Vector3 f = Physics::LennardJones::force(p1, p2, 1, 1);
   Vector3 expected = 24 * (p1.getX() - p2.getX());
