@@ -42,6 +42,8 @@
 /*build*/
 doxys_documentation/
 out*/
+CMakeCache.txt
+CMakeFiles/
 
 # GDB & Perf Tooling
 .gdb_history
