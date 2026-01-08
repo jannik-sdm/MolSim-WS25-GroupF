@@ -219,6 +219,13 @@ Describes how many cells the overall structure has in Y-direction
    */
   std::array<int, 3> index1dToIndex3d(int cellIndex);
 
+  /**
+   * Transforms a 3D Index of a Cell into a 1D Index
+   * @param x x-Index of 3D Cell index
+   * @param y y-Index of 3D Cell index
+   * @param z z-Index of 3D Cell index
+   * @return 1D Index of a Cell
+   */
   int index3dToIndex1d(int x, int y, int z);
 
   /**
@@ -230,6 +237,11 @@ Describes how many cells the overall structure has in Y-direction
    */
   int coordinate3dToIndex1d(double x, double y, double z);
 
+  /**
+   * see int coordinate3dToIndex1d(double x, double y, double z)
+   * @param x Vector3 with coordinate
+   * @return 1D Index of the cell this coordinate belongs to
+   */
   int coordinate3dToIndex1d(const Vector3 &x) { return coordinate3dToIndex1d(x[0], x[1], x[2]); }
 
   std::array<int, 3> coordinate3dToIndex3d(double x, double y, double z);
@@ -300,11 +312,8 @@ Describes how many cells the overall structure has in Y-direction
   void updateGhost();
 
   /**
-   * @brief Initializes the particles with the brownian motion
-   */
-  void initializeBrownianMotion();
-  /**
-   * Like getShared Border, but more stable
+   * Like getSharedBorder, but more stable. It first looks at all borders between the neighbours and than returns the one with
+   * the highest priority
    * @param ownIndex1d first 1D Inex of the neighbour Cells
    * @param otherIndex1d second 1D Index of the neighbour Cells
    * @return BorderType of the Border between two cells. ERROR, if the cells do not share a common border
@@ -322,7 +331,7 @@ Describes how many cells the overall structure has in Y-direction
   const std::vector<int> getSharedBordersIndex(const int ownIndex1d, const int otherIndex1d);
   /**
    * If a Border is periodic, a ghost cell has a correlated border cell at the other side of the domain. This function
-   * findes the this cell and returns its 1D-Index
+   * finds this cell and returns its 1D-Index
    * @param cellIndex to find the right border types, it is important to know the border cell, of wich the neighbours
    * ghost should be periodic
    * @param ghostCellIndex Index of Ghost Cell, whose equivalent should be found

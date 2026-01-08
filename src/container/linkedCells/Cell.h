@@ -72,11 +72,12 @@ class Cell {
   // default constructur:
   Cell() : cell_type(CellType::REGULAR) { borders.fill(BorderType::OUTFLOW); }
 
-  CellType getCellType();
-  std::vector<Particle *> getParticles();
-  bool inContainer(Particle particle);
 };
-
+/**
+ * Transform a String, that represents a BorderType into a BorderType Enum
+ * @param str String that represents a border Type
+ * @return ENUM Object Border Type
+ */
 inline BorderType string_to_border_type(std::string str) {
   const std::unordered_map<std::string, BorderType> lookup = {
       {"outflow", BorderType::OUTFLOW},

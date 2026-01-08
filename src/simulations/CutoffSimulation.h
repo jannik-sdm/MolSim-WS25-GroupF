@@ -24,6 +24,19 @@ class CutoffSimulation : public Simulation {
  public:
   // TODO: bisschen scuffed mit der repulsing distance, weiß nicht ob das funktioniert aber versuche es mal so und
   // später vlt fixen
+  /**
+   * CutoffSimulation Constructor
+   * @param particles
+   * @param start_time
+   * @param end_time
+   * @param delta_t
+   * @param brown_motion_avg_velocity
+   * @param dimension
+   * @param cutoff_radius
+   * @param border
+   * @param is2D
+   * @param g_grav
+   */
   CutoffSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
                    const double delta_t, const std::optional<double> brown_motion_avg_velocity,
                    const Vector3 &dimension, const double cutoff_radius, const std::array<BorderType, 6> &border,
