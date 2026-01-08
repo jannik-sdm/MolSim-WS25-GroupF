@@ -10,6 +10,16 @@
 #include "simulations/Simulation.h"
 #include "simulations/Thermostat.h"
 
+/**
+ * @class CutoffSimulation
+ * @brief Simulation for Assignment 3
+ *
+ * This class calculates timesteps for a particle simulation with a cutoff radius
+ *
+ * @see Physics::calculateV
+ * @see Physics::calculateX
+ * @see Physics::LennardJones::Force
+ */
 class CutoffSimulation : public Simulation {
  protected:
   /**

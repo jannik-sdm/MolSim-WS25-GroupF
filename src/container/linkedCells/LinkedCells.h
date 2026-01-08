@@ -12,6 +12,13 @@
 #include "simulations/Physics.h"
 #include "utils/ArrayUtils.h"
 
+/**
+ * @class LinkedCells
+ * LinkedCells container for Assignment 3 and 4
+ *
+ * Stores particles in cells with no more than cutoff radius size.
+ * This way, interactions are limited to neighbouring cells.
+ */
 class LinkedCells {
  public:
   /**
@@ -99,10 +106,10 @@ Describes how many cells the overall structure has in Y-direction
 
   /**
    * Initializes the variables and cells with their cell-type and adds the respective particles to the cell
-   * @param size_x domain size in x direction
-   * @param size_y domain size in y direction
-   * @param size_z domain size in z direction
+   * @param domain domain size
    * @param cutoff cutoff radius set in the simluation
+   * @param is2D If the simulation does not use z coordinates
+   * @param borders Border types of the simulation
    */
   LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff, bool is2D,
               std::array<BorderType, 6> borders = {BorderType::OUTFLOW});
@@ -283,7 +290,7 @@ Describes how many cells the overall structure has in Y-direction
    * @param ownIndex1d first 1D Inex of the neighbour Cells
    * @param otherIndex1d second 1D Index of the neighbour Cells
    * @return border number between -1 and 5 (border 0, 3 -> x-direction, border 1,4 -> y-direction, border 2,5 ->
-   * z-direction, 0,1,2 -> min-border, 3,4,5 -> max-border, border -1 -> error. Cells don`t have a common Border)
+   * z-direction, 0,1,2 -> min-border, 3,4,5 -> max-border, border -1 -> error. Cells don't have a common Border)
    * CAUTION! This Implementation always returns only one Border, even if a Particle meight have escaped not through a
    * border, but through an edge or a corner!
    */
@@ -333,8 +340,8 @@ Describes how many cells the overall structure has in Y-direction
   void updateGhost();
 
   /**
-   * Like getSharedBorder, but more stable. It first looks at all borders between the neighbours and than returns the one with
-   * the highest priority
+   * Like getSharedBorder, but more stable. It first looks at all borders between the neighbours and than returns the
+   * one with the highest priority
    * @param ownIndex1d first 1D Inex of the neighbour Cells
    * @param otherIndex1d second 1D Index of the neighbour Cells
    * @return BorderType of the Border between two cells. ERROR, if the cells do not share a common border

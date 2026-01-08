@@ -39,7 +39,7 @@ class ParticleGenerator {
    *
    * @param particles Where to place new particles
    * @param position Center of the disk
-   * @param r Radius of the disc as number of particles in each direction
+   * @param radius Radius of the disc as number of particles in each direction
    * @param distance distance between particles
    * @param mass mass of each particle
    * @param velocity initial velocity of each particle
