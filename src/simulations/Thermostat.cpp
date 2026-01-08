@@ -35,7 +35,11 @@ double Thermostat::calculateCurrentTemperature(int alive_particles) {
 }
 
 double Thermostat::calculateScalingFactor(int alive_particles) {
-  return std::sqrt(target_temperature / calculateCurrentTemperature(alive_particles));
+  if (current_temperature < 1e-10) {
+    // safety check if temperature is 0 and not initialized with brownian motion, to prevent division by 0
+    return 1.0;
+  }
+  return std::sqrt(target_temperature / current_temperature);
 }
 
 double Thermostat::calculateMaximumScalingFactor() {
