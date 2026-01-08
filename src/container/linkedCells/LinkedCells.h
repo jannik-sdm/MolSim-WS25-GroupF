@@ -70,16 +70,31 @@ Describes how many cells the overall structure has in Y-direction
   */
   double cellSizeZ;
 
+  /**
+   * The distance of two particles, after which the force is not being calculated anymore
+   */
   const double cutoffRadius = 3.0;
+  /**
+   * The squared cutoff radius to prevent using sqrt
+   */
   const double cutoffSquared = cutoffRadius * cutoffRadius;
   /**
    * Constant needed to calculate the repulsing_distance
    */
   const double repulsing_const = std::pow(2, 1.0 / 6.0);
 
+  /**
+   * Specifies if the simulation is 2D or 3D
+   */
   bool is2D;
 
+  /**
+   * Specifier to grant access to the tests
+   */
   friend class TestLinkedCells;
+  /**
+   * Specifier to grant access to the tests
+   */
   friend class TestCutoffSimulation;
 
   /**
@@ -180,10 +195,9 @@ Describes how many cells the overall structure has in Y-direction
   };
 
   /**
-   *
+   * @brief Iterates over all particles in the simulation and applies the function f
    * @tparam Function
    * @param f A function modifying a particle
-   * @brief Iterates over all particles in the simulation and applies the function f
    */
   template <typename Function>
   inline void applyToParticles(Function f) {
@@ -193,7 +207,7 @@ Describes how many cells the overall structure has in Y-direction
   };
 
   /**
-   * @brief Moves the particles that left a cell into their new cell
+   * @brief Moves the particles that left a cell into their new cell according to the border type of the cells
    */
   void moveParticles();
 
@@ -229,7 +243,7 @@ Describes how many cells the overall structure has in Y-direction
   int index3dToIndex1d(int x, int y, int z);
 
   /**
-   * Calculates the 1D CellIndex of a 3D Position
+   * Calculates the 1D CellIndex of a 3D position
    * @param x x-position of the Cell
    * @param y y-position of the Cell
    * @param z z-position of the Cell
@@ -238,12 +252,19 @@ Describes how many cells the overall structure has in Y-direction
   int coordinate3dToIndex1d(double x, double y, double z);
 
   /**
-   * see int coordinate3dToIndex1d(double x, double y, double z)
-   * @param x Vector3 with coordinate
-   * @return 1D Index of the cell this coordinate belongs to
+   * Calculates the 1D CellIndex of a 3D position
+   * @param x 3D vector of the position of the particle
+   * @return CellIndex in the 1D array
    */
   int coordinate3dToIndex1d(const Vector3 &x) { return coordinate3dToIndex1d(x[0], x[1], x[2]); }
 
+  /**
+   * Calculates the 3d Index of a given position
+   * @param x x-position of the Cell
+   * @param y y-position of the Cell
+   * @param z z-position of the Cell
+   * @return 3D Index of the cell
+   */
   std::array<int, 3> coordinate3dToIndex3d(double x, double y, double z);
 
   /**

@@ -88,7 +88,7 @@ class Thermostat {
   void initializeBrownianMotion(double brownian_motion_avg_velocity);
 
   /**
-   *
+   * Calculates the amount of particles still alive (state > 0)
    * @return Count of alive particles
    */
   int calculateAliveParticles();

@@ -12,14 +12,22 @@
 
 class CutoffSimulation : public Simulation {
  protected:
-  bool is2D;
-  const double g_grav;
-  LinkedCells linkedCells;
-  std::vector<Particle> &particles;
-
   /**
-   * A counter for the amount of particles that are still alive
+   * Stores if the simulation is 2D or 3D
    */
+  bool is2D;
+  /**
+   * Stores the gravity constant applied to the particles
+   */
+  const double g_grav;
+  /**
+   * Container for the particles, specifying how to modify the particles
+   */
+  LinkedCells linkedCells;
+  /**
+   * reference to the particles vector
+   */
+  std::vector<Particle> &particles;
 
  public:
   // TODO: bisschen scuffed mit der repulsing distance, weiß nicht ob das funktioniert aber versuche es mal so und

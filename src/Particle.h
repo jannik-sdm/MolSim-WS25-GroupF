@@ -241,8 +241,15 @@ class Particle {
    */
   void setEpsilon(const double new_epsilon);
 
+  /**
+   * @brief sets the type of a particle
+   * @param new_type
+   */
   void setType(int new_type) { type = new_type; }
-
+  /**
+   * @brief sets the state of a particle
+   * @param new_state
+   */
   void setState(int new_state) { state = new_state; }
 
   /**

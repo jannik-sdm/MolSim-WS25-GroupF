@@ -22,6 +22,9 @@
  * ```
  */
 class PairIterator {
+  /**
+   * Reference to the particles vector of the simulation
+   */
   std::vector<Particle> &particles;
   /**
    * @brief Index of the first member in the container
@@ -69,6 +72,9 @@ class PairIterator {
  */
 class PairRange {
  private:
+  /**
+   *
+   */
   std::vector<Particle> &particles;
 
  public:

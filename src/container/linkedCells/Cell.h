@@ -72,6 +72,16 @@ class Cell {
   // default constructur:
   Cell() : cell_type(CellType::REGULAR) { borders.fill(BorderType::OUTFLOW); }
 
+  /**
+   * Returns the type of a cell (regular, border, ghost)
+   * @return type of the cell
+   */
+  CellType getCellType();
+  /**
+   * Returns the vector of particle pointers
+   * @return vector of particle pointers
+   */
+  std::vector<Particle *> getParticles();
 };
 /**
  * Transform a String, that represents a BorderType into a BorderType Enum

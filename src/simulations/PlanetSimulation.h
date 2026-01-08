@@ -23,6 +23,13 @@ class PlanetSimulation : public Simulation {
   DirectSum container;
 
  public:
+  /**
+   * Constructs a planet simulation
+   * @param particles reference to the particles array
+   * @param start_time start time of the simulation
+   * @param end_time end time of the simulation
+   * @param delta_t timestep of the simulation
+   */
   PlanetSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
                    const double delta_t)
       : Simulation(start_time, end_time, delta_t), container(particles) {}

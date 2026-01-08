@@ -19,6 +19,14 @@
  */
 class CollisionSimulation : public PlanetSimulation {
  public:
+  /**
+   * @brief Constructs a CollisionSimulation
+   * @param particles reference to the particles array
+   * @param start_time start time of the simulation
+   * @param end_time end time of the simulation
+   * @param delta_t timestep of the simulation
+   * @param brown_motion_avg_velocity avg velocity to initalize the brownian motion
+   */
   CollisionSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
                       const double delta_t, const std::optional<double> brown_motion_avg_velocity)
       : PlanetSimulation(particles, start_time, end_time, delta_t) {
