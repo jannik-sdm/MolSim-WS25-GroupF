@@ -74,7 +74,7 @@ Particle::Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_ar
 };
 
 Particle::Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_arg, const int type_arg)
-    : Particle(x_arg, v_arg, m_arg, {0, 0, 0}, {0, 0, 0}, type_arg) {};
+    : Particle(x_arg, v_arg, m_arg, {0, 0, 0}, {0, 0, 0}, type_arg) {}
 
 // hier kein logging, damit keine Probleme entstehen, falls main den logger vor den particeln killed.
 Particle::~Particle() = default;
