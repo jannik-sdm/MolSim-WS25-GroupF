@@ -52,8 +52,6 @@ void Thermostat::updateTemperature(int alive_particles) {
   const double delta = fabs(current_temperature - new_temperature);
   if (delta > maximum_temperature_change) {
     // scaling factor is too large for the system to handle ==> need to calculate maximum scaling factor
-    // TODO: maybe optimize by storing the maximum scaling factor, but have to be careful if we overshoot the targeted
-    // TODO: temperature and the sign of delta_t has to change
     scaling_factor = calculateMaximumScalingFactor();
   }
   for (auto &p : particles) {
