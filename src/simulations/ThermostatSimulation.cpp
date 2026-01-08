@@ -23,9 +23,6 @@ void ThermostatSimulation::updateF() {
     interactionParams params = mixing_table[p1.getType() * num_types + p2.getType()];
 
     Vector3 f = Physics::LennardJones::fastForce(p1, p2, params.sigma2, params.epsilon24);
-    if (f[0] > 10000 || f[1] > 10000 || f[2] > 10000) {
-      spdlog::error("Irgentwas stimmt nicht");
-    }
     p1.addF(f);
     p2.subF(f);
   });

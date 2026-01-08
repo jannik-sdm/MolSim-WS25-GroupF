@@ -435,5 +435,5 @@ BorderType LinkedCells::getSharedBorderType(const int ownIndex1d, const int othe
 }
 
 double LinkedCells::calcRepulsingDistance(double sigma1, double sigma2) {
-  return std::pow(2, 1.0 / 6.0) * Physics::LorentzBerthelot::sigma(sigma1, sigma2);
+  return repulsing_const * Physics::LorentzBerthelot::sigma(sigma1, sigma2);
 }

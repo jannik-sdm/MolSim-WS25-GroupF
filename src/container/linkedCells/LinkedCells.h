@@ -71,6 +71,11 @@ Describes how many cells the overall structure has in Y-direction
   double cellSizeZ;
 
   const double cutoffRadius = 3.0;
+  const double cutoffSquared = cutoffRadius * cutoffRadius;
+  /**
+   * Constant needed to calculate the repulsing_distance
+   */
+  const double repulsing_const = std::pow(2, 1.0 / 6.0);
 
   bool is2D;
 
@@ -107,7 +112,9 @@ Describes how many cells the overall structure has in Y-direction
         for (int j = i + 1; j < cell.particles.size(); j++) {
           const auto p2 = cell.particles[j];
 
-          if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoffRadius) continue;
+          const Vector3 diff = p1->getX() - p2->getX();
+          const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
+          if (r2 > cutoffSquared) continue;
 
           // spdlog::warn("{} <-> {}", p1->toString(), p2->toString());
           f(*p1, *p2);
@@ -138,18 +145,21 @@ Describes how many cells the overall structure has in Y-direction
             if (borderType == BorderType::PERIODIC) {
               for (int k = 0; k < c2.size_ghost_particles; k++) {
                 Particle &p2 = c2.ghost_particles[k];
-                if (ArrayUtils::L2Norm(p1->getX() - p2.getX()) > cutoffRadius) continue;
+                const Vector3 diff = p1->getX() - p2.getX();
+                const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
+                if (r2 > cutoffSquared) continue;
                 f(*p1, p2);
               }
             } else {
               for (int k = 0; k < c2.size_ghost_particles; k++) {
                 Particle &p2 = c2.ghost_particles[k];
-                const double distance = ArrayUtils::L2Norm(p1->getX() - p2.getX());
+                const Vector3 diff = p1->getX() - p2.getX();
+                const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
                 // for ghost particles the force should only be computed if its repulsing
                 // normally cutoffRadius >> repulsing_distance but i'm letting it stand since it's an or statement
                 spdlog::trace("reached radius check for ghost particles");
-                if (distance >= calcRepulsingDistance(p1->getSigma(), p2.getSigma()) || distance > cutoffRadius)
-                  continue;
+                const double repusling_distance = calcRepulsingDistance(p1->getSigma(), p2.getSigma());
+                if (r2 >= repusling_distance * repusling_distance || r2 > cutoffSquared) continue;
 
                 f(*p1, p2);
               }
@@ -157,8 +167,9 @@ Describes how many cells the overall structure has in Y-direction
           } else {
             // case for regular cells
             for (const auto p2 : c2.particles) {
-              if (ArrayUtils::L2Norm(p1->getX() - p2->getX()) > cutoffRadius) continue;
-
+              const Vector3 diff = p1->getX() - p2->getX();
+              const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
+              if (r2 > cutoffSquared) continue;
               f(*p1, *p2);
               // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
             }
