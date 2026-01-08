@@ -13,6 +13,9 @@ struct interactionParams {
   double epsilon24;  // 24 * epsilon (saves multiplication later)
 };
 
+/**
+ * Struct to save the sigma and epsilon values of a particle type
+ */
 struct sigma_epsilon {
   double sigma;
   double epsilon;
@@ -27,15 +30,35 @@ struct sigma_epsilon {
     return epsilon < other.epsilon;
   }
 };
-
+/**
+ * @class ThermostatSimulation
+ * @brief Simulation for Assignment 4
+ *
+ * This class calculates timesteps for a particle simulation with a cutoff radius, different boundary types, different
+ * particle types and a thermostat
+ *
+ * @see Physics::calculateV
+ * @see Physics::calculateX
+ * @see Physics::LennardJones::fastForce
+ */
 class ThermostatSimulation : public CutoffSimulation {
  protected:
   /**
    * Thermostat that implements several methods to control the temperature of the system
    */
   Thermostat &thermostat;
+  /**
+   * Map that maps a sigma and epsilon struct to a particle type
+   */
   std::map<sigma_epsilon, int> particle_types;
+  /**
+   * Amount of different particle types there are in the simulation
+   */
   int num_types = 0;
+  /**
+   * A 1D vector that contains the precomputed sigma² and 24*epsilon values of the different particle type pairs
+   * Access patter: mixing_table[p1.getType() * num_types + p2.getType()
+   */
   std::vector<interactionParams> mixing_table;
 
  public:

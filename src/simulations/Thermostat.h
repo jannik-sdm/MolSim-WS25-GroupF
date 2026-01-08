@@ -6,6 +6,12 @@
 #include <vector>
 
 #include "../Particle.h"
+/**
+ * @class Thermostat
+ * Thermostat used in Assignment 4
+ *
+ * Allows for the simulation to modify the temperature of the system
+ */
 class Thermostat {
   /**
    * Reference to the particles of the simulation
