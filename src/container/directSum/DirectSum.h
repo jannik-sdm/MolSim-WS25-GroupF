@@ -44,4 +44,6 @@ class DirectSum {
       }
     }
   }
+
+  int getAmoutOfParticles() { return particles.size(); }
 };

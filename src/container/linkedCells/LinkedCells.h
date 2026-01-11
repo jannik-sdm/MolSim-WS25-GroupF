@@ -31,7 +31,7 @@ class LinkedCells {
   /**
    * Reference to a Vector of all particles in the simulation
    */
-  std::vector<Particle> &particles;
+  std::vector<Particle> &source_particles;
 
   /**
    * amount of particles still alive
@@ -125,25 +125,21 @@ Describes how many cells the overall structure has in Y-direction
    */
   template <typename Function>
   inline void applyToPairs(Function f) {
-// set the force of all particles to zero
-#pragma omp parallel for
-    for (Particle &particle : particles) particle.setF({0, 0, 0});
-
 // Calculate forces in own cell
 #pragma omp parallel for collapse(1) schedule(dynamic)
     for (Cell &cell : cells) {
       for (int i = 0; i < cell.particles.size(); i++) {
-        const auto p1 = cell.particles[i];
+        auto &p1 = cell.particles[i];
 
         for (int j = i + 1; j < cell.particles.size(); j++) {
-          const auto p2 = cell.particles[j];
+          auto &p2 = cell.particles[j];
 
-          const Vector3 diff = p1->getX() - p2->getX();
+          const Vector3 diff = p1.getX() - p2.getX();
           const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
           if (r2 > cutoffSquared) continue;
 
           // spdlog::warn("{} <-> {}", p1->toString(), p2->toString());
-          f(*p1, *p2);
+          f(p1, p2);
           // spdlog::warn("{} <-> {}", p1->toString(), p2->toString());
           // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
         }
@@ -165,39 +161,39 @@ Describes how many cells the overall structure has in Y-direction
         // are not repulsed
         if (j < i && c2.cell_type != CellType::GHOST) continue;
 
-        for (const auto p1 : c1.particles) {
+        for (Particle &p1 : c1.particles) {
           // iterate over ghost particles if c2 is a ghost cell, else use normale particles
           if (c2.cell_type == CellType::GHOST) {
             auto borderType = getSharedBorderType(i, j);
             if (borderType == BorderType::PERIODIC) {
               for (int k = 0; k < c2.size_ghost_particles; k++) {
                 Particle &p2 = c2.ghost_particles[k];
-                const Vector3 diff = p1->getX() - p2.getX();
+                const Vector3 diff = p1.getX() - p2.getX();
                 const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
                 if (r2 > cutoffSquared) continue;
-                f(*p1, p2);
+                f(p1, p2);
               }
             } else {
               for (int k = 0; k < c2.size_ghost_particles; k++) {
                 Particle &p2 = c2.ghost_particles[k];
-                const Vector3 diff = p1->getX() - p2.getX();
+                const Vector3 diff = p1.getX() - p2.getX();
                 const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
                 // for ghost particles the force should only be computed if its repulsing
                 // normally cutoffRadius >> repulsing_distance but i'm letting it stand since it's an or statement
                 spdlog::trace("reached radius check for ghost particles");
-                const double repusling_distance = calcRepulsingDistance(p1->getSigma(), p2.getSigma());
+                const double repusling_distance = calcRepulsingDistance(p1.getSigma(), p2.getSigma());
                 if (r2 >= repusling_distance * repusling_distance || r2 > cutoffSquared) continue;
 
-                f(*p1, p2);
+                f(p1, p2);
               }
             }
           } else {
             // case for regular cells
-            for (const auto p2 : c2.particles) {
-              const Vector3 diff = p1->getX() - p2->getX();
+            for (Particle &p2 : c2.particles) {
+              const Vector3 diff = p1.getX() - p2.getX();
               const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
               if (r2 > cutoffSquared) continue;
-              f(*p1, *p2);
+              f(p1, p2);
               // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
             }
           }
@@ -214,8 +210,10 @@ Describes how many cells the overall structure has in Y-direction
   template <typename Function>
   inline void applyToParticles(Function f) {
 #pragma omp parallel for
-    for (auto &p : particles) {
-      f(p);
+    for (Cell cell : cells) {
+      for (Particle p : cell.particles) {
+        f(p);
+      }
     }
   };
 
@@ -380,4 +378,9 @@ Describes how many cells the overall structure has in Y-direction
    * @return
    */
   double calcRepulsingDistance(double sigma1, double sigma2);
+
+  /**
+   * Moves the particles from the source particle vector in to the cells
+   */
+  void distributeParticles();
 };

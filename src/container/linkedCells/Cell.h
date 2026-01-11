@@ -36,7 +36,12 @@ class Cell {
   /**
    * Vector that contains pointers to all particles currently in the cell
    */
-  std::vector<Particle *> particles;
+  std::vector<Particle *> particles_old;
+
+  /**
+   * Vector that contains all particles currently in the cell
+   */
+  std::vector<Particle> particles;
 
   /**
    * Vector that contains Ghost Particles (real Particles and not only references to particles)

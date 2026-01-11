@@ -11,7 +11,7 @@
 
 LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff, bool is2D,
                          std::array<BorderType, 6> borders)
-    : particles(particles), domain_size(domain), is2D(is2D) {
+    : source_particles(source_particles), domain_size(domain), is2D(is2D) {
   // calculate number of cells - should always be at least 1
   numCellsX = std::max(1, static_cast<int>(domain_size[0] / cutoff));
   numCellsY = std::max(1, static_cast<int>(domain_size[1] / cutoff));
@@ -73,19 +73,8 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
     }
   }
 
-  // add particles to the correct cell
-  for (auto &p : particles) {
-    auto [x, y, z] = p.getX();
-
-    const int cellIndex = coordinate3dToIndex1d(x, y, z);
-
-    if (cellIndex < 0 || cellIndex >= cells.size()) {
-      spdlog::error("Particle ({},{},{}) out of domain", x, y, z);
-      continue;
-    }
-    spdlog::debug("Particle with coordinates: ({} {} {}) added to cell {}/{}", x, y, z, cellIndex, cells.size());
-    cells[cellIndex].particles.push_back(&p);
-  }
+  // move particles to the correct cell
+  distributeParticles();
   // initialize alive particles
   for (auto &p : particles)
     if (p.getState() != -1) alive_particles++;
@@ -176,15 +165,15 @@ void LinkedCells::moveParticles() {
 
     for (int j = 0; j < current_cell.particles.size(); j++) {
       auto p = current_cell.particles[j];
-      if (p->getState() < 0) continue;
-      const int k = coordinate3dToIndex1d(p->getX());
+      if (p.getState() < 0) continue;
+      const int k = coordinate3dToIndex1d(p.getX());
 
       if (i == k) continue;
 
       // move p to cell[j]
 
-      spdlog::trace("Moving particle with coordinate ({},{},{}) from cell {} to cell {}", p->getX()[0], p->getX()[1],
-                    p->getX()[2], i, k);
+      spdlog::trace("Moving particle with coordinate ({},{},{}) from cell {} to cell {}", p.getX()[0], p.getX()[1],
+                    p.getX()[2], i, k);
       std::array<int, 3> i3D = index1dToIndex3d(i);
       spdlog::trace("Old cell: ({},{},{})", i3D[0], i3D[1], i3D[2]);
       Cell &new_cell = cells[k];
@@ -195,32 +184,32 @@ void LinkedCells::moveParticles() {
         BorderType border = getSharedBorderType(i, k);
 
         if (border == BorderType::OUTFLOW) {
-          p->setState(-1);  // mark particle as dead
-          spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
+          p.setState(-1);  // mark particle as dead
+          spdlog::trace("Particle ({},{},{}) is dead!", p.getX()[0], p.getX()[1], p.getX()[2]);
           alive_particles--;
         } else if (border == BorderType::NAIVE_REFLECTION) {
           // First go back to the Old Position and then reflect the Velocity and calculate the new Position
           // This is not acurate, because the particle is not reflected AT the border,
           int borderIndex = getSharedBorder(i, k);
-          Vector3 v = p->getV();
+          Vector3 v = p.getV();
           v[borderIndex % 3] *= -1;
           Vector3 neg = {-1, -1, -1};
-          p->setV(neg * p->getV());     // Turn Velocity
-          Vector3 oldF = p->getOldF();  // Save OldF
-          p->setF(neg * p->getF());     // Turn F
-          p->setF(oldF);
-          p->setF(neg * p->getF());  // Reset old Force
-          p->setV(v);                // Set new Velocity
-          continue;                  // Don't move the Particle into a Ghost Cell
+          p.setV(neg * p.getV());      // Turn Velocity
+          Vector3 oldF = p.getOldF();  // Save OldF
+          p.setF(neg * p.getF());      // Turn F
+          p.setF(oldF);
+          p.setF(neg * p.getF());  // Reset old Force
+          p.setV(v);               // Set new Velocity
+          continue;                // Don't move the Particle into a Ghost Cell
         } else if (border == BorderType::PERIODIC) {
-          Vector3 x = p->getX();
+          Vector3 x = p.getX();
           spdlog::trace("Particle with position ({},{},{}) left domain at one side and entered it at the other side",
                         x[0], x[1], x[2]);
           for (int index = 0; index < 3; index++) {
             if (x[index] < 0) x[index] += domain_size[index];
             if (x[index] > domain_size[index]) x[index] -= domain_size[index];
           }
-          p->setX(x);
+          p.setX(x);
           std::array<int, 3> newCellIndex3d = coordinate3dToIndex3d(x[0], x[1], x[2]);
           int newCellIndex1d = index3dToIndex1d(newCellIndex3d[0], newCellIndex3d[1], newCellIndex3d[2]);
           cells[newCellIndex1d].particles.push_back(p);
@@ -254,7 +243,7 @@ void LinkedCells::updateGhost() {
     if (cell.cell_type != CellType::BORDER) continue;
     for (auto particle : cell.particles) {
       // iterate over all particles of the BORDER cell and create ghost particles for each of them
-      createGhostParticles(*particle, cell_index, cell);
+      createGhostParticles(particle, cell_index, cell);
     }
   }
 }
@@ -436,4 +425,20 @@ BorderType LinkedCells::getSharedBorderType(const int ownIndex1d, const int othe
 
 double LinkedCells::calcRepulsingDistance(double sigma1, double sigma2) {
   return repulsing_const * Physics::LorentzBerthelot::sigma(sigma1, sigma2);
+}
+
+void LinkedCells::distributeParticles() {
+  for (auto &p : source_particles) {
+    int cellIndex = coordinate3dToIndex1d(p.getX());
+
+    // Safety check for domain boundaries
+    if (cellIndex >= 0 && cellIndex < cells.size()) {
+      cells[cellIndex].particles.push_back(std::move(p));
+
+    } else {
+      spdlog::error("Particle out of bounds. The particle could not be assigned to a cell");
+    }
+  }
+
+  source_particles.clear();
 }
