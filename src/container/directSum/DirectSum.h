@@ -37,4 +37,6 @@ class DirectSum {
     for (auto i = particles.begin(); i != particles.end(); i++)
       for (auto j = std::next(i); j != particles.end(); j++) f(*i, *j);
   }
+
+  int getAmoutOfParticles() { return particles.size(); }
 };
