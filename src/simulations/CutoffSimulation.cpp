@@ -23,7 +23,7 @@ void CutoffSimulation::updateF() {
   // set the force of all particles to zero
   linkedCells.applyToParticles([this](Particle &p) { p.setF({0, g_grav * p.getM(), 0}); });
 
-  linkedCells.applyToPairs([this](Particle &p1, Particle &p2) {
+  linkedCells.applyToPairs([](Particle &p1, Particle &p2) {
     double sigma = Physics::LorentzBerthelot::sigma(p1.getSigma(), p2.getSigma());
     double epsilon;
     if (p1.getEpsilon() == p2.getEpsilon())
