@@ -97,16 +97,14 @@ int main(int argc, char *argsv[]) {
                    const std::array<BorderType, 6> &border, const bool is2D, double g_grav)*/
         break;
       case 4: {
-        thermostat = std::make_unique<Thermostat>(
-            input_particles, settings.simulation.is2D, settings.simulation.t_frequency.value(),
-            settings.simulation.t_final.value_or(settings.simulation.t_initial.value()),
-            settings.simulation.t_max_change.value_or(std::numeric_limits<double>::infinity()));
         simulation = std::make_unique<ThermostatSimulation>(
             input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
             settings.simulation.delta_t.value(), settings.simulation.brown_motion_avg_velocity,
             settings.simulation.domain.value(), settings.simulation.cutoff_radius.value(),
             settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0),
-            settings.simulation.t_initial, *thermostat);
+            settings.simulation.t_initial, settings.simulation.t_frequency.value(),
+            settings.simulation.t_initial.value(),
+            settings.simulation.t_max_change.value_or(std::numeric_limits<double>::infinity()));
       } break;
       case 5: {
         thermostat = std::make_unique<Thermostat>(
@@ -143,10 +141,10 @@ int main(int argc, char *argsv[]) {
 #else
   if (settings.output.directory.has_value()) {
     spdlog::info("Writing files to {}", settings.output.directory.value().string());
-    simulation->run([&input_particles, &settings](const unsigned int iteration) {
+    simulation->run([&](const unsigned int iteration) {
       if (iteration % settings.output.frequency == 0) {
         const auto filename = settings.output.directory.value() / settings.output.prefix;
-        plotParticles(input_particles, static_cast<int>(iteration), filename);
+        simulation->plotParticles(static_cast<int>(iteration), filename.string());
       }
     });
   } else {
@@ -183,13 +181,4 @@ int main(int argc, char *argsv[]) {
   if (settings.output.export_filename.has_value())
     outputWriter::exportYAML(input_particles, settings, settings.output.export_filename.value());
   return 0;
-}
-
-void plotParticles(std::vector<Particle> &particles, int iteration, const std::filesystem::path &filename) {
-#ifdef ENABLE_VTK_OUTPUT
-  outputWriter::VTKWriter writer;
-#else
-  outputWriter::XYZWriter writer;
-#endif
-  writer.plotParticles(particles, filename.string(), iteration);
 }
