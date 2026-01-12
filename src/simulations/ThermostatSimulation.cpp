@@ -10,8 +10,8 @@ void ThermostatSimulation::updateV() {
   linkedCells.applyToParticles([this](Particle &p) { p.setV(Physics::StoermerVerlet::velocity(p, delta_t)); });
 
   if (current_iteration % thermostat.getN() == 0 && current_iteration > 0) {
-    thermostat.updateTemperature(linkedCells.alive_particles);
-    spdlog::info("Updated Temperature");
+    thermostat.updateTemperature();
+    spdlog::info("Updated Temperature to {}", thermostat.calculateCurrentTemperature());
   }
 }
 
@@ -57,9 +57,7 @@ void ThermostatSimulation::initializeParticleTypes() {
 
   spdlog::info("Initializing Particle Types...");
 
-  for (auto &p : particles) {
-    p.setType(getTypeId(p.getSigma(), p.getEpsilon()));
-  }
+  linkedCells.applyToParticles([this](Particle &p) { p.setType(getTypeId(p.getSigma(), p.getEpsilon())); });
   num_types = particle_types.size();
 }
 

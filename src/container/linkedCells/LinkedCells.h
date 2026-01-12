@@ -206,8 +206,8 @@ Describes how many cells the overall structure has in Y-direction
    */
   template <typename Function>
   inline void applyToParticles(Function f) {
-    for (Cell cell : cells) {
-      for (Particle p : cell.particles) {
+    for (Cell &cell : cells) {
+      for (Particle &p : cell.particles) {
         f(p);
       }
     }

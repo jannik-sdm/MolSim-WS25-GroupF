@@ -2,10 +2,6 @@
 // Created by jannik on 12/14/25.
 //
 #pragma once
-#include <cmath>
-#include <vector>
-
-#include "../Particle.h"
 #include "container/linkedCells/LinkedCells.h"
 /**
  * @class Thermostat
@@ -19,10 +15,6 @@ class Thermostat {
    */
   LinkedCells &linked_cells;
 
-  /**
-   * @brief The current temperature of the system
-   */
-  double current_temperature;
   /**
    * The target temperature the simulation should reach after applying the thermostat (potentially many times)
    */
@@ -43,6 +35,11 @@ class Thermostat {
   bool is2D;
 
  public:
+  /**
+   * @brief The current temperature of the system
+   */
+  double current_temperature;
+
   Thermostat(LinkedCells &linked_cells, bool is2D, int n, double target_temperature, double maximum_temperature_change);
   virtual ~Thermostat() = default;
 
@@ -50,13 +47,12 @@ class Thermostat {
    * @brief Calculates the current temperature of the simulation
    * @return current temperature of the simulation
    */
-  double calculateCurrentTemperature(int alive_particles);
+  double calculateCurrentTemperature();
 
   /**
    * @brief Performs one update of the velocities to change the temperature to the target temperature
-   * @param alive_particles The amount of particles still alive which is needed for the calculation
    */
-  void updateTemperature(int alive_particles);
+  void updateTemperature();
 
   /**
    *
@@ -69,7 +65,7 @@ class Thermostat {
    * @brief Calculates the scaling factor beta based on the target temperature
    * @return scaling factor beta
    */
-  double calculateScalingFactor(int alive_particles);
+  double calculateScalingFactor();
 
   /**
    * @brief Calculates the maximum possible scaling factor that the simulation is able to use

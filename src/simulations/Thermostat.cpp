@@ -14,7 +14,7 @@ Thermostat::Thermostat(LinkedCells &linked_cells, bool is2D, int n, double targe
       target_temperature(target_temperature),
       maximum_temperature_change(maximum_temperature_change),
       is2D(is2D) {
-  current_temperature = calculateCurrentTemperature(linked_cells.alive_particles);
+  current_temperature = calculateCurrentTemperature();
 }
 
 double Thermostat::calculateEkin() {
@@ -32,7 +32,7 @@ double Thermostat::calculateEkin() {
   return 0.5 * ekin;
 }
 
-double Thermostat::calculateCurrentTemperature(int alive_particles) {
+double Thermostat::calculateCurrentTemperature() {
   if (linked_cells.alive_particles == 0) return 0.0;
 
   const int dimensions = (is2D ? 2 : 3);
@@ -40,7 +40,7 @@ double Thermostat::calculateCurrentTemperature(int alive_particles) {
   return temperature;
 }
 
-double Thermostat::calculateScalingFactor(int alive_particles) {
+double Thermostat::calculateScalingFactor() {
   if (current_temperature < 1e-10) {
     // safety check if temperature is 0 and not initialized with brownian motion, to prevent division by 0
     return 1.0;
@@ -48,22 +48,22 @@ double Thermostat::calculateScalingFactor(int alive_particles) {
   return std::sqrt(target_temperature / current_temperature);
 }
 
-double Thermostat::calculateMaximumScalingFactor() {
-  const int sign = current_temperature < target_temperature ? 1 : -1;
-  return std::sqrt((current_temperature + sign * maximum_temperature_change) / current_temperature);
-}
-
-void Thermostat::updateTemperature(int alive_particles) {
-  current_temperature = calculateCurrentTemperature(alive_particles);
-  double scaling_factor = calculateScalingFactor(alive_particles);
-  // new temperature can be calculated without taking into account v' by applying the squared scaling factor to the
-  // current temperature
-  const double new_temperature = scaling_factor * scaling_factor * current_temperature;
-  const double delta = fabs(current_temperature - new_temperature);
-  if (delta > maximum_temperature_change) {
-    // scaling factor is too large for the system to handle ==> need to calculate maximum scaling factor
-    scaling_factor = calculateMaximumScalingFactor();
+void Thermostat::updateTemperature() {
+  current_temperature = calculateCurrentTemperature();
+  spdlog::info("temperature before thermostat", current_temperature);
+  if (current_temperature < 1e-10) {
+    return;  // Can't scale 0 temperature
   }
+
+  double delta_t = target_temperature - current_temperature;
+  // use clamp to return the highest temperature change
+  delta_t = std::clamp(delta_t, -maximum_temperature_change, maximum_temperature_change);
+  spdlog::info("delta_t {}", delta_t);
+  double new_temperature = current_temperature + delta_t;
+
+  // calculate scaling factor with new temperature
+  double scaling_factor = std::sqrt(new_temperature / current_temperature);
+
   linked_cells.applyToParticles([&](Particle &p) {
     if (p.getState() < 0) return;
     p.setV(scaling_factor * p.getV());

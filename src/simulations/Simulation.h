@@ -87,4 +87,6 @@ class Simulation {
    * @brief Updates the force of each particle
    */
   virtual void updateF() = 0;
+
+  virtual void plotParticles(int iteration, const std::string &filename) = 0;
 };

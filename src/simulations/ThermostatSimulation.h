@@ -71,8 +71,8 @@ class ThermostatSimulation : public CutoffSimulation {
                        const Vector3 &dimension, const double cutoff_radius, const std::array<BorderType, 6> &border,
                        const bool is2D, const double g_grav, const std::optional<double> t_initial, int n,
                        double target_temperature, double maximum_temperature_change)
-      : CutoffSimulation(particles, start_time, end_time, delta_t, brown_motion_avg_velocity, dimension, cutoff_radius,
-                         border, is2D, g_grav),
+      : CutoffSimulation(particles, start_time, end_time, delta_t, std::nullopt, dimension, cutoff_radius, border, is2D,
+                         g_grav),
         thermostat(this->linkedCells, is2D, n, target_temperature, maximum_temperature_change) {
     // also sets types of the particles
     initializeParticleTypes();
@@ -80,6 +80,8 @@ class ThermostatSimulation : public CutoffSimulation {
     if (t_initial.has_value()) {
       initializeBrownianMotionWithTemperature(t_initial.value());
     }
+
+    thermostat.current_temperature = thermostat.calculateCurrentTemperature();
   }
   virtual ~ThermostatSimulation() = default;
   /**
