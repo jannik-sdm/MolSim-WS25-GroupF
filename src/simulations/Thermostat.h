@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "../Particle.h"
+#include "container/linkedCells/LinkedCells.h"
 /**
  * @class Thermostat
  * Thermostat used in Assignment 4
@@ -14,9 +15,9 @@
  */
 class Thermostat {
   /**
-   * Reference to the particles of the simulation
+   * Reference to LinkedCells of the simulation
    */
-  std::vector<Particle> &particles;
+  LinkedCells &linked_cells;
 
   /**
    * @brief The current temperature of the system
@@ -42,8 +43,7 @@ class Thermostat {
   bool is2D;
 
  public:
-  Thermostat(std::vector<Particle> &particles, bool is2D, int n, double target_temperature,
-             double maximum_temperature_change);
+  Thermostat(LinkedCells &linked_cells, bool is2D, int n, double target_temperature, double maximum_temperature_change);
   virtual ~Thermostat() = default;
 
   /**
@@ -92,10 +92,4 @@ class Thermostat {
    * @brief initializes the simulation with the brownian motion, if the velocities are non-zero
    */
   void initializeBrownianMotion(double brownian_motion_avg_velocity);
-
-  /**
-   * Calculates the amount of particles still alive (state > 0)
-   * @return Count of alive particles
-   */
-  int calculateAliveParticles();
 };

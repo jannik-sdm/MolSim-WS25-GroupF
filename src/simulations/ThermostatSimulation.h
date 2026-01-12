@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unistd.h>
+
 #include "Particle.h"
 #include "container/linkedCells/Cell.h"
 #include "simulations/CutoffSimulation.h"
@@ -42,11 +44,13 @@ struct sigma_epsilon {
  * @see Physics::LennardJones::fastForce
  */
 class ThermostatSimulation : public CutoffSimulation {
+  friend class Thermostat;
+
  protected:
   /**
    * Thermostat that implements several methods to control the temperature of the system
    */
-  Thermostat &thermostat;
+  Thermostat thermostat;
   /**
    * Map that maps a sigma and epsilon struct to a particle type
    */
@@ -65,11 +69,11 @@ class ThermostatSimulation : public CutoffSimulation {
   ThermostatSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
                        const double delta_t, const std::optional<double> brown_motion_avg_velocity,
                        const Vector3 &dimension, const double cutoff_radius, const std::array<BorderType, 6> &border,
-                       const bool is2D, const double g_grav, const std::optional<double> t_initial,
-                       Thermostat &thermostat)
+                       const bool is2D, const double g_grav, const std::optional<double> t_initial, int n,
+                       double target_temperature, double maximum_temperature_change)
       : CutoffSimulation(particles, start_time, end_time, delta_t, brown_motion_avg_velocity, dimension, cutoff_radius,
                          border, is2D, g_grav),
-        thermostat(thermostat) {
+        thermostat(this->linkedCells, is2D, n, target_temperature, maximum_temperature_change) {
     // also sets types of the particles
     initializeParticleTypes();
     initializeMixingTable();
