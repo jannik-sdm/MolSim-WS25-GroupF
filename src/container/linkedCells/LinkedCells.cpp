@@ -11,7 +11,7 @@
 
 LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain, const double cutoff, bool is2D,
                          std::array<BorderType, 6> borders)
-    : source_particles(source_particles), domain_size(domain), is2D(is2D) {
+    : source_particles(particles), domain_size(domain), is2D(is2D) {
   // calculate number of cells - should always be at least 1
   numCellsX = std::max(1, static_cast<int>(domain_size[0] / cutoff));
   numCellsY = std::max(1, static_cast<int>(domain_size[1] / cutoff));

@@ -33,10 +33,6 @@ using NeighBourIndices = std::array<int, 26>;
  */
 class Cell {
  public:
-  /**
-   * Vector that contains pointers to all particles currently in the cell
-   */
-  std::vector<Particle *> particles_old;
 
   /**
    * Vector that contains all particles currently in the cell
