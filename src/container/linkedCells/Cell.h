@@ -33,7 +33,6 @@ using NeighBourIndices = std::array<int, 26>;
  */
 class Cell {
  public:
-
   /**
    * Vector that contains all particles currently in the cell
    */
