@@ -5,6 +5,8 @@
 #pragma once
 
 #include "container/directSum/DirectSum.h"
+#include "outputWriter/VTKWriter.h"
+#include "outputWriter/XYZWriter.h"
 #include "simulations/Simulation.h"
 
 /**
@@ -59,4 +61,40 @@ class PlanetSimulation : public Simulation {
    * For each particle i this function calculates the new Velocity v
    */
   virtual void updateV() override;
+
+  void plotParticles(int iteration, const std::string &filename) override {
+#ifdef ENABLE_VTK_OUTPUT
+    outputWriter::VTKWriter writer;
+
+    // VTK Filler Lambda
+    auto filler = [this](vtkPoints *points, vtkFloatArray *mass, vtkFloatArray *v, vtkFloatArray *f,
+                         vtkIntArray *type) {
+      container.applyToParticles([&](Particle &p) {
+        points->InsertNextPoint(p.getX().data());
+        mass->InsertNextValue(static_cast<float>(p.getM()));
+        v->InsertNextTuple(p.getV().data());
+        f->InsertNextTuple(p.getF().data());
+        type->InsertNextValue(p.getType());
+      });
+    };
+    writer.plotParticles(filler, filename, iteration);
+
+#else
+    outputWriter::XYZWriter writer;
+
+    // XYZ Filler Lambda
+    auto filler = [this](std::ofstream &file) {
+      container.applyToParticles([&](Particle &p) {
+        std::array<double, 3> x = p.getX();
+        file << "Ar ";
+        file.setf(std::ios_base::showpoint);
+        for (auto &xi : x) file << xi << " ";
+        file << std::endl;
+      });
+    };
+
+    int count = container.getAmoutOfParticles();  // Assuming DirectSum has this method
+    writer.plotParticles(filler, count, filename, iteration);
+#endif
+  }
 };

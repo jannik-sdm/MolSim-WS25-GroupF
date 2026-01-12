@@ -4,7 +4,8 @@
  *  Created on: 01.03.2010
  *      Author: eckhardw
  */
-
+/*
+ Implementation moved to XYZWriter.h
 #include "outputWriter/XYZWriter.h"
 
 #include <iomanip>
@@ -43,3 +44,4 @@ void XYZWriter::plotParticles(std::vector<Particle> &particles, const std::strin
 }
 
 }  // namespace outputWriter
+*/

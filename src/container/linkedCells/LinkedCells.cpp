@@ -76,8 +76,9 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
   // move particles to the correct cell
   distributeParticles();
   // initialize alive particles
-  for (auto &p : particles)
+  applyToParticles([this](Particle &p) {
     if (p.getState() != -1) alive_particles++;
+  });
 }
 
 void LinkedCells::setNeighbourCells(const int cellIndex) {
@@ -164,7 +165,7 @@ void LinkedCells::moveParticles() {
     Cell &current_cell = cells[i];
 
     for (int j = 0; j < current_cell.particles.size(); j++) {
-      auto p = current_cell.particles[j];
+      auto &p = current_cell.particles[j];
       if (p.getState() < 0) continue;
       const int k = coordinate3dToIndex1d(p.getX());
 
@@ -241,7 +242,7 @@ void LinkedCells::updateGhost() {
   for (int cell_index = 0; cell_index < cells.size(); cell_index++) {
     auto &cell = cells[cell_index];
     if (cell.cell_type != CellType::BORDER) continue;
-    for (auto particle : cell.particles) {
+    for (auto &particle : cell.particles) {
       // iterate over all particles of the BORDER cell and create ghost particles for each of them
       createGhostParticles(particle, cell_index, cell);
     }

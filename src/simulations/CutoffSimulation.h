@@ -7,6 +7,8 @@
 #include <memory>
 
 #include "container/linkedCells/LinkedCells.h"
+#include "outputWriter/VTKWriter.h"
+#include "outputWriter/XYZWriter.h"
 #include "simulations/Simulation.h"
 #include "simulations/Thermostat.h"
 
@@ -96,4 +98,45 @@ class CutoffSimulation : public Simulation {
    * Initializes the brownian motion
    */
   void initializeBrownianMotion(double brown_motion_avg_velocity);
+  /**
+   * Plots the particles using the LinkedCell container
+   * @param iteration Iteration being plotted
+   * @param filename Name of the file being written to
+   */
+  void plotParticles(int iteration, const std::string &filename) override {
+#ifdef ENABLE_VTK_OUTPUT
+    outputWriter::VTKWriter writer;
+
+    auto filler = [this](vtkPoints *points, vtkFloatArray *mass, vtkFloatArray *v, vtkFloatArray *f,
+                         vtkIntArray *type) {
+      linkedCells.applyToParticles([&](Particle &p) {
+        if (p.getState() == -1) return;  // Skip dead particles
+
+        points->InsertNextPoint(p.getX().data());
+        mass->InsertNextValue(static_cast<float>(p.getM()));
+        v->InsertNextTuple(p.getV().data());
+        f->InsertNextTuple(p.getF().data());
+        type->InsertNextValue(p.getType());
+      });
+    };
+    writer.plotParticles(filler, filename, iteration);
+
+#else
+    outputWriter::XYZWriter writer;
+
+    auto filler = [this](std::ofstream &file) {
+      linkedCells.applyToParticles([&](Particle &p) {
+        if (p.getState() == -1) return;
+
+        std::array<double, 3> x = p.getX();
+        file << "Ar ";
+        file.setf(std::ios_base::showpoint);
+        for (auto &xi : x) file << xi << " ";
+        file << std::endl;
+      });
+    };
+    // Ensure LinkedCells has a method to get alive count
+    writer.plotParticles(filler, linkedCells.alive_particles, filename, iteration);
+#endif
+  }
 };
