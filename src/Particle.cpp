@@ -91,6 +91,10 @@ double Particle::getEpsilon() const { return epsilon; }
 
 double Particle::getSigma() const { return sigma; }
 
+Particle *Particle::getNeighbor(int index) const { return neighbors[index]; }
+
+std::array<Particle *, 8> &Particle::getNeighbors() { return neighbors; }
+
 void Particle::setF(const Vector3 &new_f) {
   this->old_f = this->f;
   this->f = new_f;
