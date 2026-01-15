@@ -12,7 +12,12 @@ void MembraneSimulation::updateF(){
       //Soll die Gravity in 3D immer in Z-Richtung verlaufen?
         double current_time = start_time+delta_t*current_iteration;
         //p1.getType() == 2 steht für einer der Partikel, die angehoben werden sollen.
-        if (current_time < 150 && p1.getType() == 2) p1.setF({0,0,g_grav*p1.getM()+F_zUp});
+        if (current_time < 150
+          //Schau nach, ob auf das Particle F_zUP wirken soll
+          && (std::find(this->upwardsParticles.begin()
+            , this->upwardsParticles.end()
+            , &p1) != this->upwardsParticles.end())) //Vergleiche auf Pointer Gleichheit
+          p1.setF({0,0,g_grav*p1.getM()+F_zUp});
         else p1.setF({0, 0, g_grav * p1.getM()});
 
     //Kraft zwischen Nachbarn
