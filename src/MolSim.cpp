@@ -16,6 +16,7 @@
 #include "outputWriter/YAMLWriter.h"
 #include "simulations/CollisionSimulation.h"
 #include "simulations/CutoffSimulation.h"
+#include "simulations/MembraneSimulation.h"
 #include "simulations/PlanetSimulation.h"
 #include "simulations/ThermostatSimulation.h"
 
@@ -107,6 +108,20 @@ int main(int argc, char *argsv[]) {
             settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0),
             settings.simulation.t_initial, *thermostat);
       } break;
+      case 5 : {
+        thermostat = std::make_unique<Thermostat>(
+            input_particles, settings.simulation.is2D, settings.simulation.t_frequency.value(),
+            settings.simulation.t_final.value_or(settings.simulation.t_initial.value()),
+            settings.simulation.t_max_change.value_or(std::numeric_limits<double>::infinity()));
+        simulation = std::make_unique<MembraneSimulation>(
+            input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
+            settings.simulation.delta_t.value(), settings.simulation.brown_motion_avg_velocity,
+            settings.simulation.domain.value(), pow(2, (1.0/6.0))*settings.membrane.sigma.value_or(1.0),
+            settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0),
+            settings.simulation.t_initial, *thermostat,
+            settings.membrane.r0.value(), settings.membrane.k.value(), settings.membrane.f_zUp.value(), settings.membrane.upwardsParticles);
+
+      }break;
 
       default:
         spdlog::error("Invalid worksheet number {}", settings.simulation.worksheet.value());

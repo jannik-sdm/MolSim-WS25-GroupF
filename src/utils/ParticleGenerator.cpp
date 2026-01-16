@@ -26,7 +26,7 @@ void ParticleGenerator::cuboid(std::vector<Particle> &particles, const Vector3 p
 void ParticleGenerator::membrane(std::vector<Particle> &particles, const Vector3 pos, const std::array<unsigned int, 3> n,
                                  const double distance, const double mass, const std::optional<double> epsilon,
                                  std::optional<double> sigma, Vector3 v, std::vector<Particle *> &upwardsParticles,
-                                 std::vector<std::array<int, 2>> &upwardsParticlesIndexes) {
+                                 std::vector<std::array<int, 2>> upwardsParticlesIndexes) {
   // Reserve space for new particles
   spdlog::trace("Reserving {} particles", n[0] * n[1] * n[2]);
   particles.reserve(particles.size() + n[0] * n[1] * n[2]);

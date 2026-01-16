@@ -155,7 +155,7 @@ inline double sigma(double sigma_i, double sigma_j) { return (sigma_i + sigma_j)
 inline double epsilon(double epsilon_i, double epsilon_j) { return std::sqrt(epsilon_i * epsilon_j); }
 }  // namespace LorentzBerthelot
 namespace  harmonicPotential {
-double sqrt2 = std::sqrt(2);
+inline double sqrt2 = std::sqrt(2);
 
 inline Vector3 forceStraight(Particle &p1, Particle &p2, double k, double r0) {
     Vector3 dist = p2.getX() - p1.getX(); //norm of x2 - x1 = norm of x1 - x2

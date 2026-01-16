@@ -33,6 +33,15 @@ class Settings {
   };
   struct Output output;
 
+  struct Membrane {
+    std::optional<double> r0;
+    std::optional<double> k;
+    std::optional<double> f_zUp;
+    std::optional<double> sigma;
+    std::vector<Particle *> upwardsParticles;
+  };
+  struct Membrane membrane;
+
   struct Simulation {
     /** @brief Which worksheet to run */
     std::optional<unsigned int> worksheet;
