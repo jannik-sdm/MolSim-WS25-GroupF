@@ -30,6 +30,9 @@ class ParticleGenerator {
                      const double distance, const double mass, const std::optional<double> epsilon,
                      std::optional<double> sigma, Vector3 v);
 
+  static void membrane(std::vector<Particle> &particles, const Vector3 x, const std::array<unsigned int, 3> n,
+                      const double distance, const double mass, const std::optional<double> epsilon,
+                      std::optional<double> sigma, Vector3 v, std::vector<Particle *> upwardsParticles, std::vector<std::array<int, 2>> upwardsParticlesIndexes );
   /**
    * @brief Generate a disc of particles
    *
