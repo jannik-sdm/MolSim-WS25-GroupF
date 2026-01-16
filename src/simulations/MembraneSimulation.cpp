@@ -25,10 +25,12 @@ void MembraneSimulation::updateF(){
       // Ohne N3 Optimierung, um einen Iterationsdurchlauf zu sparen
       Particle *p2 = p1.getNeighbor(i);
       if (p2 == nullptr) continue;
+      Vector3 f = {0.0,0.0,0.0};
       //Diagonal Neighbors
-      if (i == 0 || i == 2 || i == 5 || i == 7) Physics::harmonicPotential::forceDiagonal(p1, *p2, this->stiffnessConstant, r0);
+      if (i == 0 || i == 2 || i == 5 || i == 7) f = Physics::harmonicPotential::forceDiagonal(p1, *p2, this->stiffnessConstant, r0);
       //Direct Neighbors
-      else Physics::harmonicPotential::forceStraight(p1, *p2, this->stiffnessConstant, r0);
+      else f = Physics::harmonicPotential::forceStraight(p1, *p2, this->stiffnessConstant, r0);
+      p1.addF(f);
   }
   });
   //Reguläre Lennard-Jones Force -> Kleinerer Cutoff Radius wird dem Konstruktor übergeben

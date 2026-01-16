@@ -110,8 +110,8 @@ int main(int argc, char *argsv[]) {
       } break;
       case 5 : {
         thermostat = std::make_unique<Thermostat>(
-            input_particles, settings.simulation.is2D, settings.simulation.t_frequency.value(),
-            settings.simulation.t_final.value_or(settings.simulation.t_initial.value()),
+            input_particles, settings.simulation.is2D, settings.simulation.t_frequency.value_or(std::numeric_limits<int>::max()),
+            settings.simulation.t_final.value_or(settings.simulation.t_initial.value_or(0.0)),
             settings.simulation.t_max_change.value_or(std::numeric_limits<double>::infinity()));
         simulation = std::make_unique<MembraneSimulation>(
             input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),

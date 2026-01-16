@@ -1,5 +1,5 @@
 output:
-  directory: "../out/membrane_1"
+  directory: "../out/membrane_2"
   frequency: 10
 simulation:
   worksheet: 5
@@ -8,6 +8,7 @@ simulation:
   cutoff_radius: 4.0
   domain: [148,148,148]
   borders: [outflow,outflow,reflection,outflow,outflow,outflow]
+  gravity: -0.001
   dimension: 3D
 particles:
   - membrane:

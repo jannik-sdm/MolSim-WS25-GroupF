@@ -80,10 +80,12 @@ void ParticleGenerator::membrane(std::vector<Particle> &particles, const Vector3
         current->setNeighbour(leftLower,5);
         //Set right upper for left lower
         if (leftLower != nullptr) leftLower->setNeighbour(current,2);
+        //Hier auswerten
       }
       // Update left
-      if (x != n[1] -1) left = current;
+      if (x != n[0] -1) left = current;
       else left = nullptr;
+      if (lower) lower = lower->getNeighbor(4);
 
 
       //Save upwardsParticles
