@@ -100,7 +100,7 @@ void Particle::setF(const Vector3 &new_f) {
 void Particle::addF(const Vector3 &partial_f) {
 #pragma unroll
   for (auto i = 0; i < 3; i++) {
-#pragma atomic
+#pragma omp atomic
     this->f[i] += partial_f[i];
   }
 }
@@ -108,7 +108,7 @@ void Particle::addF(const Vector3 &partial_f) {
 void Particle::subF(const Vector3 &partial_f) {
 #pragma unroll
   for (auto i = 0; i < 3; i++) {
-#pragma atomic
+#pragma omp atomic
     this->f[i] -= partial_f[i];
   }
 }
