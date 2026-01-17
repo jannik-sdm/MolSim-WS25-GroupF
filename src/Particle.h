@@ -76,7 +76,7 @@ class Particle {
   /**
    * Neighbors of a Particle in a membrane
    */
-  std::array<Particle*, 8> neighbors;
+  std::array<Particle *, 8> neighbors;
 
  public:
   /**
@@ -272,15 +272,14 @@ class Particle {
    * @brief replaces the whole neighbor Array with a new one -> meight be useless
    * @param new_neighbors Array with the new Neighbors
    */
-void setNeighbors(std::array<Particle*, 8> new_neighbors) {neighbors = new_neighbors; }
+  void setNeighbors(std::array<Particle *, 8> new_neighbors) { neighbors = new_neighbors; }
 
   /**
    * @brief replaces the neighbor at a given index, with a new one
    * @param new_neighbour new neighbor
    * @param index index (0 - 7) of the neighbor which should be replaced
    */
-void setNeighbour(Particle* new_neighbour, int index) {neighbors[index] = new_neighbour;}
-
+  void setNeighbour(Particle *new_neighbour, int index) { neighbors[index] = new_neighbour; }
 
   /**
    * @brief Comparte two particles
