@@ -27,7 +27,7 @@ jobs:
           if ! command -v clang-tidy &> /dev/null; then
             echo "clang-tidy not found. Installing..."
             sudo apt-get update
-            sudo apt-get install -y clang-tidy
+            sudo apt-get install -y clang-tidy libomp-dev
           else
             echo "clang-tidy already installed."
             clang-tidy --version
@@ -40,7 +40,7 @@ jobs:
       - name: Run Clang-Tidy
         # working directory is root as default
         run:
-          find ${{github.workspace}}/src -name "*.cpp" | xargs clang-tidy -p ${{github.workspace}}/build -config-file=.clang-tidy -warnings-as-errors='*' --quiet
+          find ${{github.workspace}}/src -name "*.cpp" | xargs clang-tidy -p ${{github.workspace}}/build -config-file=.clang-tidy -warnings-as-errors='*' --quiet --extra-arg=-I/usr/lib/llvm-19/include
 
       # runs clang-format and fails if formatting is violated
       - name: Run clang-format
@@ -74,4 +74,3 @@ jobs:
       # execute ctests and output if tests fail
       run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure
   
-
