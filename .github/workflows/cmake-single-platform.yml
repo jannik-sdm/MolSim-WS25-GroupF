@@ -27,7 +27,7 @@ jobs:
           if ! command -v clang-tidy &> /dev/null; then
             echo "clang-tidy not found. Installing..."
             sudo apt-get update
-            sudo apt-get install -y clang-tidy
+            sudo apt-get install -y clang-tidy libomp-dev
           else
             echo "clang-tidy already installed."
             clang-tidy --version
@@ -74,4 +74,3 @@ jobs:
       # execute ctests and output if tests fail
       run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure
   
-
