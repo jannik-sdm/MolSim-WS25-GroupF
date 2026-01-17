@@ -43,6 +43,30 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Set
                     sigma.value_or(1), epsilon.value_or(5));
 
       ParticleGenerator::cuboid(particles, x, n, distance, mass, epsilon, sigma, v);
+    } else if (p["membrane"]) {
+      YAML::Node membrane = p["membrane"];
+
+      Vector3 x = membrane["position"].as<Vector3>();
+      std::array<unsigned int, 3> n = membrane["size"].as<std::array<unsigned int, 3>>();
+      double distance = membrane["distance"].as<double>();
+      double mass = membrane["mass"].as<double>();
+      Vector3 v = membrane["velocity"].as<Vector3>();
+      std::optional<double> epsilon;
+
+      if (membrane["epsilon"]) epsilon = membrane["epsilon"].as<double>();
+      if (membrane["sigma"]) settings.membrane.sigma = membrane["sigma"].as<double>();
+      std::optional<std::vector<std::array<int, 2>>> upwardsParticlesIndexes =
+          membrane["upwards_particles_indexes"].as<std::vector<std::array<int, 2>>>();
+      settings.membrane.k = membrane["k"].as<double>();
+      settings.membrane.r0 = membrane["r0"].as<double>();
+      settings.membrane.f_zUp = membrane["f_zUp"].as<double>();
+      spdlog::debug("Generating membrane: position={} size={} distance={} mass={} velocity={} sigma={} epsilon={}",
+                    ArrayUtils::to_string(x), ArrayUtils::to_string(n), distance, mass, ArrayUtils::to_string(v),
+                    settings.membrane.sigma.value_or(1), epsilon.value_or(5));
+
+      ParticleGenerator::membrane(particles, x, n, distance, mass, epsilon, settings.membrane.sigma, v,
+                                  settings.membrane.upwardsParticles,
+                                  upwardsParticlesIndexes.value_or(std::vector<std::array<int, 2>>{{0, 0}}));
     } else if (p["single"]) {
       YAML::Node single = p["single"];
       Vector3 x = single["position"].as<Vector3>();
