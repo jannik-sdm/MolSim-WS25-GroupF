@@ -40,7 +40,7 @@ jobs:
       - name: Run Clang-Tidy
         # working directory is root as default
         run:
-          find ${{github.workspace}}/src -name "*.cpp" | xargs clang-tidy -p ${{github.workspace}}/build -config-file=.clang-tidy -warnings-as-errors='*' --quiet
+          find ${{github.workspace}}/src -name "*.cpp" | xargs clang-tidy -p ${{github.workspace}}/build -config-file=.clang-tidy -warnings-as-errors='*' --quiet --extra-arg=-I/usr/lib/llvm-19/include
 
       # runs clang-format and fails if formatting is violated
       - name: Run clang-format
