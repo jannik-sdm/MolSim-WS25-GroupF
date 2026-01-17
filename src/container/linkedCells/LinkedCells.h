@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <omp.h>
+
 #include <array>
 #include <vector>
 
@@ -123,10 +125,12 @@ Describes how many cells the overall structure has in Y-direction
    */
   template <typename Function>
   inline void applyToPairs(Function f) {
-    // set the force of all particles to zero
+// set the force of all particles to zero
+#pragma omp parallel for
     for (Particle &particle : particles) particle.setF({0, 0, 0});
 
-    // Calculate forces in own cell
+// Calculate forces in own cell
+#pragma omp parallel for collapse(1) schedule(dynamic)
     for (Cell &cell : cells) {
       for (int i = 0; i < cell.particles.size(); i++) {
         const auto p1 = cell.particles[i];
@@ -146,7 +150,8 @@ Describes how many cells the overall structure has in Y-direction
       }
     }
 
-    // Calculate forces with neighbour cells
+// Calculate forces with neighbour cells
+#pragma omp parallel for collapse(1) schedule(dynamic)
     for (int i = 0; i < cells.size(); i++) {
       auto &c1 = cells[i];
 
@@ -208,6 +213,7 @@ Describes how many cells the overall structure has in Y-direction
    */
   template <typename Function>
   inline void applyToParticles(Function f) {
+#pragma omp parallel for
     for (auto &p : particles) {
       f(p);
     }

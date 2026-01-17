@@ -7,6 +7,7 @@
 
 #include "Particle.h"
 
+#include <omp.h>
 #include <spdlog/spdlog.h>
 
 #include <iostream>
@@ -96,9 +97,21 @@ void Particle::setF(const Vector3 &new_f) {
   this->f = new_f;
 }
 
-void Particle::addF(const Vector3 &partial_f) { this->f = this->f + partial_f; }
+void Particle::addF(const Vector3 &partial_f) {
+#pragma unroll
+  for (auto i = 0; i < 3; i++) {
+#pragma atomic
+    this->f[i] += partial_f[i];
+  }
+}
 
-void Particle::subF(const Vector3 &partial_f) { this->f = this->f - partial_f; }
+void Particle::subF(const Vector3 &partial_f) {
+#pragma unroll
+  for (auto i = 0; i < 3; i++) {
+#pragma atomic
+    this->f[i] -= partial_f[i];
+  }
+}
 
 void Particle::setX(const Vector3 &new_x) { this->x = new_x; }
 
