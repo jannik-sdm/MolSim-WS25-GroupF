@@ -1,0 +1,412 @@
+//
+// Created by jv_fedora on 19.11.25.
+//
+
+#pragma once
+
+#include <omp.h>
+
+#include <array>
+#include <vector>
+
+#include "container/directSum/ParticleContainer.h"
+#include "container/linkedCells/Cell.h"
+#include "simulations/Physics.h"
+#include "utils/ArrayUtils.h"
+
+/**
+ * @class LinkedCells
+ * LinkedCells container for Assignment 3 and 4
+ *
+ * Stores particles in cells with no more than cutoff radius size.
+ * This way, interactions are limited to neighbouring cells.
+ */
+class LinkedCellsV2 {
+ public:
+  /**
+   * 1-D Array with all Cells
+   */
+  std::vector<Cell> cells;
+
+  /**
+   * Reference to a Vector of all particles in the simulation
+   */
+  std::vector<Particle> &particles;
+
+  /**
+   * amount of particles still alive
+   */
+  int alive_particles = 0;
+
+  /**
+   * Domain size of the simulation
+   */
+  std::array<double, 3> domain_size;
+
+  /**
+   * Cell size of each cell in the simulation
+   */
+  std::array<double, 3> cell_size;
+  /**
+   * Describes how many cells the overall structure has in X-direction
+   */
+  int numCellsX;
+  /**
+Describes how many cells the overall structure has in Y-direction
+*/
+  int numCellsY;
+  /**
+   * Describes how many cells the overall structure has in Z-direction
+
+   */
+  int numCellsZ;
+  /**
+   *Describes how many cells the overall structure has
+   */
+  std::array<int, 3> numCells;
+
+  //  Für die Höhe, Länge und Breite einer einzelnen Zelle. Es kann sein, das wir die Info aber garnicht brauchen
+  /**
+  Describes the size of each cell  X-direction
+  */
+  double cellSizeX;
+  /**
+  Describes the size of each cell  Y-direction
+  */
+  double cellSizeY;
+  /**
+  Describes the size of each cell  Z-direction
+  */
+  double cellSizeZ;
+
+  /**
+   * The distance of two particles, after which the force is not being calculated anymore
+   */
+  const double cutoffRadius = 3.0;
+  /**
+   * The squared cutoff radius to prevent using sqrt
+   */
+  const double cutoffSquared = cutoffRadius * cutoffRadius;
+  /**
+   * Constant needed to calculate the repulsing_distance
+   */
+  const double repulsing_const = std::pow(2, 1.0 / 6.0);
+
+  /**
+   * Specifies if the simulation is 2D or 3D
+   */
+  bool is2D;
+
+  /**
+   * Specifier to grant access to the tests
+   */
+  friend class TestLinkedCells;
+  /**
+   * Specifier to grant access to the tests
+   */
+  friend class TestCutoffSimulation;
+
+  /**
+   * Initializes the variables and cells with their cell-type and adds the respective particles to the cell
+   * @param domain domain size
+   * @param cutoff cutoff radius set in the simluation
+   * @param is2D If the simulation does not use z coordinates
+   * @param borders Border types of the simulation
+   */
+  LinkedCellsV2(std::vector<Particle> &particles, const Vector3 domain, const double cutoff, bool is2D,
+                std::array<BorderType, 6> borders = {BorderType::OUTFLOW});
+
+  /**
+   *
+   * @tparam Function
+   * @param f A function modifying a pair of particles
+   * @brief Iterates over all pairs of particles in the simulation, according to the linked cells algorithm and applies
+   * the function f
+   */
+  template <typename Function>
+  inline void applyToPairs(Function f) {
+#pragma omp parallel
+#pragma omp single
+    {
+// Task 1: Own Cell
+#pragma omp task
+      {
+        for (Cell &cell : cells) {
+          for (int i = 0; i < cell.particles.size(); i++) {
+            const auto p1 = cell.particles[i];
+
+            for (int j = i + 1; j < cell.particles.size(); j++) {
+              const auto p2 = cell.particles[j];
+
+              const Vector3 diff = p1->getX() - p2->getX();
+              const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
+              if (r2 > cutoffSquared) continue;
+
+              f(*p1, *p2);
+            }
+          }
+        }
+      }
+
+// Task 2: Inner neighbour cells
+#pragma omp task
+      {
+        for (int i = 0; i < cells.size(); i++) {
+          auto &c1 = cells[i];
+
+          // skip outer cells
+          NeighBourIndices neighbourCellsIndex = getNeighbourCells(i);
+
+          for (int j = 0; j < 26; j++) {
+            if (c1.cell_type != CellType::REGULAR) continue;
+            auto &c2 = cells[neighbourCellsIndex[j]];
+            // newton optimization
+            if (j < i) continue;
+
+            for (const auto p1 : c1.particles) {
+              for (const auto p2 : c2.particles) {
+                const Vector3 diff = p1->getX() - p2->getX();
+                const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
+                if (r2 > cutoffSquared) continue;
+                f(*p1, *p2);
+              }
+            }
+          }
+        }
+      }
+
+// Task 3: Border Cells
+#pragma omp task
+      {
+        for (int i = 0; i < cells.size(); i++) {
+          auto &c1 = cells[i];
+
+          // skip inner cells
+          if (c1.cell_type != CellType::BORDER) continue;
+          NeighBourIndices neighbourCellsIndex = getNeighbourCells(i);
+
+          for (const int j : neighbourCellsIndex) {
+            auto &c2 = cells[j];
+            // newton optimization, but ONLY if c2 is not a Ghost cell, because if this calculation is skipped,
+            // particles are not repulsed
+            if (j < i && c2.cell_type != CellType::GHOST) continue;
+
+            for (const auto p1 : c1.particles) {
+              // iterate over ghost particles if c2 is a ghost cell, else use normale particles
+              if (c2.cell_type == CellType::GHOST) {
+                auto borderType = getSharedBorderType(i, j);
+                if (borderType == BorderType::PERIODIC) {
+                  for (int k = 0; k < c2.size_ghost_particles; k++) {
+                    Particle &p2 = c2.ghost_particles[k];
+                    const Vector3 diff = p1->getX() - p2.getX();
+                    const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
+                    if (r2 > cutoffSquared) continue;
+                    f(*p1, p2);
+                  }
+                } else {
+                  for (int k = 0; k < c2.size_ghost_particles; k++) {
+                    Particle &p2 = c2.ghost_particles[k];
+                    const Vector3 diff = p1->getX() - p2.getX();
+                    const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
+                    // for ghost particles the force should only be computed if its repulsing
+                    // normally cutoffRadius >> repulsing_distance but i'm letting it stand since it's an or statement
+                    spdlog::trace("reached radius check for ghost particles");
+                    const double repusling_distance = calcRepulsingDistance(p1->getSigma(), p2.getSigma());
+                    if (r2 >= repusling_distance * repusling_distance || r2 > cutoffSquared) continue;
+
+                    f(*p1, p2);
+                  }
+                }
+              } else {
+                // case for regular cells
+                for (const auto p2 : c2.particles) {
+                  const Vector3 diff = p1->getX() - p2->getX();
+                  const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
+                  if (r2 > cutoffSquared) continue;
+                  f(*p1, *p2);
+                }
+              }
+            }
+          }
+        }
+      }
+
+#pragma omp taskwait
+    }
+  }
+
+  /**
+   * @brief Iterates over all particles in the simulation and applies the function f
+   * @tparam Function
+   * @param f A function modifying a particle
+   */
+  template <typename Function>
+  inline void applyToParticles(Function f) {
+#pragma omp parallel for
+    for (auto &p : particles) {
+      f(p);
+    }
+  }
+
+  /**
+   * @brief Moves the particles that left a cell into their new cell according to the border type of the cells
+   */
+  void moveParticles();
+
+ private:
+  /**
+   * Finds the neighbour-cells of the given cell and returns their cell-array indexes
+   * @param cellIndex 1D cell index of the current cell
+   * @returns array of 1D cell indexes
+   */
+  NeighBourIndices getNeighbourCells(int cellIndex) { return cells[cellIndex].neighbors; }
+
+  /**
+   * Helper Function for the Constructor. Finds the neighbourcells of the given Cell and writes them
+   * in the NeighbourCells Attribut of the cell
+   * @param cellIndex cell to find the neighbours
+   */
+  void setNeighbourCells(int cellIndex);
+
+  /**
+   * Calculates the 3D index of a cell from the 1D index in the array
+   * @param cellIndex 1D index in the array of cells
+   * @return 3D index of the cell in a cube
+   */
+  std::array<int, 3> index1dToIndex3d(int cellIndex);
+
+  /**
+   * Transforms a 3D Index of a Cell into a 1D Index
+   * @param x x-Index of 3D Cell index
+   * @param y y-Index of 3D Cell index
+   * @param z z-Index of 3D Cell index
+   * @return 1D Index of a Cell
+   */
+  int index3dToIndex1d(int x, int y, int z);
+
+  /**
+   * Calculates the 1D CellIndex of a 3D position
+   * @param x x-position of the Cell
+   * @param y y-position of the Cell
+   * @param z z-position of the Cell
+   * @return CellIndex
+   */
+  int coordinate3dToIndex1d(double x, double y, double z);
+
+  /**
+   * Calculates the 1D CellIndex of a 3D position
+   * @param x 3D vector of the position of the particle
+   * @return CellIndex in the 1D array
+   */
+  int coordinate3dToIndex1d(const Vector3 &x) { return coordinate3dToIndex1d(x[0], x[1], x[2]); }
+
+  /**
+   * Calculates the 3d Index of a given position
+   * @param x x-position of the Cell
+   * @param y y-position of the Cell
+   * @param z z-position of the Cell
+   * @return 3D Index of the cell
+   */
+  std::array<int, 3> coordinate3dToIndex3d(double x, double y, double z);
+
+  /**
+   * Calculates the distance between a given position and a given border of a cell
+   * @param cellIndex1d 1D index of the cell
+   * @param border border number between 0 and 5 (border 0, 3 -> x-direction, border 1,4 -> y-direction, border 2,5 ->
+   * z-direction, 0,1,2 -> min-border, 3,4,5 -> max-border)
+   * @param pos position to calculate the distance to
+   * @return distance between the position and the border
+   */
+
+  double getBorderDistance(int cellIndex1d, int border, Vector3 pos);
+
+  /**
+   * Calculates the Border between two neighbour Cells
+   * @param ownIndex1d first 1D Inex of the neighbour Cells
+   * @param otherIndex1d second 1D Index of the neighbour Cells
+   * @return border number between -1 and 5 (border 0, 3 -> x-direction, border 1,4 -> y-direction, border 2,5 ->
+   * z-direction, 0,1,2 -> min-border, 3,4,5 -> max-border, border -1 -> error. Cells don't have a common Border)
+   * CAUTION! This Implementation always returns only one Border, even if a Particle meight have escaped not through a
+   * border, but through an edge or a corner!
+   */
+  int getSharedBorder(int ownIndex1d, int otherIndex1d);
+
+  /**
+   * @brief Checks if a given cell is a ghost cell
+   *
+   * A cell is a ghost cell when it is at the edge of the domain,
+   * i.e when it has a cell index of 0 or the maximum along the respective axis
+   *
+   * @param x x coordinate of 3d cell index
+   * @param y y coordinate of 3d cell index
+   * @param z z coordinate of 3d cell index
+   * @return true if the particle is at the edge of the domian
+   */
+  bool isGhostCell(int x, int y, int z) {
+    return (x == 0 || y == 0 || z == 0 || x == numCellsX - 1 || y == numCellsY - 1 || z == numCellsZ - 1);
+  }
+
+  /**
+   * @brief Checks if a given cell is a border cell
+   *
+   * A cell is a ghost cell when it is at the edge of the domain,
+   * i.e when it has a cell index of 1 or one less than the maximum along the respective axis
+   *
+   * @param x x coordinate of 3d cell index
+   * @param y y coordinate of 3d cell index
+   * @param z z coordinate of 3d cell index
+   * @return true if the particle is at the edge of the domian
+   */
+  bool isBorderCell(int x, int y, int z) {
+    return (x == 1 || y == 1 || z == 1 || x == numCellsX - 2 || y == numCellsY - 2 || z == numCellsZ - 2);
+  }
+
+  /**
+   * @brief Adds ghost particles to the ghost cells adjacent to the reflective borders of the current border cell
+   * @param particle Particle for which we have to create ghost particles
+   * @param cell_index Index to the cell the particle is located in
+   * @param cell Reference of the cell the particle is located in
+   */
+  void createGhostParticles(Particle &particle, const int cell_index, Cell &cell);
+
+  /**
+   * @brief Creates ghost particles for all particles located in border cells and creates pointers to acces them
+   */
+  void updateGhost();
+
+  /**
+   * Like getSharedBorder, but more stable. It first looks at all borders between the neighbours and than returns the
+   * one with the highest priority
+   * @param ownIndex1d first 1D Inex of the neighbour Cells
+   * @param otherIndex1d second 1D Index of the neighbour Cells
+   * @return BorderType of the Border between two cells. ERROR, if the cells do not share a common border
+   * Instead one random Border this function returns the Border with the highest priority acording to the order in
+   * Cell.h
+   */
+  BorderType getSharedBorderType(int ownIndex1d, int otherIndex1d);
+
+  /**
+   * Returns all borders between two neighbours and not only the most important one
+   * @param ownIndex1d first 1D Inex of the neighbour Cells
+   * @param otherIndex1d second 1D Index of the neighbour Cells
+   * @return Vector, that contains all (up to 3) borderIndexes between two cells
+   */
+  const std::vector<int> getSharedBordersIndex(const int ownIndex1d, const int otherIndex1d);
+  /**
+   * If a Border is periodic, a ghost cell has a correlated border cell at the other side of the domain. This function
+   * finds this cell and returns its 1D-Index
+   * @param cellIndex to find the right border types, it is important to know the border cell, of wich the neighbours
+   * ghost should be periodic
+   * @param ghostCellIndex Index of Ghost Cell, whose equivalent should be found
+   * @return 1D Index of the border cell, which is equivalent to the ghost cell
+   */
+  int getPeriodicEquivalentForGhost(int cellIndex, int ghostCellIndex);
+
+  /**
+   * Calculates the repulsing distance between a particle pair
+   * @param sigma1 ϵ of the first particle
+   * @param sigma2 ϵ of the second particle
+   * @return
+   */
+  double calcRepulsingDistance(double sigma1, double sigma2);
+};
