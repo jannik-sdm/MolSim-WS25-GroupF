@@ -241,6 +241,7 @@ void LinkedCells::moveParticles() {
 }
 
 void LinkedCells::updateGhost() {
+#pragma omp parallel for
   for (int cell_index = 0; cell_index < cells.size(); cell_index++) {
     auto &cell = cells[cell_index];
     if (cell.cell_type == CellType::GHOST) {
@@ -249,6 +250,7 @@ void LinkedCells::updateGhost() {
       continue;
     }
   }
+
   for (int cell_index = 0; cell_index < cells.size(); cell_index++) {
     auto &cell = cells[cell_index];
     if (cell.cell_type != CellType::BORDER) continue;

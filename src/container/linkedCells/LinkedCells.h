@@ -125,10 +125,6 @@ Describes how many cells the overall structure has in Y-direction
    */
   template <typename Function>
   inline void applyToPairs(Function f) {
-// set the force of all particles to zero
-#pragma omp parallel for
-    for (Particle &particle : particles) particle.setF({0, 0, 0});
-
 // Calculate forces in own cell
 #pragma omp parallel for collapse(1) schedule(dynamic)
     for (Cell &cell : cells) {
