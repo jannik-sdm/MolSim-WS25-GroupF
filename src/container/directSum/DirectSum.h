@@ -32,6 +32,11 @@ class DirectSum {
     for (auto &p : particles) f(p, std::forward<Args>(args)...);
   }
 
+  template <typename Function, typename... Args>
+  inline void applyToParticlesPlotting(Function f, Args &&...args) {
+    for (auto &p : particles) f(p, std::forward<Args>(args)...);
+  }
+
   /**
    * @brief Applies the given function to all particle pairs in the simulation
    */

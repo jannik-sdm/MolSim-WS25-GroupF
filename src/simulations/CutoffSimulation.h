@@ -106,10 +106,9 @@ class CutoffSimulation : public Simulation {
   void plotParticles(int iteration, const std::string &filename) override {
 #ifdef ENABLE_VTK_OUTPUT
     outputWriter::VTKWriter writer;
-
     auto filler = [this](vtkPoints *points, vtkFloatArray *mass, vtkFloatArray *v, vtkFloatArray *f,
                          vtkIntArray *type) {
-      linkedCells.applyToParticles([&](Particle &p) {
+      linkedCells.applyToParticlesPlotting([&](Particle &p) {
         if (p.getState() == -1) return;  // Skip dead particles
 
         points->InsertNextPoint(p.getX().data());

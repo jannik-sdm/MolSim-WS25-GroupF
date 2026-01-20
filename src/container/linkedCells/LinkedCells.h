@@ -217,6 +217,15 @@ Describes how many cells the overall structure has in Y-direction
     }
   };
 
+  template <typename Function>
+  inline void applyToParticlesPlotting(Function f) {
+    for (Cell &cell : cells) {
+      for (Particle &p : cell.particles) {
+        f(p);
+      }
+    }
+  }
+
   /**
    * @brief Moves the particles that left a cell into their new cell according to the border type of the cells
    */

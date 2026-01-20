@@ -69,7 +69,7 @@ class PlanetSimulation : public Simulation {
     // VTK Filler Lambda
     auto filler = [this](vtkPoints *points, vtkFloatArray *mass, vtkFloatArray *v, vtkFloatArray *f,
                          vtkIntArray *type) {
-      container.applyToParticles([&](Particle &p) {
+      container.applyToParticlesPlotting([&](Particle &p) {
         points->InsertNextPoint(p.getX().data());
         mass->InsertNextValue(static_cast<float>(p.getM()));
         v->InsertNextTuple(p.getV().data());

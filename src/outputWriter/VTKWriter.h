@@ -1,6 +1,5 @@
 #pragma once
 #ifdef ENABLE_VTK_OUTPUT
-
 #include <vtkFloatArray.h>
 #include <vtkIntArray.h>
 #include <vtkPointData.h>
@@ -45,7 +44,6 @@ class VTKWriter {
     vtkNew<vtkIntArray> typeArray;
     typeArray->SetName("type");
     typeArray->SetNumberOfComponents(1);
-
     // 2. Call the lambda to fill arrays (Inversion of Control)
     // We pass raw pointers (.Get()) for easy access in the lambda
     filler(points.Get(), massArray.Get(), velocityArray.Get(), forceArray.Get(), typeArray.Get());
@@ -60,7 +58,6 @@ class VTKWriter {
 
     std::stringstream strstr;
     strstr << filename << "_" << std::setfill('0') << std::setw(4) << iteration << ".vtu";
-
     vtkNew<vtkXMLUnstructuredGridWriter> writer;
     writer->SetFileName(strstr.str().c_str());
     writer->SetInputData(grid);
