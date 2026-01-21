@@ -36,12 +36,6 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
     auto [x, y, z] = index1dToIndex3d(i);
     if (x == 0 || y == 0 || z == 0 || x == numCellsX - 1 || y == numCellsY - 1 || z == numCellsZ - 1) {
       cells[i].cell_type = CellType::GHOST;
-      if (x == 0) {
-        cells[i].borders[2] = borders[0];
-      }
-      if (x == numCellsX - 1) {
-        cells[i].borders[0] = borders[2];
-      }  // ghost cells don't need neighbours
     } else {
       setNeighbourCells(i);
       // check if cell should be a border cell
@@ -333,8 +327,8 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
             Particle(ghostParticleX, particle.getV(), particle.getM(), particle.getEpsilon(), particle.getSigma()));
       }
       // Also Periodic Ghost can cause new Ghosts
-      createGhostParticles(ghost_cell.ghost_particles[ghost_cell.size_ghost_particles], ghostCellIndex1d, ghost_cell);
       ghost_cell.size_ghost_particles++;
+      createGhostParticles(ghost_cell.ghost_particles[index_ghost_particle], ghostCellIndex1d, ghost_cell);
     }
   }
 }
