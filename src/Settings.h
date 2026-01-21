@@ -34,10 +34,15 @@ class Settings {
   struct Output output;
 
   struct Membrane {
+    /** @brief  Average Bond length of a molecule pair*/
     std::optional<double> r0;
+    /** @brief stiffness Constant of the Membrane*/
     std::optional<double> k;
-    std::optional<double> f_zUp;
+    /** @brief Material Specific Epsilon Value of the membrane*/
     std::optional<double> sigma;
+    /** @brief Upwards Force for specific membrane Particles*/
+    std::optional<double> f_zUp;
+    /** @brief Membrane Particles, to which f_zUp should be applied*/
     std::vector<Particle *> upwardsParticles;
   };
   struct Membrane membrane;

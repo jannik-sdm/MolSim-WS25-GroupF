@@ -5,12 +5,22 @@
 #pragma once
 #include "ThermostatSimulation.h"
 
+/**
+ * @class MembraneSimulation
+ * @brief Simulation for Assignment 5.1
+ *
+ * Simulates a Membrane, where every particle has a fixed neighbor like in a net.
+ *
+ */
 class MembraneSimulation : public ThermostatSimulation {
  private:
-  double sqrt2 = std::sqrt(2.0);
+  /**Average Bond length of a molecule pair*/
   double r0;
+  /**Stiffness Constant of the Membrane*/
   double stiffnessConstant;
+  /**Upwards Force, which can be applied to specific particles until time step 150.*/
   double F_zUp;
+  /**Particles th which the upwards Force should be applied*/
   std::vector<Particle *> upwardsParticles;
 
  public:
@@ -30,5 +40,8 @@ class MembraneSimulation : public ThermostatSimulation {
         upwardsParticles(upwardsParticles) {}
   virtual ~MembraneSimulation() override = default;
 
+  /**
+   * Works similar to the updateF Function of the thermostat simulation, but it also applies F_zUp and the Forces of the harmonic potential.
+   */
   void updateF() override;
 };

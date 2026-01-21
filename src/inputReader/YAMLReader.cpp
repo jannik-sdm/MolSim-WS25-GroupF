@@ -66,7 +66,7 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Set
 
       ParticleGenerator::membrane(particles, x, n, distance, mass, epsilon, settings.membrane.sigma, v,
                                   settings.membrane.upwardsParticles,
-                                  upwardsParticlesIndexes.value_or(std::vector<std::array<int, 2>>{{0, 0}}));
+                                  upwardsParticlesIndexes.value_or(std::vector<std::array<int, 2>>{}));
     } else if (p["single"]) {
       YAML::Node single = p["single"];
       Vector3 x = single["position"].as<Vector3>();
