@@ -19,8 +19,8 @@ particles:
       velocity: [0, 0, 0]
       epsilon: 1.0
       sigma: 1.0
-      upwards_particles_indexes: [[17,24],[17,25],[18,24],[28,25]]
       k: 300
       r0: 2.2
       f_zUp: 0.8
+      upwards_particles_indexes: [[17,24],[17,25],[18,24],[28,25]]
 
