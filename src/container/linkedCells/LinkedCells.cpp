@@ -238,17 +238,12 @@ void LinkedCells::moveParticles() {
 }
 
 void LinkedCells::updateGhost() {
-  for (int cell_index = 0; cell_index < cells.size(); cell_index++) {
+  for (int cell_index : ghostCells) {
     auto &cell = cells[cell_index];
-    if (cell.cell_type == CellType::GHOST) {
-      // clear particles of ghost cells
       cell.size_ghost_particles = 0;
-      continue;
-    }
   }
-  for (int cell_index = 0; cell_index < cells.size(); cell_index++) {
+  for (int cell_index : borderCells) {
     auto &cell = cells[cell_index];
-    if (cell.cell_type != CellType::BORDER) continue;
     for (auto particle : cell.particles) {
       // iterate over all particles of the BORDER cell and create ghost particles for each of them
       createGhostParticles(*particle, cell_index, cell);
