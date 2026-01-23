@@ -93,7 +93,7 @@ class ThermostatSimulation : public CutoffSimulation {
    * Initializes the system with the brownian motion, based on the given initial temperature
    * @param init_temperature The initial temperature of the system
    */
-  void initializeBrownianMotionWithTemperature(const double init_temperature);
+  virtual void initializeBrownianMotionWithTemperature(const double init_temperature);
 
   /**
    * Scans the particles, sets their type and initializes the types vector
