@@ -19,6 +19,8 @@
 #include "simulations/MembraneSimulation.h"
 #include "simulations/PlanetSimulation.h"
 #include "simulations/ThermostatSimulation.h"
+#include "simulations/nanoScale/NanoScaleSimulation.h"
+#include "simulations/nanoScale/NanoScaleThermostat.h"
 
 /**
  * @brief plot the particles to a xyz-file or to a vtk-file.
@@ -122,6 +124,19 @@ int main(int argc, char *argsv[]) {
             settings.simulation.t_initial, *thermostat, settings.membrane.r0.value(), settings.membrane.k.value(),
             settings.membrane.f_zUp.value(), settings.membrane.upwardsParticles);
 
+      } break;
+      case 6: {
+        thermostat = std::make_unique<NanoScaleThermostat>(
+            input_particles, settings.simulation.is2D,
+            settings.simulation.t_frequency.value_or(std::numeric_limits<int>::max()),
+            settings.simulation.t_final.value_or(settings.simulation.t_initial.value_or(0.0)),
+            settings.simulation.t_max_change.value_or(std::numeric_limits<double>::infinity()));
+        simulation = std::make_unique<NanoScaleSimulation>(
+            input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
+            settings.simulation.delta_t.value(), settings.simulation.brown_motion_avg_velocity,
+            settings.simulation.domain.value(), pow(2, (1.0 / 6.0)) * settings.membrane.sigma.value_or(1.0),
+            settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0),
+            settings.simulation.t_initial, *thermostat);
       } break;
 
       default:
