@@ -80,42 +80,11 @@ Particle::Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_ar
 // hier kein logging, damit keine Probleme entstehen, falls main den logger vor den particeln killed.
 Particle::~Particle() = default;
 
-const Vector3 &Particle::getX() const { return x; }
-
-const Vector3 &Particle::getV() const { return v; }
-
-const Vector3 &Particle::getF() const { return f; }
-
-const Vector3 &Particle::getOldF() const { return old_f; }
-
-double Particle::getEpsilon() const { return epsilon; }
-
-double Particle::getSigma() const { return sigma; }
-
-Particle *Particle::getNeighbor(int index) const { return neighbors[index]; }
-
-std::array<Particle *, 8> &Particle::getNeighbors() { return neighbors; }
-
 void Particle::setF(const Vector3 &new_f) {
   this->old_f = this->f;
   this->f = new_f;
 }
 
-void Particle::addF(const Vector3 &partial_f) {
-#pragma unroll
-  for (auto i = 0; i < 3; i++) {
-#pragma omp atomic
-    this->f[i] += partial_f[i];
-  }
-}
-
-void Particle::subF(const Vector3 &partial_f) {
-#pragma unroll
-  for (auto i = 0; i < 3; i++) {
-#pragma omp atomic
-    this->f[i] -= partial_f[i];
-  }
-}
 
 void Particle::setX(const Vector3 &new_x) { this->x = new_x; }
 
@@ -126,12 +95,6 @@ void Particle::setM(const double new_m) { this->m = new_m; }
 void Particle::setSigma(const double new_sigma) { this->sigma = new_sigma; }
 
 void Particle::setEpsilon(const double new_epsilon) { this->epsilon = new_epsilon; }
-
-double Particle::getM() const { return m; }
-
-int Particle::getType() const { return type; }
-
-int Particle::getState() const { return state; }
 
 std::string Particle::toString() const {
   std::stringstream stream;
