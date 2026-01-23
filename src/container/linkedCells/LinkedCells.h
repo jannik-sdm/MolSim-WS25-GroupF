@@ -127,7 +127,7 @@ Describes how many cells the overall structure has in Y-direction
   inline void applyToPairs(Function f) {
 
 // Calculate forces in own cell
-#pragma omp parallel for collapse(1) schedule(dynamic)
+#pragma omp parallel for collapse(1) schedule(dynamic, 16)
     for (Cell &cell : cells) {
       for (int i = 0; i < cell.particles.size(); i++) {
         const auto p1 = cell.particles[i];
@@ -148,7 +148,7 @@ Describes how many cells the overall structure has in Y-direction
     }
 
 // Calculate forces with neighbour cells
-#pragma omp parallel for collapse(1) schedule(dynamic)
+#pragma omp parallel for collapse(1) schedule(dynamic, 16)
     for (int i = 0; i < cells.size(); i++) {
       auto &c1 = cells[i];
 
