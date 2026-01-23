@@ -36,13 +36,16 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
     auto [x, y, z] = index1dToIndex3d(i);
     if (x == 0 || y == 0 || z == 0 || x == numCellsX - 1 || y == numCellsY - 1 || z == numCellsZ - 1) {
       cells[i].cell_type = CellType::GHOST;
+      ghostCells.push_back(i);
     } else {
       setNeighbourCells(i);
       // check if cell should be a border cell
       if (isBorderCell(x, y, z)) {
         cells[i].cell_type = CellType::BORDER;
+        borderCells.push_back(i);
       } else {
         cells[i].cell_type = CellType::REGULAR;
+        innerCells.push_back(i);
       }
     }
     // Set Border Types
