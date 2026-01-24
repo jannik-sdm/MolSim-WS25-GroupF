@@ -149,7 +149,7 @@ class Particle {
   /**
    * @brief Destroy the Particle object
    */
-  virtual ~Particle();
+  ~Particle() = default;
 
   /**
    * @return Position of the particle

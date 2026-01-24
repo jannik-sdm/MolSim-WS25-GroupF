@@ -37,6 +37,7 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
     if (x == 0 || y == 0 || z == 0 || x == numCellsX - 1 || y == numCellsY - 1 || z == numCellsZ - 1) {
       cells[i].cell_type = CellType::GHOST;
       ghostCells.push_back(i);
+      cells[i].ghost_particles.resize(32);
     } else {
       setNeighbourCells(i);
       // check if cell should be a border cell
@@ -293,8 +294,9 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
 
       } else {
         // need to push_back new particles
-        ghost_cell.ghost_particles.push_back(
-            Particle(ghostParticleX, ghostParticleV, particle.getM(), particle.getEpsilon(), particle.getSigma()));
+        ghost_cell.ghost_particles.reserve(2*ghost_cell.ghost_particles.size());
+        ghost_cell.ghost_particles.emplace_back(
+        ghostParticleX, ghostParticleV, particle.getM(), particle.getEpsilon(), particle.getSigma());
       }
 
       ghost_cell.size_ghost_particles++;
@@ -321,8 +323,9 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
 
       } else {
         // need to push_back new particles
-        ghost_cell.ghost_particles.push_back(
-            Particle(ghostParticleX, particle.getV(), particle.getM(), particle.getEpsilon(), particle.getSigma()));
+        ghost_cell.ghost_particles.reserve(2*ghost_cell.ghost_particles.size());
+        ghost_cell.ghost_particles.emplace_back(
+            ghostParticleX, particle.getV(), particle.getM(), particle.getEpsilon(), particle.getSigma());
       }
       // Also Periodic Ghost can cause new Ghosts
       ghost_cell.size_ghost_particles++;
