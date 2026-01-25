@@ -220,11 +220,12 @@ class Particle {
    * @param partial_f \f$ \Delta F\f$ - 3D-"Vector" (std::array<double, 3>)
    */
   void addF(const Vector3 &partial_f){
-//#pragma unroll
-    for (auto i = 0; i < 3; i++) {
 #pragma omp atomic
-      this->f[i] += partial_f[i];
-    }
+    this->f[0] += partial_f[0];
+#pragma omp atomic
+    this->f[1] += partial_f[1];
+#pragma omp atomic
+    this->f[2] += partial_f[2];
   }
 
   /**
@@ -232,11 +233,12 @@ class Particle {
    * @param partial_f \f$ \Delta F\f$ - 3D-"Vector" (std::array<double, 3>)
    */
   void subF(const Vector3 &partial_f){
-//#pragma unroll
-    for (auto i = 0; i < 3; i++) {
 #pragma omp atomic
-      this->f[i] -= partial_f[i];
-    }
+      this->f[0] -= partial_f[0];
+#pragma omp atomic
+      this->f[1] -= partial_f[1];
+#pragma omp atomic
+      this->f[2] -= partial_f[2];
   }
 
   /**
