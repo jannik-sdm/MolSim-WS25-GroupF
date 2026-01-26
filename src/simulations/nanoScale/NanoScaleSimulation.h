@@ -64,5 +64,5 @@ class NanoScaleSimulation : public ThermostatSimulation {
    */
   void initializeBrownianMotionWithTemperature(const double init_temperature) override;
 
-  void calculateStatistics(std::filesystem::path &filename);
+  void calculateStatistics(const std::filesystem::path &filename);
 };

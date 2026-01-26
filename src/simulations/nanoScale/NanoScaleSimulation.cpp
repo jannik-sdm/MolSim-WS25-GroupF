@@ -55,13 +55,15 @@ void NanoScaleSimulation::initializeBrownianMotionWithTemperature(const double i
   });
 }
 
-void NanoScaleSimulation::calculateStatistics(std::filesystem::path &filename) {
-  // Count per bin, average x-velocity
+void NanoScaleSimulation::calculateStatistics(const std::filesystem::path &filename) {
+  spdlog::info("Calculating bin statistic");
+
+  // Count per bin, average y-velocity
   std::vector<std::pair<unsigned int, double>> bins;
   bins.resize(BINS);
 
   linkedCells.applyToParticles([this, &bins](Particle &p) {
-    const unsigned int bin = p.getX()[0] / BINS;
+    const unsigned int bin = std::floor(p.getX()[0] / (linkedCells.domain_size[0] / (double)BINS));
 
     if (bin < 0 || bin > bins.size()) return;
 
@@ -75,7 +77,7 @@ void NanoScaleSimulation::calculateStatistics(std::filesystem::path &filename) {
      *
      */
 #pragma atomic
-    b.second += (p.getX()[0] - b.second) / b.first;
+    b.second += (p.getV()[1] - b.second) / b.first;
   });
 
   // Output
