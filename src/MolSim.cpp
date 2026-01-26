@@ -158,10 +158,19 @@ int main(int argc, char *argsv[]) {
 #else
   if (settings.output.directory.has_value()) {
     spdlog::info("Writing files to {}", settings.output.directory.value().string());
-    simulation->run([&input_particles, &settings](const unsigned int iteration) {
+    simulation->run([&simulation, &input_particles, &settings](const unsigned int iteration) {
       if (iteration % settings.output.frequency == 0) {
         const auto filename = settings.output.directory.value() / settings.output.prefix;
         plotParticles(input_particles, static_cast<int>(iteration), filename);
+      }
+
+      if (auto s = dynamic_cast<NanoScaleSimulation *>(simulation.get())) {
+        if (iteration % 10000 != 0) return;
+
+        std::ostringstream suffix;
+        suffix << "bin_" << iteration << ".csv";
+        const auto filename = settings.output.directory.value() / suffix.str();
+        s->calculateStatistics(filename);
       }
     });
   } else {
