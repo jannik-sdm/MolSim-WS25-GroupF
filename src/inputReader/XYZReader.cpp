@@ -18,18 +18,18 @@ void XYZReader::parse(std::vector<Particle> &particles, std::istream &file) {
   std::string tmp_string;
 
   getline(file, tmp_string);
-  spdlog::info("Read first line: {}", tmp_string);  // Könnte Sinvoll sein, deshalb auf info
+  SPDLOG_INFO("Read first line: {}", tmp_string);  // Könnte Sinvoll sein, deshalb auf info
 
   while (tmp_string.empty() or tmp_string[0] == '#') {
     getline(file, tmp_string);
-    spdlog::debug("Read line: {}", tmp_string);  // Muss nicht den output zumüllen
+    SPDLOG_DEBUG("Read line: {}", tmp_string);  // Muss nicht den output zumüllen
   }
 
   std::istringstream numstream(tmp_string);
   numstream >> num_particles;
-  spdlog::debug("Reading {}.", num_particles);
+  SPDLOG_DEBUG("Reading {}.", num_particles);
   getline(file, tmp_string);
-  spdlog::info("Read line: {}", tmp_string);  // gibt guten Überblick
+  SPDLOG_INFO("Read line: {}", tmp_string);  // gibt guten Überblick
 
   particles.reserve(num_particles);
 
@@ -43,13 +43,13 @@ void XYZReader::parse(std::vector<Particle> &particles, std::istream &file) {
       datastream >> vj;
     }
     if (datastream.eof()) {
-      spdlog::error("Error reading file: eof reached unexpectedly reading from line {}", i);
+      SPDLOG_ERROR("Error reading file: eof reached unexpectedly reading from line {}", i);
       exit(-1);
     }
     datastream >> m;
     particles.emplace_back(x, v, m, epsilon, sigma);
 
     getline(file, tmp_string);
-    spdlog::debug("Read line: {}", tmp_string);
+    SPDLOG_DEBUG("Read line: {}", tmp_string);
   }
 }

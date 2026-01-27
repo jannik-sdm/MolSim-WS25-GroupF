@@ -31,7 +31,7 @@ void exportYAML(std::vector<Particle> &particles, Settings &settings, std::files
 
   std::ofstream file(filepath);
   if (!file.good()) {
-    spdlog::error("Failed to open {}", filepath.string());
+    SPDLOG_ERROR("Failed to open {}", filepath.string());
     return;
   }
 

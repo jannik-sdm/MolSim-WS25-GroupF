@@ -59,7 +59,7 @@ class Simulation {
 
       f(current_iteration);
 #ifndef ENABLE_TIME_MEASURE
-      spdlog::info("Iteration {} finished.", current_iteration);
+      SPDLOG_INFO("Iteration {} finished.", current_iteration);
 #endif
 
       current_time += delta_t;

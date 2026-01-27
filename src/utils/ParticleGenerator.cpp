@@ -9,7 +9,7 @@ void ParticleGenerator::cuboid(std::vector<Particle> &particles, const Vector3 p
                                const double distance, const double mass, const std::optional<double> epsilon,
                                std::optional<double> sigma, const Vector3 v) {
   // Reserve space for new particles
-  spdlog::trace("Reserving {} particles", n[0] * n[1] * n[2]);
+  SPDLOG_TRACE("Reserving {} particles", n[0] * n[1] * n[2]);
   particles.reserve(particles.size() + n[0] * n[1] * n[2]);
 
   // Generate cuboid
@@ -28,7 +28,7 @@ void ParticleGenerator::membrane(std::vector<Particle> &particles, const Vector3
                                  std::vector<Particle *> &upwardsParticles,
                                  std::vector<std::array<int, 2>> upwardsParticlesIndexes) {
   // Reserve space for new particles
-  spdlog::trace("Reserving {} particles", n[0] * n[1] * n[2]);
+  SPDLOG_TRACE("Reserving {} particles", n[0] * n[1] * n[2]);
   particles.reserve(particles.size() + n[0] * n[1] * n[2]);
 
   // Generate cuboid
@@ -101,7 +101,7 @@ void ParticleGenerator::disc(std::vector<Particle> &particles, const Vector3 pos
                              std::optional<double> sigma, const Vector3 velocity) {
   // A Disk covers at most ¼π ≈ 78.54% of the original grid
   const unsigned int particles_to_reserve = (radius * 2 * radius * 2 * 78) / 100;
-  spdlog::trace("Reserving {} particles", particles_to_reserve);
+  SPDLOG_TRACE("Reserving {} particles", particles_to_reserve);
   particles.reserve(particles.size() + particles_to_reserve);
 
   // Generate disk

@@ -129,7 +129,7 @@ TEST_F(TestCutoffSimulation, ReflectiveBoundaryGeneratesRepulsiveForce) {
   EXPECT_NEAR(f[1], 0.0, 1e-5);
   EXPECT_NEAR(f[2], 0.0, 1e-5);
 
-  spdlog::info("Repulsive Wall Force calculated: {}", f[0]);
+  SPDLOG_INFO("Repulsive Wall Force calculated: {}", f[0]);
 }
 
 TEST_F(TestCutoffSimulation, OutflowBoundaryKillsParticle) {
