@@ -143,10 +143,10 @@ Describes how many cells the overall structure has in Y-direction
           const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
           if (r2 > cutoffSquared) continue;
 
-          // spdlog::warn("{} <-> {}", p1->toString(), p2->toString());
+          // SPDLOG_WARN("{} <-> {}", p1->toString(), p2->toString());
           f(*p1, *p2);
-          // spdlog::warn("{} <-> {}", p1->toString(), p2->toString());
-          // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
+          // SPDLOG_WARN("{} <-> {}", p1->toString(), p2->toString());
+          // SPDLOG_INFO("F: {} {} {}", f[0], f[1], f[2]);
         }
       }
     }
@@ -167,7 +167,7 @@ Describes how many cells the overall structure has in Y-direction
             const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
             if (r2 > cutoffSquared) continue;
             f(*p1, *p2);
-            // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
+            // SPDLOG_INFO("F: {} {} {}", f[0], f[1], f[2]);
           }
         }
       }
@@ -199,7 +199,7 @@ Describes how many cells the overall structure has in Y-direction
                 const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
                 // for ghost particles the force should only be computed if its repulsing
                 // normally cutoffRadius >> repulsing_distance but i'm letting it stand since it's an or statement
-                spdlog::trace("reached radius check for ghost particles");
+                SPDLOG_TRACE("reached radius check for ghost particles");
                 const double repusling_distance = calcRepulsingDistance(p1->getSigma(), p2.getSigma());
                 if (r2 >= repusling_distance * repusling_distance || r2 > cutoffSquared) continue;
 
@@ -215,7 +215,7 @@ Describes how many cells the overall structure has in Y-direction
               const double r2 = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
               if (r2 > cutoffSquared) continue;
               f(*p1, *p2);
-              // spdlog::info("F: {} {} {}", f[0], f[1], f[2]);
+              // SPDLOG_INFO("F: {} {} {}", f[0], f[1], f[2]);
             }
           }
         }

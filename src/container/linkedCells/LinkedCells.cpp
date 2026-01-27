@@ -78,10 +78,10 @@ LinkedCells::LinkedCells(std::vector<Particle> &particles, const Vector3 domain,
     const int cellIndex = coordinate3dToIndex1d(x, y, z);
 
     if (cellIndex < 0 || cellIndex >= cells.size()) {
-      spdlog::error("Particle ({},{},{}) out of domain", x, y, z);
+      SPDLOG_ERROR("Particle ({},{},{}) out of domain", x, y, z);
       continue;
     }
-    spdlog::debug("Particle with coordinates: ({} {} {}) added to cell {}/{}", x, y, z, cellIndex, cells.size());
+    SPDLOG_DEBUG("Particle with coordinates: ({} {} {}) added to cell {}/{}", x, y, z, cellIndex, cells.size());
     cells[cellIndex].particles.push_back(&p);
   }
   // initialize alive particles
@@ -146,7 +146,7 @@ double LinkedCells::getBorderDistance(const int cellIndex, const int border, Vec
   // 0,1,2 -> min-border, 3,4,5 -> max-border
   // add length of the current cell if the back, up or right border is calculated
   borderWall += (border < 3) ? 0 : cell_size[axis];
-  spdlog::trace("Border Distance: {}, cellIndex3d: {}, cell_size: {}, border: {}", pos[axis] - borderWall,
+  SPDLOG_TRACE("Border Distance: {}, cellIndex3d: {}, cell_size: {}, border: {}", pos[axis] - borderWall,
                 cellIndex3d[axis], cell_size[axis], border);
   return std::abs(pos[axis] - borderWall);
 }
@@ -181,10 +181,10 @@ void LinkedCells::moveParticles() {
 
       // move p to cell[j]
 
-      spdlog::trace("Moving particle with coordinate ({},{},{}) from cell {} to cell {}", p->getX()[0], p->getX()[1],
+      SPDLOG_TRACE("Moving particle with coordinate ({},{},{}) from cell {} to cell {}", p->getX()[0], p->getX()[1],
                     p->getX()[2], i, k);
       std::array<int, 3> i3D = index1dToIndex3d(i);
-      spdlog::trace("Old cell: ({},{},{})", i3D[0], i3D[1], i3D[2]);
+      SPDLOG_TRACE("Old cell: ({},{},{})", i3D[0], i3D[1], i3D[2]);
       Cell &new_cell = cells[k];
       if (new_cell.cell_type != CellType::GHOST) {
         new_cell.particles.push_back(p);
@@ -194,7 +194,7 @@ void LinkedCells::moveParticles() {
 
         if (border == BorderType::OUTFLOW) {
           p->setState(-1);  // mark particle as dead
-          spdlog::trace("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
+          SPDLOG_TRACE("Particle ({},{},{}) is dead!", p->getX()[0], p->getX()[1], p->getX()[2]);
           alive_particles--;
         } else if (border == BorderType::NAIVE_REFLECTION) {
           // First go back to the Old Position and then reflect the Velocity and calculate the new Position
@@ -212,7 +212,7 @@ void LinkedCells::moveParticles() {
           continue;                  // Don't move the Particle into a Ghost Cell
         } else if (border == BorderType::PERIODIC) {
           Vector3 x = p->getX();
-          spdlog::trace("Particle with position ({},{},{}) left domain at one side and entered it at the other side",
+          SPDLOG_TRACE("Particle with position ({},{},{}) left domain at one side and entered it at the other side",
                         x[0], x[1], x[2]);
           for (int index = 0; index < 3; index++) {
             if (x[index] < 0) x[index] += domain_size[index];
@@ -224,7 +224,7 @@ void LinkedCells::moveParticles() {
           cells[newCellIndex1d].particles.push_back(p);
 
         } else {
-          spdlog::error("A Particle escaped from the domain, even, if it shouldn't");
+          SPDLOG_ERROR("A Particle escaped from the domain, even, if it shouldn't");
         }
       }
       // erase p from cell[i] by swapping p to the back of the vector
@@ -260,7 +260,7 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
 
       // X of ghost Particle
       Vector3 ghostParticleX = particle.getX();
-      spdlog::trace("ghostParticleX: ({},{},{})", ghostParticleX[0], ghostParticleX[1], ghostParticleX[2]);
+      SPDLOG_TRACE("ghostParticleX: ({},{},{})", ghostParticleX[0], ghostParticleX[1], ghostParticleX[2]);
       // calculate the distance of the particle to the border l of the new cell it is moving into
       double deltaBorder = getBorderDistance(cell_index, l, ghostParticleX);
       double particle_distance = 2 * deltaBorder;
@@ -274,14 +274,14 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
       ghostParticleV[l % 3] *= -1;
       // Save ghost Particle
       int ghostCellIndex1d = coordinate3dToIndex1d(ghostParticleX);
-      spdlog::trace(
+      SPDLOG_TRACE(
           "Adding Ghost Particle with coordinates ({}, {}, {}) (Ghost Particle of ({},{},{}))to Cell with index {}/{}",
           ghostParticleX[0], ghostParticleX[1], ghostParticleX[2], particle.getX()[0], particle.getX()[1],
           particle.getX()[2], ghostCellIndex1d, cells.size());
       Cell &ghost_cell = cells[ghostCellIndex1d];
       int index_ghost_particle = ghost_cell.size_ghost_particles;
 
-      spdlog::trace("deltaBorder: {} distance: {}", 2 * deltaBorder,
+      SPDLOG_TRACE("deltaBorder: {} distance: {}", 2 * deltaBorder,
                     ArrayUtils::L2Norm(particle.getX() - ghostParticleX));
 
       if (index_ghost_particle < ghost_cell.ghost_particles.size()) {
@@ -306,7 +306,7 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
       Vector3 ghostParticleX = particle.getX();
       ghostParticleX[l % 3] += (l < 3) ? domain_size[l % 3] : -domain_size[l % 3];
       int ghostCellIndex1d = coordinate3dToIndex1d(ghostParticleX);
-      spdlog::trace(
+      SPDLOG_TRACE(
           "Adding Ghost Particle with coordinates ({}, {}, {}) (Ghost Particle of ({},{},{}))to Cell with index {}/{}",
           ghostParticleX[0], ghostParticleX[1], ghostParticleX[2], particle.getX()[0], particle.getX()[1],
           particle.getX()[2], ghostCellIndex1d, cells.size());
@@ -351,7 +351,7 @@ int LinkedCells::getPeriodicEquivalentForGhost(const int cellIndex, const int gh
   }
   /*if (index3d[0] == index1dToIndex3d(cellIndex)[0] && index3d[1] == index1dToIndex3d(cellIndex)[1] &&
       index3d[2] == index1dToIndex3d(cellIndex)[2]) {
-    spdlog::error("some error with calculating a periodic cell of a ghost cell");
+    SPDLOG_ERROR("some error with calculating a periodic cell of a ghost cell");
   }*/
   return index3dToIndex1d(index3d[0], index3d[1], index3d[2]);
 }
@@ -385,7 +385,7 @@ const std::vector<int> LinkedCells::getSharedBordersIndex(const int ownIndex1d, 
       // Find real cell to a ghost cell
       return getSharedBordersIndex(ownIndex1d, getPeriodicEquivalentForGhost(ownIndex1d, otherIndex1d));
     }*/
-    spdlog::error("Did not found other cell as neighbour of own cell");
+    SPDLOG_ERROR("Did not found other cell as neighbour of own cell");
     std::initializer_list<int> error = {-1};
     return error;
   }
