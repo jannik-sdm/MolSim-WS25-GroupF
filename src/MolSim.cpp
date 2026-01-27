@@ -176,7 +176,7 @@ int main(int argc, char *argsv[]) {
   double iterations = settings.simulation.end_time.value() / settings.simulation.delta_t.value();
   double mups = input_particles.size() * iterations / average_runtime.count();
   SPDLOG_INFO("Benchmark finished: total={}ms, average={}ms, mups={:.0f}mol/s", total_runtime.count(),
-               average_runtime.count(), mups);
+              average_runtime.count(), mups);
 
 #endif
 

@@ -146,8 +146,8 @@ void initializeLogging() {
       "async_logger", sinks.begin(), sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block);
   // Set Defaults
   spdlog::set_default_logger(async_logger);
-  //Sollte dafür sorgen, dass die queue nicht zu lang wird und bei einem SegFault halbwegs aktuelle logs noch geschrieben wurden.
-  //Nachteil: Bei sehr vielen logs können welche verloren gehen.
+  // Sollte dafür sorgen, dass die queue nicht zu lang wird und bei einem SegFault halbwegs aktuelle logs noch
+  // geschrieben wurden. Nachteil: Bei sehr vielen logs können welche verloren gehen.
   spdlog::flush_every(std::chrono::milliseconds(500));
 
   spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");

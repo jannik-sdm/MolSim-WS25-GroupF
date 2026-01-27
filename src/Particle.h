@@ -129,7 +129,8 @@ class Particle {
   // muss, ob ich den Wert schon habe oder nicht.
   // In Kombination mit on of the new particle
   //   * @param v_arg Velocity of the new particle
-  //   * @param m_arg Mass of tden optionalen Werten für f und old_f würde dies nur unnötig komplexe if-Verschachtelungen
+  //   * @param m_arg Mass of tden optionalen Werten für f und old_f würde dies nur unnötig komplexe
+  //   if-Verschachtelungen
   // verursachen
   /**
    * @brief Constructs a new particle with nullopts for sigma and epsilon
@@ -154,75 +155,75 @@ class Particle {
   /**
    * @return Position of the particle
    */
-  [[nodiscard]] const Vector3 &getX() const{ return x;}
+  [[nodiscard]] const Vector3 &getX() const { return x; }
 
   /**
    * @return Velocity of the particle
    */
-  [[nodiscard]] const Vector3 &getV() const{return v;}
+  [[nodiscard]] const Vector3 &getV() const { return v; }
 
   /**
    * @return Force effective on this particle
    */
-  [[nodiscard]] const Vector3 &getF() const {return f;}
+  [[nodiscard]] const Vector3 &getF() const { return f; }
 
   /**
    * @return Force which was effective on this particle \f$ \Delta t \f$ ago
    */
-  [[nodiscard]] const Vector3 &getOldF() const {return old_f;}
+  [[nodiscard]] const Vector3 &getOldF() const { return old_f; }
 
   /**
    * @return Mass of this particle
    */
-  [[nodiscard]] double getM() const {return m;}
+  [[nodiscard]] double getM() const { return m; }
 
   /**
    * @return Type of this particle
    */
-  [[nodiscard]] int getType() const {return type;}
+  [[nodiscard]] int getType() const { return type; }
 
   /**
    *
    * @return State of this particle
    */
-  [[nodiscard]] int getState() const {return state;}
+  [[nodiscard]] int getState() const { return state; }
 
   /**
    *@return Epsilon of this particle
    */
-  [[nodiscard]] double getEpsilon() const {return epsilon;}
+  [[nodiscard]] double getEpsilon() const { return epsilon; }
 
   /**
    *@return Sigma of this Particle
    */
-  [[nodiscard]] double getSigma() const {return sigma;}
+  [[nodiscard]] double getSigma() const { return sigma; }
 
   /**
    *
    * @return a Reference of the Neighbors array
    */
-  [[nodiscard]] std::array<Particle *, 8> &getNeighbors() {return neighbors;}
+  [[nodiscard]] std::array<Particle *, 8> &getNeighbors() { return neighbors; }
   /**
    *
    * @param index index of the neighbor you wanna get
    * @return Pointer to the Neighbor
    */
-  [[nodiscard]] Particle *getNeighbor(int index) const {return neighbors[index];}
+  [[nodiscard]] Particle *getNeighbor(int index) const { return neighbors[index]; }
 
   /**
    * @brief Sets new effective Force and updates Old Force to the current Force
    * @param new_f new Force - 3D-"Vector" (std::array<double, 3>)
    */
-  void setF(const Vector3 &new_f){
-  this->old_f = this->f;
-  this->f = new_f;
-}
+  void setF(const Vector3 &new_f) {
+    this->old_f = this->f;
+    this->f = new_f;
+  }
 
   /**
    * @brief Adds the Parameter to the current Force and does NOT update old Force
    * @param partial_f \f$ \Delta F\f$ - 3D-"Vector" (std::array<double, 3>)
    */
-  void addF(const Vector3 &partial_f){
+  void addF(const Vector3 &partial_f) {
 #pragma omp atomic
     this->f[0] += partial_f[0];
 #pragma omp atomic
@@ -235,44 +236,44 @@ class Particle {
    * @brief Adds the Parameter to the current Force and does NOT update old Force
    * @param partial_f \f$ \Delta F\f$ - 3D-"Vector" (std::array<double, 3>)
    */
-  void subF(const Vector3 &partial_f){
+  void subF(const Vector3 &partial_f) {
 #pragma omp atomic
-      this->f[0] -= partial_f[0];
+    this->f[0] -= partial_f[0];
 #pragma omp atomic
-      this->f[1] -= partial_f[1];
+    this->f[1] -= partial_f[1];
 #pragma omp atomic
-      this->f[2] -= partial_f[2];
+    this->f[2] -= partial_f[2];
   }
 
   /**
    * @brief Sets the Position
    * @param new_x new Position - 3D-"Vector" (std::array<double, 3>)
    */
-  void setX(const Vector3 &new_x){ this->x = new_x;}
+  void setX(const Vector3 &new_x) { this->x = new_x; }
 
   /**
    * @brief Sets the Velocity
    * @param new_v new Velocity - 3D-"Vector" (std::array<double, 3>)
    */
-  void setV(const Vector3 &new_v){ this->v = new_v; }
+  void setV(const Vector3 &new_v) { this->v = new_v; }
 
   /**
    * @brief Sets the Mass
    * @param new_m
    */
-  void setM(const double new_m){ this->m = new_m; }
+  void setM(const double new_m) { this->m = new_m; }
 
   /**
    * @brief Sets Sigma
    * @param new_sigma
    */
-  void setSigma(const double new_sigma){ this->sigma = new_sigma; }
+  void setSigma(const double new_sigma) { this->sigma = new_sigma; }
 
   /**
    * @brief sets Epsilon
    * @param new_epsilon
    */
-  void setEpsilon(const double new_epsilon){ this->epsilon = new_epsilon; }
+  void setEpsilon(const double new_epsilon) { this->epsilon = new_epsilon; }
 
   /**
    * @brief sets the type of a particle

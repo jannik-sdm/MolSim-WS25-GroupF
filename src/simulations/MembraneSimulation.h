@@ -41,7 +41,8 @@ class MembraneSimulation : public ThermostatSimulation {
   virtual ~MembraneSimulation() override = default;
 
   /**
-   * Works similar to the updateF Function of the thermostat simulation, but it also applies F_zUp and the Forces of the harmonic potential.
+   * Works similar to the updateF Function of the thermostat simulation, but it also applies F_zUp and the Forces of the
+   * harmonic potential.
    */
   void updateF() override;
 };

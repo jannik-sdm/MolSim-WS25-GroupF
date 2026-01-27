@@ -31,7 +31,6 @@ class LinkedCells {
   std::vector<int> borderCells;
   std::vector<int> ghostCells;
 
-
   /**
    * Reference to a Vector of all particles in the simulation
    */
@@ -129,7 +128,6 @@ Describes how many cells the overall structure has in Y-direction
    */
   template <typename Function>
   inline void applyToPairs(Function f) {
-
 // Calculate forces in own cell
 #pragma omp parallel for collapse(1) schedule(dynamic, 16)
     for (Cell &cell : cells) {
@@ -151,7 +149,7 @@ Describes how many cells the overall structure has in Y-direction
       }
     }
 
-// Calculate forces with neighbour cells
+    // Calculate forces with neighbour cells
 
 #pragma omp parallel for collapse(1) schedule(dynamic, 16)
     for (const int i : innerCells) {
@@ -207,7 +205,7 @@ Describes how many cells the overall structure has in Y-direction
               }
             }
           }
-        }else {
+        } else {
           // case for regular cells
           for (const auto p1 : c1.particles) {
             for (const auto p2 : c2.particles) {

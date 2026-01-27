@@ -147,7 +147,7 @@ double LinkedCells::getBorderDistance(const int cellIndex, const int border, Vec
   // add length of the current cell if the back, up or right border is calculated
   borderWall += (border < 3) ? 0 : cell_size[axis];
   SPDLOG_TRACE("Border Distance: {}, cellIndex3d: {}, cell_size: {}, border: {}", pos[axis] - borderWall,
-                cellIndex3d[axis], cell_size[axis], border);
+               cellIndex3d[axis], cell_size[axis], border);
   return std::abs(pos[axis] - borderWall);
 }
 
@@ -182,7 +182,7 @@ void LinkedCells::moveParticles() {
       // move p to cell[j]
 
       SPDLOG_TRACE("Moving particle with coordinate ({},{},{}) from cell {} to cell {}", p->getX()[0], p->getX()[1],
-                    p->getX()[2], i, k);
+                   p->getX()[2], i, k);
       std::array<int, 3> i3D = index1dToIndex3d(i);
       SPDLOG_TRACE("Old cell: ({},{},{})", i3D[0], i3D[1], i3D[2]);
       Cell &new_cell = cells[k];
@@ -213,7 +213,7 @@ void LinkedCells::moveParticles() {
         } else if (border == BorderType::PERIODIC) {
           Vector3 x = p->getX();
           SPDLOG_TRACE("Particle with position ({},{},{}) left domain at one side and entered it at the other side",
-                        x[0], x[1], x[2]);
+                       x[0], x[1], x[2]);
           for (int index = 0; index < 3; index++) {
             if (x[index] < 0) x[index] += domain_size[index];
             if (x[index] > domain_size[index]) x[index] -= domain_size[index];
@@ -241,7 +241,7 @@ void LinkedCells::moveParticles() {
 void LinkedCells::updateGhost() {
   for (int cell_index : ghostCells) {
     auto &cell = cells[cell_index];
-      cell.size_ghost_particles = 0;
+    cell.size_ghost_particles = 0;
   }
   for (int cell_index : borderCells) {
     auto &cell = cells[cell_index];
@@ -282,7 +282,7 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
       int index_ghost_particle = ghost_cell.size_ghost_particles;
 
       SPDLOG_TRACE("deltaBorder: {} distance: {}", 2 * deltaBorder,
-                    ArrayUtils::L2Norm(particle.getX() - ghostParticleX));
+                   ArrayUtils::L2Norm(particle.getX() - ghostParticleX));
 
       if (index_ghost_particle < ghost_cell.ghost_particles.size()) {
         // vector has enough allocated space ==> reuse old particle objects
@@ -294,9 +294,9 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
 
       } else {
         // need to push_back new particles
-        ghost_cell.ghost_particles.reserve(2*ghost_cell.ghost_particles.size());
-        ghost_cell.ghost_particles.emplace_back(
-        ghostParticleX, ghostParticleV, particle.getM(), particle.getEpsilon(), particle.getSigma());
+        ghost_cell.ghost_particles.reserve(2 * ghost_cell.ghost_particles.size());
+        ghost_cell.ghost_particles.emplace_back(ghostParticleX, ghostParticleV, particle.getM(), particle.getEpsilon(),
+                                                particle.getSigma());
       }
 
       ghost_cell.size_ghost_particles++;
@@ -323,9 +323,9 @@ void LinkedCells::createGhostParticles(Particle &particle, const int cell_index,
 
       } else {
         // need to push_back new particles
-        ghost_cell.ghost_particles.reserve(2*ghost_cell.ghost_particles.size());
-        ghost_cell.ghost_particles.emplace_back(
-            ghostParticleX, particle.getV(), particle.getM(), particle.getEpsilon(), particle.getSigma());
+        ghost_cell.ghost_particles.reserve(2 * ghost_cell.ghost_particles.size());
+        ghost_cell.ghost_particles.emplace_back(ghostParticleX, particle.getV(), particle.getM(), particle.getEpsilon(),
+                                                particle.getSigma());
       }
       // Also Periodic Ghost can cause new Ghosts
       ghost_cell.size_ghost_particles++;
