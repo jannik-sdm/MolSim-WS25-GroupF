@@ -77,22 +77,6 @@ Particle::Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_ar
 Particle::Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_arg, const int type_arg)
     : Particle(x_arg, v_arg, m_arg, {0, 0, 0}, {0, 0, 0}, type_arg) {}
 
-void Particle::setF(const Vector3 &new_f) {
-  this->old_f = this->f;
-  this->f = new_f;
-}
-
-
-void Particle::setX(const Vector3 &new_x) { this->x = new_x; }
-
-void Particle::setV(const Vector3 &new_v) { this->v = new_v; }
-
-void Particle::setM(const double new_m) { this->m = new_m; }
-
-void Particle::setSigma(const double new_sigma) { this->sigma = new_sigma; }
-
-void Particle::setEpsilon(const double new_epsilon) { this->epsilon = new_epsilon; }
-
 std::string Particle::toString() const {
   std::stringstream stream;
   stream << "Particle: X:" << x << " v: " << v << " f: " << f << " old_f: " << old_f << " type: " << type;

@@ -213,7 +213,10 @@ class Particle {
    * @brief Sets new effective Force and updates Old Force to the current Force
    * @param new_f new Force - 3D-"Vector" (std::array<double, 3>)
    */
-  void setF(const Vector3 &new_f);
+  void setF(const Vector3 &new_f){
+  this->old_f = this->f;
+  this->f = new_f;
+}
 
   /**
    * @brief Adds the Parameter to the current Force and does NOT update old Force
@@ -245,31 +248,31 @@ class Particle {
    * @brief Sets the Position
    * @param new_x new Position - 3D-"Vector" (std::array<double, 3>)
    */
-  void setX(const Vector3 &new_x);
+  void setX(const Vector3 &new_x){ this->x = new_x;}
 
   /**
    * @brief Sets the Velocity
    * @param new_v new Velocity - 3D-"Vector" (std::array<double, 3>)
    */
-  void setV(const Vector3 &new_v);
+  void setV(const Vector3 &new_v){ this->v = new_v; }
 
   /**
    * @brief Sets the Mass
    * @param new_m
    */
-  void setM(const double new_m);
+  void setM(const double new_m){ this->m = new_m; }
 
   /**
    * @brief Sets Sigma
    * @param new_sigma
    */
-  void setSigma(const double new_sigma);
+  void setSigma(const double new_sigma){ this->sigma = new_sigma; }
 
   /**
    * @brief sets Epsilon
    * @param new_epsilon
    */
-  void setEpsilon(const double new_epsilon);
+  void setEpsilon(const double new_epsilon){ this->epsilon = new_epsilon; }
 
   /**
    * @brief sets the type of a particle
