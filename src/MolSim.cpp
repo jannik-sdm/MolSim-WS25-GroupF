@@ -38,21 +38,21 @@ int main(int argc, char *argsv[]) {
   spdlog::set_level(settings.output.log_level);
 
   if (input_particles.empty()) {
-    spdlog::warn("No particles to simulate");
+    SPDLOG_WARN("No particles to simulate");
     exit(EXIT_SUCCESS);
   }
 
   if (!settings.simulation.worksheet.has_value()) {
-    spdlog::warn("No simulation selected");
+    SPDLOG_WARN("No simulation selected");
     exit(EXIT_SUCCESS);
   }
 
   if (!settings.simulation.end_time.has_value()) {
-    spdlog::error("Missing value for end_time");
+    SPDLOG_ERROR("Missing value for end_time");
     exit(EXIT_SUCCESS);
   }
   if (!settings.simulation.delta_t.has_value()) {
-    spdlog::error("Missing value for delta_t");
+    SPDLOG_ERROR("Missing value for delta_t");
     exit(EXIT_SUCCESS);
   }
 
@@ -71,7 +71,7 @@ int main(int argc, char *argsv[]) {
   std::vector<Particle> original = input_particles;  // keep a copy of the starting particles
 
   for (int i = 0; i < ENABLE_TIME_MEASURE; i++) {
-    spdlog::info("Benchmark iteration {}/{}", i + 1, ENABLE_TIME_MEASURE);
+    SPDLOG_INFO("Benchmark iteration {}/{}", i + 1, ENABLE_TIME_MEASURE);
 #endif
 
     switch (settings.simulation.worksheet.value()) {
@@ -140,7 +140,7 @@ int main(int argc, char *argsv[]) {
       } break;
 
       default:
-        spdlog::error("Invalid worksheet number {}", settings.simulation.worksheet.value());
+        SPDLOG_ERROR("Invalid worksheet number {}", settings.simulation.worksheet.value());
         exit(EXIT_FAILURE);
     };
 
@@ -157,7 +157,7 @@ int main(int argc, char *argsv[]) {
     spdlog::set_level(settings.output.log_level);
 #else
   if (settings.output.directory.has_value()) {
-    spdlog::info("Writing files to {}", settings.output.directory.value().string());
+    SPDLOG_INFO("Writing files to {}", settings.output.directory.value().string());
     simulation->run([&simulation, &input_particles, &settings](const unsigned int iteration) {
       if (iteration % settings.output.frequency == 0) {
         const auto filename = settings.output.directory.value() / settings.output.prefix;
@@ -174,13 +174,13 @@ int main(int argc, char *argsv[]) {
       }
     });
   } else {
-    spdlog::warn("No output folder set, running simulation without plotting");
+    SPDLOG_WARN("No output folder set, running simulation without plotting");
     simulation->run([](const unsigned int _) {});
   }
 #endif
 
     auto end_time_iteration = std::chrono::high_resolution_clock::now();
-    spdlog::info(
+    SPDLOG_INFO(
         "Program has been running for {} ms",
         std::chrono::duration_cast<std::chrono::milliseconds>(end_time_iteration - start_time_iteration).count());
 
@@ -199,7 +199,7 @@ int main(int argc, char *argsv[]) {
   std::chrono::milliseconds average_runtime = total_runtime / ENABLE_TIME_MEASURE;
   double iterations = settings.simulation.end_time.value() / settings.simulation.delta_t.value();
   double mups = input_particles.size() * iterations / average_runtime.count();
-  spdlog::info("Benchmark finished: total={}ms, average={}ms, mups={:.0f}mol/s", total_runtime.count(),
+  SPDLOG_INFO("Benchmark finished: total={}ms, average={}ms, mups={:.0f}mol/s", total_runtime.count(),
                average_runtime.count(), mups);
 
 #endif
