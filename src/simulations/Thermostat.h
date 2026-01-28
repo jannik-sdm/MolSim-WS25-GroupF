@@ -13,6 +13,7 @@
  * Allows for the simulation to modify the temperature of the system
  */
 class Thermostat {
+ protected:
   /**
    * Reference to the particles of the simulation
    */
