@@ -168,6 +168,7 @@ Describes how many cells the overall structure has in Y-direction
             // SPDLOG_INFO("F: {} {} {}", f[0], f[1], f[2]);
           }
         }
+
       }
     }
 #pragma omp parallel for collapse(1) schedule(dynamic, 16)
@@ -228,7 +229,8 @@ Describes how many cells the overall structure has in Y-direction
    */
   template <typename Function>
   inline void applyToParticles(Function f) {
-#pragma omp parallel for
+    //double sum;
+#pragma omp parallel for //reduce(sum)
     for (auto &p : particles) {
       f(p);
     }
