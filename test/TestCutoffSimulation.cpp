@@ -171,7 +171,7 @@ TEST_F(TestCutoffSimulation, GravityEffectsParticles) {
 
   // calculate the new force
   sim->updateF();
-  Vector3 f = p.getOldF();
+  Vector3 f = p.getF();
 
   EXPECT_LT(f[1], 0.0) << "Particle should have negative force in y-dimension due to gravity";
   EXPECT_NEAR(f[0], 0.0, 1e-5);
