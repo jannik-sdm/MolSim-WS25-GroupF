@@ -27,20 +27,29 @@ jobs:
           if ! command -v clang-tidy &> /dev/null; then
             echo "clang-tidy not found. Installing..."
             sudo apt-get update
-            sudo apt-get install -y clang-tidy libomp-dev
+            sudo apt-get install -y clang-tidy
           else
             echo "clang-tidy already installed."
             clang-tidy --version
           fi
+
+      # Install omp explicitly
+      - name: Install libomp-dev
+        run: sudo apt-get install -y libomp-dev
+
       # configure CMake to generate compile_commands.json
       - name: Configure CMake for Clang-Tidy
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DENABLE_DOXYGEN_TARGET=OFF
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DENABLE_DOXYGEN_TARGET=OFF -DENABLE_TEST_TARGET=OFF
 
-           # run Clang-Tidy (replace 'my_project_target' with your actual target name or use a script)
+      # DEBUG: find omp.h
+      - name: Find omp.h
+        run: find /usr -name "omp.h" -type f
+
+      # run Clang-Tidy (replace 'my_project_target' with your actual target name or use a script)
       - name: Run Clang-Tidy
         # working directory is root as default
         run:
-          find ${{github.workspace}}/src -name "*.cpp" | xargs clang-tidy -p ${{github.workspace}}/build -config-file=.clang-tidy -warnings-as-errors='*' --quiet --extra-arg=-I/usr/lib/llvm-19/include
+          find ${{github.workspace}}/src -name "*.cpp" | xargs clang-tidy -p ${{github.workspace}}/build -config-file=.clang-tidy -warnings-as-errors='*' --quiet --extra-arg=-I/usr/lib/clang/19/include
 
       # runs clang-format and fails if formatting is violated
       - name: Run clang-format
