@@ -12,6 +12,7 @@
 class TestThermostatSimulation : public ::testing::Test {
  public:
   std::vector<Particle> particles;
+  std::unique_ptr<LinkedCells> linkedCells;
   std::unique_ptr<ThermostatSimulation> sim;
   std::unique_ptr<Thermostat> thermostat;
 
@@ -35,10 +36,11 @@ class TestThermostatSimulation : public ::testing::Test {
   }
 
   void InitSimulation() {
+    linkedCells = std::make_unique<LinkedCells>(particles, domain, cutoff, is2D, borders);
     thermostat = std::make_unique<Thermostat>(particles, is2D, thermostat_interval, target_temp, max_temp_change);
 
-    sim = std::make_unique<ThermostatSimulation>(particles, start_time, end_time, delta_t, std::nullopt, domain, cutoff,
-                                                 borders, is2D, gravity, std::nullopt, *thermostat);
+    sim = std::make_unique<ThermostatSimulation>(*linkedCells, start_time, end_time, delta_t, std::nullopt, domain,
+                                                 cutoff, borders, is2D, gravity, std::nullopt, *thermostat);
     sim->current_iteration = 1;
   }
 
