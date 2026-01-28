@@ -8,11 +8,11 @@
 #include "simulations/nanoScale/NanoScaleThermostat.h"
 
 /**
- * @class ThermostatSimulation
- * @brief Simulation for Assignment 4
+ * @class NanoScaleSimulation
+ * @brief Simulation for Assignment 5
  *
  * This class calculates timesteps for a particle simulation with a cutoff radius, different boundary types, different
- * particle types and a thermostat
+ * particle types, a thermostat. Particles with a type less than MAX_STATIC_TYPE are not moved and have no velocity
  *
  * @see Physics::calculateV
  * @see Physics::calculateX
@@ -22,6 +22,7 @@ class NanoScaleSimulation : public ThermostatSimulation {
  public:
   /** Particles with a type less or equal to this will not be moved */
   const static int MAX_STATIC_TYPE = 1;
+  /** Amount of bins to use in calculateStatistics */
   const unsigned int BINS = 50;
 
  public:
@@ -43,26 +44,30 @@ class NanoScaleSimulation : public ThermostatSimulation {
   virtual ~NanoScaleSimulation() = default;
 
   /**
-   * Updates the position according to Stoermer Verlet
+   * @copydoc ThermostatSimulation::updateX()
    */
   void updateX() override;
 
   /**
-   * Updates the velocity according to Stoermer Verlet and applies the thermostat if needed to control the temperature
-   * of the system
+   * @copydoc ThermostatSimulation::updateV()
    */
   void updateV() override;
 
   /**
-   * Calculates the forces between each particle up to a specified cutoff radius and updates them
+   * @copydoc ThermostatSimulation::updateF()
    */
   void updateF() override;
 
   /**
-   * Initializes the system with the brownian motion, based on the given initial temperature
-   * @param init_temperature The initial temperature of the system
+   * @copydoc ThermostatSimulation::initializeBrownianMotionWithTemperature()
    */
   void initializeBrownianMotionWithTemperature(const double init_temperature) override;
 
+  /**
+   * @brief Calculates density and velocity profile
+   *
+   * Calculates the amount of particles and the average y velocity for each bin along the X axis
+   * @param filename Filename to export the csv to
+   */
   void calculateStatistics(const std::filesystem::path &filename);
 };
