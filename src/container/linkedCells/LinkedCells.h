@@ -125,7 +125,6 @@ Describes how many cells the overall structure has in Y-direction
    */
   template <typename Function>
   inline void applyToPairs(Function f) {
-
 // Calculate forces in own cell
 #pragma omp parallel for collapse(1) schedule(dynamic)
     for (Cell &cell : cells) {
