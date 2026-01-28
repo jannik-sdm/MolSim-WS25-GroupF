@@ -26,12 +26,11 @@ class NanoScaleSimulation : public ThermostatSimulation {
   const unsigned int BINS = 50;
 
  public:
-  NanoScaleSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
-                      const double delta_t, const std::optional<double> brown_motion_avg_velocity,
-                      const Vector3 &dimension, const double cutoff_radius, const std::array<BorderType, 6> &border,
-                      const bool is2D, const double g_grav, const std::optional<double> t_initial,
-                      Thermostat &thermostat)
-      : ThermostatSimulation(particles, start_time, end_time, delta_t, brown_motion_avg_velocity, dimension,
+  NanoScaleSimulation(LinkedCells &linkedCells, const double start_time, const double end_time, const double delta_t,
+                      const std::optional<double> brown_motion_avg_velocity, const Vector3 &dimension,
+                      const double cutoff_radius, const std::array<BorderType, 6> &border, const bool is2D,
+                      const double g_grav, const std::optional<double> t_initial, Thermostat &thermostat)
+      : ThermostatSimulation(linkedCells, start_time, end_time, delta_t, brown_motion_avg_velocity, dimension,
                              cutoff_radius, border, is2D, g_grav, t_initial, thermostat) {
     // also sets types of the particles
     initializeParticleTypes();

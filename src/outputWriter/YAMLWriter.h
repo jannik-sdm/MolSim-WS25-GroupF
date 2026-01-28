@@ -16,6 +16,7 @@ void exportYAML(std::vector<Particle> &particles, Settings &settings, std::files
   YAML::Node node;
   node["output"] = settings.output;
   node["simulation"] = settings.simulation;
+  node["useAlternateParallelisation"] = settings.useAlternateParallelisation;
 
   YAML::Node sequence(YAML::NodeType::Sequence);
   for (auto &p : particles) {

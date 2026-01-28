@@ -14,11 +14,13 @@ void MembraneSimulation::updateF() {
     // p1.getType() == 2 steht für einer der Partikel, die angehoben werden sollen.
     if (current_time < 150
         // Schau nach, ob auf das Particle F_zUP wirken soll
+        // Vergleiche auf Pointer Gleichheit
         && (std::find(this->upwardsParticles.begin(), this->upwardsParticles.end(), &p1) !=
-            this->upwardsParticles.end()))  // Vergleiche auf Pointer Gleichheit
+            this->upwardsParticles.end())) {
       p1.setF({0, 0, g_grav * p1.getM() + F_zUp});
-    else
+    } else {
       p1.setF({0, 0, g_grav * p1.getM()});
+    }
 
     // Kraft zwischen Nachbarn
 #pragma unroll
@@ -36,6 +38,7 @@ void MembraneSimulation::updateF() {
       p1.addF(f);
     }
   });
+
   // Reguläre Lennard-Jones Force -> Kleinerer Cutoff Radius wird dem Konstruktor übergeben
   linkedCells.applyToPairs([this](Particle &p1, Particle &p2) {
     interactionParams params = mixing_table[p1.getType() * num_types + p2.getType()];

@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "container/linkedCells/LinkedCells.h"
+#include "container/linkedCells/LinkedCellsV2.h"
 #include "simulations/Simulation.h"
 #include "simulations/Thermostat.h"
 
@@ -33,7 +34,7 @@ class CutoffSimulation : public Simulation {
   /**
    * Container for the particles, specifying how to modify the particles
    */
-  LinkedCells linkedCells;
+  LinkedCells &linkedCells;
   /**
    * reference to the particles vector
    */
@@ -55,15 +56,14 @@ class CutoffSimulation : public Simulation {
    * @param is2D
    * @param g_grav
    */
-  CutoffSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
-                   const double delta_t, const std::optional<double> brown_motion_avg_velocity,
-                   const Vector3 &dimension, const double cutoff_radius, const std::array<BorderType, 6> &border,
-                   const bool is2D, double g_grav)
+  CutoffSimulation(LinkedCells &linkedCells, const double start_time, const double end_time, const double delta_t,
+                   const std::optional<double> brown_motion_avg_velocity, const Vector3 &dimension,
+                   const double cutoff_radius, const std::array<BorderType, 6> &border, const bool is2D, double g_grav)
       : Simulation(start_time, end_time, delta_t),
         is2D(is2D),
         g_grav(g_grav),
-        linkedCells(particles, dimension, cutoff_radius, is2D, border),
-        particles(particles) {
+        linkedCells(linkedCells),
+        particles(linkedCells.particles) {
     if (brown_motion_avg_velocity.has_value()) {
       initializeBrownianMotion(brown_motion_avg_velocity.value());
     }
