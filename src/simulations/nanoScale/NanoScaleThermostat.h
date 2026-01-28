@@ -9,10 +9,11 @@
 #include "simulations/Thermostat.h"
 
 /**
- * @class Thermostat
- * Thermostat used in Assignment 4
+ * @class NanoScaleThermostat
+ * Thermostat used in Assignment 5
  *
- * Allows for the simulation to modify the temperature of the system
+ * Allows for the simulation to modify the temperature of the system,
+ * but only looks at particles with type less than NanoScaleSimulation::MAX_STATIC_TYPE
  */
 class NanoScaleThermostat : public Thermostat {
  public:
@@ -24,8 +25,7 @@ class NanoScaleThermostat : public Thermostat {
 
  private:
   /**
-   * @brief Calculates the kinetic energy of the simulation (sum of energy of all particles)
-   * @return Sum of the kinetic energy of all the particles
+   * @copydoc Thermostat::calculateEkin()
    */
   double calculateEkin();
 };
