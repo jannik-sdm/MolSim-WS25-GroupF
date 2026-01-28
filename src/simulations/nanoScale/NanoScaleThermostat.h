@@ -19,7 +19,7 @@ class NanoScaleThermostat : public Thermostat {
  public:
   NanoScaleThermostat(std::vector<Particle> &particles, bool is2D, int n, double target_temperature,
                       double maximum_temperature_change)
-      : Thermostat(particles, is2D, n, target_temperature, maximum_temperature_change) {};
+      : Thermostat(particles, is2D, n, target_temperature, maximum_temperature_change) {}
 
   virtual ~NanoScaleThermostat() = default;
 
