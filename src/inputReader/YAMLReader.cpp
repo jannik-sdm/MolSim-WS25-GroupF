@@ -23,6 +23,9 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Set
   auto simulation = config["simulation"];
   if (simulation) settings.simulation = config["simulation"].as<Settings::Simulation>();
 
+  auto alternative = config["useAlternateParallelisation"];
+  if (alternative) settings.useAlternateParallelisation = config["useAlternateParallelisation"].as<bool>();
+
   YAML::Node parts = config["particles"];
   for (auto p : parts) {
     if (p["cuboid"]) {

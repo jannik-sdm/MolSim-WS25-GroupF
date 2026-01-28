@@ -81,6 +81,9 @@ class Settings {
   };
   struct Simulation simulation;
 
+  /** If the simulation should use the LinkedCellsV2 container */
+  bool useAlternateParallelisation = false;
+
   Settings(std::vector<Particle> &particles) : particles(particles) {}
 
   /**
