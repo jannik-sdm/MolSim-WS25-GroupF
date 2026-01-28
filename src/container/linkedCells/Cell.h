@@ -98,7 +98,7 @@ inline BorderType string_to_border_type(std::string str) {
 
   auto x = lookup.find(str);
   if (x == lookup.end()) {
-    spdlog::warn("Invalid border type \"{}\"", str);
+    SPDLOG_WARN("Invalid border type \"{}\"", str);
     return BorderType::OUTFLOW;
   }
 

@@ -10,7 +10,6 @@ project(MolSim_GroupF VERSION 0.0.1 LANGUAGES CXX)
 # let ccmake and cmake-gui offer the default build type options
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug;Release;RelWithDebInfo;MinSizeRel")
 
-# set Release as the default build type if it is not yet set.
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING
             "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
@@ -33,6 +32,14 @@ target_include_directories(MolSimLib
 
 )
 
+# Ensure frame pointers are kept for profiling (only for RelWithDebInfo)
+if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    target_compile_options(MolSimLib
+            PRIVATE
+            $<$<CXX_COMPILER_ID:GNU>:-fno-omit-frame-pointer>
+    )
+endif ()
+
 # create make target
 add_executable(MolSim ${CMAKE_CURRENT_SOURCE_DIR}/src/MolSim.cpp
 )
@@ -42,7 +49,7 @@ target_link_libraries(
         MolSimLib
 )
 
-# activate all compiler warnings. Clean up your code :P
+# activate all compiler warnings
 # depending on the compiler different flags are used
 target_compile_options(MolSim
         PRIVATE
@@ -50,6 +57,14 @@ target_compile_options(MolSim
         # disable some spam warnings for icpc...
         $<$<CXX_COMPILER_ID:Intel>:-w3 -wd383,981,1418,1572,2259>
 )
+
+# Keep frame pointers for profiling (only for RelWithDebInfo)
+if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    target_compile_options(MolSim
+            PRIVATE
+            $<$<CXX_COMPILER_ID:GNU>:-fno-omit-frame-pointer>
+    )
+endif ()
 
 # add additional modules
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)

@@ -21,6 +21,7 @@ void MembraneSimulation::updateF() {
       p1.setF({0, 0, g_grav * p1.getM()});
 
     // Kraft zwischen Nachbarn
+#pragma unroll
     for (int i = 0; i < 8; i++) {
       // Ohne N3 Optimierung, um einen Iterationsdurchlauf zu sparen
       Particle *p2 = p1.getNeighbor(i);

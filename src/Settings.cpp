@@ -79,8 +79,8 @@ void Settings::parseArguments(int argc, char *argv[]) {
           try {
             YAMLReader::readFile(particles, optarg, *this);
           } catch (YAML::Exception e) {
-            spdlog::error("Error parsing YAML file, aborting");
-            spdlog::error("{}", e.msg);
+            SPDLOG_ERROR("Error parsing YAML file, aborting");
+            SPDLOG_ERROR("{}", e.msg);
             exit(EXIT_FAILURE);
           }
           break;
@@ -107,15 +107,15 @@ void Settings::parseArguments(int argc, char *argv[]) {
           break;
 
         case '?':
-          spdlog::error("Unknown option: -{}", static_cast<char>(optopt));
+          SPDLOG_ERROR("Unknown option: -{}", static_cast<char>(optopt));
           [[fallthrough]];
         default:
-          spdlog::error("An error occurred while passing the arguments.");
+          SPDLOG_ERROR("An error occurred while passing the arguments.");
           exit(EXIT_FAILURE);
           break;
       }
     } catch (const std::invalid_argument &e) {
-      spdlog::error("Could not parse arguments! Is the Type of the Arguments correct?");
+      SPDLOG_ERROR("Could not parse arguments! Is the Type of the Arguments correct?");
       exit(EXIT_FAILURE);
     }
   }
@@ -124,7 +124,7 @@ void Settings::parseArguments(int argc, char *argv[]) {
 void Settings::createOutputDirectory(const std::filesystem::path &directory) {
   if (std::filesystem::exists(directory)) return;
 
-  spdlog::warn("Output directory {} does not exist, creating it", directory.string());
+  SPDLOG_WARN("Output directory {} does not exist, creating it", directory.string());
   std::filesystem::create_directories(directory);
 }
 
@@ -146,6 +146,9 @@ void initializeLogging() {
       "async_logger", sinks.begin(), sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block);
   // Set Defaults
   spdlog::set_default_logger(async_logger);
+  // Sollte dafür sorgen, dass die queue nicht zu lang wird und bei einem SegFault halbwegs aktuelle logs noch
+  // geschrieben wurden. Nachteil: Bei sehr vielen logs können welche verloren gehen.
+  spdlog::flush_every(std::chrono::milliseconds(500));
 
   spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
 }
