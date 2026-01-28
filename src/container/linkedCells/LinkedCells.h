@@ -240,7 +240,7 @@ Describes how many cells the overall structure has in Y-direction
    */
   void moveParticles();
 
- private:
+ protected:
   /**
    * Finds the neighbour-cells of the given cell and returns their cell-array indexes
    * @param cellIndex 1D cell index of the current cell
