@@ -11,7 +11,6 @@ void MembraneSimulation::updateF() {
     // Zuerst alle Particle Kräfte wieder 0en
     // Soll die Gravity in 3D immer in Z-Richtung verlaufen?
     double current_time = start_time + delta_t * current_iteration;
-    // p1.getType() == 2 steht für einer der Partikel, die angehoben werden sollen.
     if (current_time < 150
         // Schau nach, ob auf das Particle F_zUP wirken soll
         // Vergleiche auf Pointer Gleichheit
