@@ -65,6 +65,8 @@ simulation:
   borders: [outflow,outflow,outflow,outflow,outflow,outflow] #Border Types for the 6 Borders of the Domain. Possible Border Types are: outflow, period, naive Reflection, reflection
   dimension: 2D #2D or 3D Domain
 
+useAlternateParallelisation: false # Use alternative implementation of parallelisation
+
 # Instructions to spawn particles
 particles:
   # Spawn a single particle
