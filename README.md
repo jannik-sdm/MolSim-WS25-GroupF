@@ -54,6 +54,8 @@ output:
   folder: "out/" # Where to store xyz/vtk files
   frequency: 10 # After how many iterations output is plotted
 
+useAlternateParallelisation: false # Use different approach to parallelisation
+
 # Parameters for running the simulation
 simulation:
   worksheet: 3 # Which worksheet's simulation to use
