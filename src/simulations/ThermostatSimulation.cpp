@@ -11,7 +11,7 @@ void ThermostatSimulation::updateV() {
 
   if (current_iteration % thermostat.getN() == 0 && current_iteration > 0) {
     thermostat.updateTemperature(linkedCells.alive_particles);
-    spdlog::info("Updated Temperature");
+    SPDLOG_INFO("Updated Temperature");
   }
 }
 
@@ -55,7 +55,7 @@ void ThermostatSimulation::initializeParticleTypes() {
   particle_types.clear();
   mixing_table.clear();
 
-  spdlog::info("Initializing Particle Types...");
+  SPDLOG_INFO("Initializing Particle Types...");
 
   for (auto &p : particles) {
     p.setType(getTypeId(p.getSigma(), p.getEpsilon()));

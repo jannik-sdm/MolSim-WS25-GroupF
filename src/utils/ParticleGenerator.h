@@ -24,12 +24,33 @@ class ParticleGenerator {
    * @param[in] n Number of particles along each axis
    * @param[in] distance Distance between particles
    * @param[in] mass Default Mass for each particle
+   * @param[in] epsilon Default epsilon for each particle
+   * @param[in] sigma Default sigma for each particle
    * @param[in] v Default Velocity for each particle
    */
   static void cuboid(std::vector<Particle> &particles, const Vector3 x, const std::array<unsigned int, 3> n,
                      const double distance, const double mass, const std::optional<double> epsilon,
                      std::optional<double> sigma, Vector3 v);
+  /**
+   * @brief Generate a membrane of particles
+   * Creates a membrane of particles with a given distance and sets the correct neighbor Particles in each direction
+   *
+   * @param[in, out] particles Vector to append the generated particles
+   * @param[in] x Left corner of the cuboid
+   * @param[in] n Number of particles along each axis
+   * @param[in] distance Distance between particles
+   * @param[in] mass Default Mass for each particle
+   * @param[in] epsilon Default epsilon for each particle
+   * @param[in] sigma Default sigma for each particle
+   * @param[in] v Default Velocity for each particle
+   * @param[out] upwardsParticles Vector, where the upwardParticles should be stored in
+   * @param[in] upwardsParticlesIndexes  Indexes to find the upwardsParticles
+   */
 
+  static void membrane(std::vector<Particle> &particles, const Vector3 x, const std::array<unsigned int, 3> n,
+                       const double distance, const double mass, const std::optional<double> epsilon,
+                       std::optional<double> sigma, Vector3 v, std::vector<Particle *> &upwardsParticles,
+                       std::vector<std::array<int, 2>> upwardsParticlesIndexes);
   /**
    * @brief Generate a disc of particles
    *

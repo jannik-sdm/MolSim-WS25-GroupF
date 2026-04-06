@@ -1,0 +1,26 @@
+output:
+  directory: "../out/membrane_3"
+  frequency: 10
+simulation:
+  worksheet: 5
+  end_time: 500
+  delta_t: 0.01
+  cutoff_radius: 4.0
+  domain: [148,148,148]
+  borders: [outflow,outflow,reflection,outflow,outflow,outflow]
+  gravity: -0.001
+  dimension: 3D
+particles:
+  - membrane:
+      position: [15.0,15.0,1.5]
+      size: [50,50,1]
+      distance: 2.2
+      mass: 1
+      velocity: [0, 0, 0]
+      epsilon: 1.0
+      sigma: 1.0
+      k: 300
+      r0: 2.2
+      f_zUp: 0.8
+      upwards_particles_indexes: [[17,24],[17,25],[18,24],[18,25]]
+

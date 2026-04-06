@@ -21,31 +21,26 @@ jobs:
       - uses: actions/checkout@v4
 
       
-      # install Clang-Tidy (and clang)
-      - name: Install Clang-Tidy
+      # install dependencies
+      - name: Install dependencies
         run: |
-          if ! command -v clang-tidy &> /dev/null; then
-            echo "clang-tidy not found. Installing..."
             sudo apt-get update
-            sudo apt-get install -y clang-tidy
-          else
-            echo "clang-tidy already installed."
-            clang-tidy --version
-          fi
+            sudo apt-get install -y clang-tidy libomp-dev
+
       # configure CMake to generate compile_commands.json
       - name: Configure CMake for Clang-Tidy
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DENABLE_DOXYGEN_TARGET=OFF
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DENABLE_DOXYGEN_TARGET=OFF -DENABLE_TEST_TARGET=OFF
 
-           # run Clang-Tidy (replace 'my_project_target' with your actual target name or use a script)
-      - name: Run Clang-Tidy
+      # run clang-tidy
+      - name: Run clang-tidy
         # working directory is root as default
         run:
-          find ${{github.workspace}}/src -name "*.cpp" | xargs clang-tidy -p ${{github.workspace}}/build -config-file=.clang-tidy -warnings-as-errors='*' --quiet
+          find ${{github.workspace}}/src -name "*.cpp" -or -name "*.h" | xargs clang-tidy -p ${{github.workspace}}/build -config-file=.clang-tidy -warnings-as-errors='*' --quiet
 
       # runs clang-format and fails if formatting is violated
       - name: Run clang-format
         run:
-          find ${{github.workspace}}/src -name "*.cpp" | xargs clang-format -style=file --dry-run -Werror
+          find ${{github.workspace}}/src -name "*.cpp" -or -name "*.h" | xargs clang-format -style=file --dry-run -Werror
   build-and-test:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
@@ -74,4 +69,3 @@ jobs:
       # execute ctests and output if tests fail
       run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure
   
-

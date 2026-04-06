@@ -1,0 +1,32 @@
+output:
+  directory: "../out/assignment5_3"
+  frequency: 10
+simulation:
+  worksheet: 4
+  delta_t: 0.0005
+  end_time: 100
+  cutoff_radius: 3.6
+  domain: [60, 60, 60]
+  borders: [periodic,reflection,periodic,periodic,reflection,periodic]
+  dimension: 3D
+  gravity: -12.44
+  temp_initial: 40
+  temp_frequency: 1000
+
+particles:
+  - cuboid:
+      position: [0.6, 0.6, 0.6]
+      size: [50, 20, 50]
+      velocity: [0, 0, 0]
+      mass: 1.0
+      distance: 1.2
+      epsilon: 1.0
+      sigma: 1.2
+  - cuboid:
+      position: [0.6, 24.6, 0.6]
+      size: [50, 20, 50]
+      velocity: [ 0, 0, 0 ]
+      mass: 2.0
+      distance: 1.2
+      epsilon: 1.0
+      sigma: 1.1

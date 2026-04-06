@@ -62,13 +62,12 @@ class ThermostatSimulation : public CutoffSimulation {
   std::vector<interactionParams> mixing_table;
 
  public:
-  ThermostatSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
-                       const double delta_t, const std::optional<double> brown_motion_avg_velocity,
-                       const Vector3 &dimension, const double cutoff_radius, const std::array<BorderType, 6> &border,
-                       const bool is2D, const double g_grav, const std::optional<double> t_initial,
-                       Thermostat &thermostat)
-      : CutoffSimulation(particles, start_time, end_time, delta_t, brown_motion_avg_velocity, dimension, cutoff_radius,
-                         border, is2D, g_grav),
+  ThermostatSimulation(LinkedCells &linkedCells, const double start_time, const double end_time, const double delta_t,
+                       const std::optional<double> brown_motion_avg_velocity, const Vector3 &dimension,
+                       const double cutoff_radius, const std::array<BorderType, 6> &border, const bool is2D,
+                       const double g_grav, const std::optional<double> t_initial, Thermostat &thermostat)
+      : CutoffSimulation(linkedCells, start_time, end_time, delta_t, brown_motion_avg_velocity, dimension,
+                         cutoff_radius, border, is2D, g_grav),
         thermostat(thermostat) {
     // also sets types of the particles
     initializeParticleTypes();
@@ -93,7 +92,7 @@ class ThermostatSimulation : public CutoffSimulation {
    * Initializes the system with the brownian motion, based on the given initial temperature
    * @param init_temperature The initial temperature of the system
    */
-  void initializeBrownianMotionWithTemperature(const double init_temperature);
+  virtual void initializeBrownianMotionWithTemperature(const double init_temperature);
 
   /**
    * Scans the particles, sets their type and initializes the types vector

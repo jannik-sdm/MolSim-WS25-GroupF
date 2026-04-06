@@ -67,7 +67,7 @@ void Thermostat::updateTemperature(int alive_particles) {
 int Thermostat::calculateAliveParticles() {
   int count = 0;
   for (auto &p : particles) {
-    if (p.getState() != -1) {
+    if (p.getState() != -1 && p.getType() >= 1) {
       count++;
     }
   }

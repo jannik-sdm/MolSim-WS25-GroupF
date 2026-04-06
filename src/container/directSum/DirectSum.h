@@ -1,5 +1,7 @@
 #pragma once
 
+#include <omp.h>
+
 #include <array>
 #include <vector>
 
@@ -26,6 +28,7 @@ class DirectSum {
    */
   template <typename Function, typename... Args>
   inline void applyToParticles(Function f, Args &&...args) {
+#pragma omp parallel for
     for (auto &p : particles) f(p, std::forward<Args>(args)...);
   }
 
@@ -34,7 +37,11 @@ class DirectSum {
    */
   template <typename Function>
   inline void applyToPairs(Function f) {
-    for (auto i = particles.begin(); i != particles.end(); i++)
-      for (auto j = std::next(i); j != particles.end(); j++) f(*i, *j);
+#pragma omp parallel for collapse(2)
+    for (auto i = 0; i < particles.size(); i++) {
+      for (auto j = i + 1; j < particles.size(); j++) {
+        f(particles[i], particles[j]);
+      }
+    }
   }
 };

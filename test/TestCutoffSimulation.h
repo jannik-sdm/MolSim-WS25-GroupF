@@ -11,6 +11,7 @@
 class TestCutoffSimulation : public ::testing::Test {
  protected:
   std::vector<Particle> particles;
+  std::unique_ptr<LinkedCells> linkedCells;
   std::unique_ptr<CutoffSimulation> sim;
 
   // Simulation Parameters
@@ -35,7 +36,8 @@ class TestCutoffSimulation : public ::testing::Test {
     particles.reserve(100);
   }
   void initSimulation() {
-    sim = std::make_unique<CutoffSimulation>(particles, start_time, end_time, delta_t, std::nullopt, domain, cutoff,
+    linkedCells = std::make_unique<LinkedCells>(particles, domain, cutoff, is2D, borders);
+    sim = std::make_unique<CutoffSimulation>(*linkedCells, start_time, end_time, delta_t, std::nullopt, domain, cutoff,
                                              borders, is2D, gravity);
   }
 

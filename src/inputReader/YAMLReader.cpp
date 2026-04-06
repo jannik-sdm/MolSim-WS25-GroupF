@@ -23,6 +23,9 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Set
   auto simulation = config["simulation"];
   if (simulation) settings.simulation = config["simulation"].as<Settings::Simulation>();
 
+  auto alternative = config["useAlternateParallelisation"];
+  if (alternative) settings.useAlternateParallelisation = config["useAlternateParallelisation"].as<bool>();
+
   YAML::Node parts = config["particles"];
   for (auto p : parts) {
     if (p["cuboid"]) {
@@ -38,11 +41,35 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Set
       if (cuboid["epsilon"]) epsilon = cuboid["epsilon"].as<double>();
       if (cuboid["sigma"]) sigma = cuboid["sigma"].as<double>();
 
-      spdlog::debug("Generating cuboid: position={} size={} distance={} mass={} velocity={} sigma={} epsilon={}",
-                    ArrayUtils::to_string(x), ArrayUtils::to_string(n), distance, mass, ArrayUtils::to_string(v),
-                    sigma.value_or(1), epsilon.value_or(5));
+      SPDLOG_DEBUG("Generating cuboid: position={} size={} distance={} mass={} velocity={} sigma={} epsilon={}",
+                   ArrayUtils::to_string(x), ArrayUtils::to_string(n), distance, mass, ArrayUtils::to_string(v),
+                   sigma.value_or(1), epsilon.value_or(5));
 
       ParticleGenerator::cuboid(particles, x, n, distance, mass, epsilon, sigma, v);
+    } else if (p["membrane"]) {
+      YAML::Node membrane = p["membrane"];
+
+      Vector3 x = membrane["position"].as<Vector3>();
+      std::array<unsigned int, 3> n = membrane["size"].as<std::array<unsigned int, 3>>();
+      double distance = membrane["distance"].as<double>();
+      double mass = membrane["mass"].as<double>();
+      Vector3 v = membrane["velocity"].as<Vector3>();
+      std::optional<double> epsilon;
+
+      if (membrane["epsilon"]) epsilon = membrane["epsilon"].as<double>();
+      if (membrane["sigma"]) settings.membrane.sigma = membrane["sigma"].as<double>();
+      std::optional<std::vector<std::array<int, 2>>> upwardsParticlesIndexes =
+          membrane["upwards_particles_indexes"].as<std::vector<std::array<int, 2>>>();
+      settings.membrane.k = membrane["k"].as<double>();
+      settings.membrane.r0 = membrane["r0"].as<double>();
+      settings.membrane.f_zUp = membrane["f_zUp"].as<double>();
+      SPDLOG_DEBUG("Generating membrane: position={} size={} distance={} mass={} velocity={} sigma={} epsilon={}",
+                   ArrayUtils::to_string(x), ArrayUtils::to_string(n), distance, mass, ArrayUtils::to_string(v),
+                   settings.membrane.sigma.value_or(1), epsilon.value_or(5));
+
+      ParticleGenerator::membrane(particles, x, n, distance, mass, epsilon, settings.membrane.sigma, v,
+                                  settings.membrane.upwardsParticles,
+                                  upwardsParticlesIndexes.value_or(std::vector<std::array<int, 2>>{}));
     } else if (p["single"]) {
       YAML::Node single = p["single"];
       Vector3 x = single["position"].as<Vector3>();
@@ -57,21 +84,21 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Set
         Vector3 f = single["force"].as<Vector3>();
         if (single["old_force"]) {
           Vector3 old_f = single["old_force"].as<Vector3>();
-          spdlog::debug(
+          SPDLOG_DEBUG(
               "Generating single particle: position={}, velocity={}, mass={}, sigma={}, epsilon={}, force={}, "
               "old_force={}",
               ArrayUtils::to_string(x), ArrayUtils::to_string(v), mass, sigma.value_or(1), epsilon.value_or(5),
               ArrayUtils::to_string(f), ArrayUtils::to_string(old_f));
           particles.emplace_back(x, v, mass, epsilon, sigma, f, old_f);
         } else {
-          spdlog::debug("Generating single particle: position={}, velocity={}, mass={}, sigma={}, epsilon={}, force={}",
-                        ArrayUtils::to_string(x), ArrayUtils::to_string(v), mass, sigma.value_or(1),
-                        epsilon.value_or(5), ArrayUtils::to_string(f));
+          SPDLOG_DEBUG("Generating single particle: position={}, velocity={}, mass={}, sigma={}, epsilon={}, force={}",
+                       ArrayUtils::to_string(x), ArrayUtils::to_string(v), mass, sigma.value_or(1), epsilon.value_or(5),
+                       ArrayUtils::to_string(f));
           particles.emplace_back(x, v, mass, epsilon, sigma, f);
         }
       } else {
-        spdlog::debug("Generating single particle: position={} mass={} velocity={}, sigma={}, epsilon={}",
-                      ArrayUtils::to_string(x), mass, ArrayUtils::to_string(v), sigma.value_or(1), epsilon.value_or(5));
+        SPDLOG_DEBUG("Generating single particle: position={} mass={} velocity={}, sigma={}, epsilon={}",
+                     ArrayUtils::to_string(x), mass, ArrayUtils::to_string(v), sigma.value_or(1), epsilon.value_or(5));
         particles.emplace_back(x, v, mass, epsilon, sigma);
       }
     } else if (p["disc"]) {
@@ -86,8 +113,8 @@ void YAMLReader::parse(std::vector<Particle> &particles, std::istream &file, Set
       if (disc["epsilon"]) epsilon = disc["epsilon"].as<double>();
       if (disc["sigma"]) sigma = disc["sigma"].as<double>();
 
-      spdlog::debug("Generating disc: position={} radius={} distance={} mass={} velocity={}",
-                    ArrayUtils::to_string(position), radius, distance, mass, ArrayUtils::to_string(velocity));
+      SPDLOG_DEBUG("Generating disc: position={} radius={} distance={} mass={} velocity={}",
+                   ArrayUtils::to_string(position), radius, distance, mass, ArrayUtils::to_string(velocity));
       ParticleGenerator::disc(particles, position, radius, distance, mass, epsilon, sigma, velocity);
     }
   }

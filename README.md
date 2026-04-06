@@ -54,6 +54,8 @@ output:
   folder: "out/" # Where to store xyz/vtk files
   frequency: 10 # After how many iterations output is plotted
 
+useAlternateParallelisation: false # Use different approach to parallelisation
+
 # Parameters for running the simulation
 simulation:
   worksheet: 3 # Which worksheet's simulation to use
@@ -100,6 +102,21 @@ particles:
       velocity: [0, -10, 0] # Initial velocity for each particle
       epsilon: 1.0 #Material specific value to calculate Lennard Jones Forces Correctly
       sigma: 1.0 #Material specific value to calculate Lennard Jones Forces Correctly
+  # Spawn a flat membrane, which can be pulled in z-direction at specific particles
+  - membrane:
+      position: [20, 20, 0] # Lower left corner of the cuboid
+      size: [100, 20, 1] # Number of particles along each axis
+      distance: 1.1225 # Distance between particles
+      mass: 1 # Mass for each particle
+      velocity: [0, 0, 0] # Initial velocity for each particle
+      epsilon: 1.0 #Material specific value to calculate Lennard Jones Forces Correctly
+      sigma: 1.0 #Material specific value to calculate Lennard Jones Forces Correctly
+      k: 300 #Stiffness Constant of the Membrane
+      r0: 2.2 #Average Bond length of a molecule pair
+      f_zUp: 0.8 #Upwards Force, which can be applied to specific particles until time step 150.
+      upwards_particles_indexes: [[17,24],[17,25],[18,24],[28,25]] #Indexes of the Particles, to which the Upwards Force f_zUp should be applied.
+                                                                   #Indexes are integer Values and describe the position of a Particle.f_zUp: 
+                                                                   #e.g. [1,2] is the 2nd particle in x-direction and the 3rd-Particle in y direction of the membran
 
 ```
 

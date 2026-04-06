@@ -16,6 +16,7 @@ void exportYAML(std::vector<Particle> &particles, Settings &settings, std::files
   YAML::Node node;
   node["output"] = settings.output;
   node["simulation"] = settings.simulation;
+  node["useAlternateParallelisation"] = settings.useAlternateParallelisation;
 
   YAML::Node sequence(YAML::NodeType::Sequence);
   for (auto &p : particles) {
@@ -31,7 +32,7 @@ void exportYAML(std::vector<Particle> &particles, Settings &settings, std::files
 
   std::ofstream file(filepath);
   if (!file.good()) {
-    spdlog::error("Failed to open {}", filepath.string());
+    SPDLOG_ERROR("Failed to open {}", filepath.string());
     return;
   }
 

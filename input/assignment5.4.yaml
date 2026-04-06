@@ -1,0 +1,44 @@
+output:
+  directory: "./out/54"
+  frequency: 10
+simulation:
+  worksheet: 6
+  delta_t: 0.0005
+  end_time: 500
+  brown_motion_avg_velocity: 0.1
+  cutoff_radius: 2.75
+  domain: [30, 30, 12]
+  borders: [outflow,periodic,periodic,outflow,periodic,periodic]
+  dimension: 3D
+  gravity: -0.8
+  temp_initial: 40
+  temp_frequency: 10
+
+particles:
+  # Left wall
+  - cuboid:
+      position: [1.0, 0.5, 0.5]
+      size: [2, 30, 12]
+      velocity: [0, 0, 0]
+      mass: 1.0
+      distance: 1.0
+      epsilon: 2.0
+      sigma: 1.1
+  # Right wall
+  - cuboid:
+      position: [27.2, 0.5, 0.5]
+      size: [2, 30, 12]
+      velocity: [0, 0, 0]
+      mass: 1.0
+      distance: 1.0
+      epsilon: 2.0
+      sigma: 1.1
+  # Fluid
+  - cuboid:
+      position: [3.2, 0.6, 0.6]
+      size: [20, 25, 10]
+      velocity: [0, 0, 0]
+      mass: 1.0
+      distance: 1.2
+      epsilon: 1.0
+      sigma: 1.0

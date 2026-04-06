@@ -129,7 +129,7 @@ TEST_F(TestCutoffSimulation, ReflectiveBoundaryGeneratesRepulsiveForce) {
   EXPECT_NEAR(f[1], 0.0, 1e-5);
   EXPECT_NEAR(f[2], 0.0, 1e-5);
 
-  spdlog::info("Repulsive Wall Force calculated: {}", f[0]);
+  SPDLOG_INFO("Repulsive Wall Force calculated: {}", f[0]);
 }
 
 TEST_F(TestCutoffSimulation, OutflowBoundaryKillsParticle) {
@@ -171,7 +171,7 @@ TEST_F(TestCutoffSimulation, GravityEffectsParticles) {
 
   // calculate the new force
   sim->updateF();
-  Vector3 f = p.getOldF();
+  Vector3 f = p.getF();
 
   EXPECT_LT(f[1], 0.0) << "Particle should have negative force in y-dimension due to gravity";
   EXPECT_NEAR(f[0], 0.0, 1e-5);

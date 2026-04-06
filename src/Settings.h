@@ -33,6 +33,20 @@ class Settings {
   };
   struct Output output;
 
+  struct Membrane {
+    /** @brief  Average Bond length of a molecule pair*/
+    std::optional<double> r0;
+    /** @brief stiffness Constant of the Membrane*/
+    std::optional<double> k;
+    /** @brief Material Specific Epsilon Value of the membrane*/
+    std::optional<double> sigma;
+    /** @brief Upwards Force for specific membrane Particles*/
+    std::optional<double> f_zUp;
+    /** @brief Membrane Particles, to which f_zUp should be applied*/
+    std::vector<Particle *> upwardsParticles;
+  };
+  struct Membrane membrane;
+
   struct Simulation {
     /** @brief Which worksheet to run */
     std::optional<unsigned int> worksheet;
@@ -67,7 +81,10 @@ class Settings {
   };
   struct Simulation simulation;
 
-  Settings(std::vector<Particle> &particles) : particles(particles) {};
+  /** If the simulation should use the LinkedCellsV2 container */
+  bool useAlternateParallelisation = false;
+
+  Settings(std::vector<Particle> &particles) : particles(particles) {}
 
   /**
    * @brief Parse command line arguments

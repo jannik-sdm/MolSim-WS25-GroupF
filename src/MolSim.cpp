@@ -16,8 +16,11 @@
 #include "outputWriter/YAMLWriter.h"
 #include "simulations/CollisionSimulation.h"
 #include "simulations/CutoffSimulation.h"
+#include "simulations/MembraneSimulation.h"
 #include "simulations/PlanetSimulation.h"
 #include "simulations/ThermostatSimulation.h"
+#include "simulations/nanoScale/NanoScaleSimulation.h"
+#include "simulations/nanoScale/NanoScaleThermostat.h"
 
 /**
  * @brief plot the particles to a xyz-file or to a vtk-file.
@@ -35,21 +38,21 @@ int main(int argc, char *argsv[]) {
   spdlog::set_level(settings.output.log_level);
 
   if (input_particles.empty()) {
-    spdlog::warn("No particles to simulate");
+    SPDLOG_WARN("No particles to simulate");
     exit(EXIT_SUCCESS);
   }
 
   if (!settings.simulation.worksheet.has_value()) {
-    spdlog::warn("No simulation selected");
+    SPDLOG_WARN("No simulation selected");
     exit(EXIT_SUCCESS);
   }
 
   if (!settings.simulation.end_time.has_value()) {
-    spdlog::error("Missing value for end_time");
+    SPDLOG_ERROR("Missing value for end_time");
     exit(EXIT_SUCCESS);
   }
   if (!settings.simulation.delta_t.has_value()) {
-    spdlog::error("Missing value for delta_t");
+    SPDLOG_ERROR("Missing value for delta_t");
     exit(EXIT_SUCCESS);
   }
 
@@ -62,13 +65,14 @@ int main(int argc, char *argsv[]) {
   // select simulation
   std::unique_ptr<Simulation> simulation = nullptr;
   std::unique_ptr<Thermostat> thermostat = nullptr;
+  std::unique_ptr<LinkedCells> linkedCells = nullptr;
 
 #ifdef ENABLE_TIME_MEASURE
   std::chrono::milliseconds total_runtime(0);
   std::vector<Particle> original = input_particles;  // keep a copy of the starting particles
 
   for (int i = 0; i < ENABLE_TIME_MEASURE; i++) {
-    spdlog::info("Benchmark iteration {}/{}", i + 1, ENABLE_TIME_MEASURE);
+    SPDLOG_INFO("Benchmark iteration {}/{}", i + 1, ENABLE_TIME_MEASURE);
 #endif
 
     switch (settings.simulation.worksheet.value()) {
@@ -85,31 +89,93 @@ int main(int argc, char *argsv[]) {
         break;
 
       case 3:
+        if (settings.useAlternateParallelisation) {
+          linkedCells = std::make_unique<LinkedCellsV2>(input_particles, settings.simulation.domain.value(),
+                                                        settings.simulation.cutoff_radius.value(),
+                                                        settings.simulation.is2D, settings.simulation.borders.value());
+        } else {
+          linkedCells = std::make_unique<LinkedCells>(input_particles, settings.simulation.domain.value(),
+                                                      settings.simulation.cutoff_radius.value(),
+                                                      settings.simulation.is2D, settings.simulation.borders.value());
+        }
+
         simulation = std::make_unique<CutoffSimulation>(
-            input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
+            *linkedCells, settings.simulation.start_time, settings.simulation.end_time.value(),
             settings.simulation.delta_t.value(), settings.simulation.brown_motion_avg_velocity,
             settings.simulation.domain.value(), settings.simulation.cutoff_radius.value(),
             settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0));
-
-        /*(std::vector<Particle> &particles, const double start_time, const double end_time,
-                   const double delta_t, const Vector3 &dimension, const double cutoff_radius,
-                   const std::array<BorderType, 6> &border, const bool is2D, double g_grav)*/
         break;
+
       case 4: {
+        if (settings.useAlternateParallelisation) {
+          linkedCells = std::make_unique<LinkedCellsV2>(input_particles, settings.simulation.domain.value(),
+                                                        settings.simulation.cutoff_radius.value(),
+                                                        settings.simulation.is2D, settings.simulation.borders.value());
+        } else {
+          linkedCells = std::make_unique<LinkedCells>(input_particles, settings.simulation.domain.value(),
+                                                      settings.simulation.cutoff_radius.value(),
+                                                      settings.simulation.is2D, settings.simulation.borders.value());
+        }
         thermostat = std::make_unique<Thermostat>(
             input_particles, settings.simulation.is2D, settings.simulation.t_frequency.value(),
             settings.simulation.t_final.value_or(settings.simulation.t_initial.value()),
             settings.simulation.t_max_change.value_or(std::numeric_limits<double>::infinity()));
         simulation = std::make_unique<ThermostatSimulation>(
-            input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
+            *linkedCells, settings.simulation.start_time, settings.simulation.end_time.value(),
             settings.simulation.delta_t.value(), settings.simulation.brown_motion_avg_velocity,
             settings.simulation.domain.value(), settings.simulation.cutoff_radius.value(),
             settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0),
             settings.simulation.t_initial, *thermostat);
       } break;
+      case 5: {
+        if (settings.useAlternateParallelisation) {
+          linkedCells = std::make_unique<LinkedCellsV2>(input_particles, settings.simulation.domain.value(),
+                                                        settings.simulation.cutoff_radius.value(),
+                                                        settings.simulation.is2D, settings.simulation.borders.value());
+        } else {
+          linkedCells = std::make_unique<LinkedCells>(input_particles, settings.simulation.domain.value(),
+                                                      settings.simulation.cutoff_radius.value(),
+                                                      settings.simulation.is2D, settings.simulation.borders.value());
+        }
+        thermostat = std::make_unique<Thermostat>(
+            input_particles, settings.simulation.is2D,
+            settings.simulation.t_frequency.value_or(std::numeric_limits<int>::max()),
+            settings.simulation.t_final.value_or(settings.simulation.t_initial.value_or(0.0)),
+            settings.simulation.t_max_change.value_or(std::numeric_limits<double>::infinity()));
+        simulation = std::make_unique<MembraneSimulation>(
+            *linkedCells, settings.simulation.start_time, settings.simulation.end_time.value(),
+            settings.simulation.delta_t.value(), settings.simulation.brown_motion_avg_velocity,
+            settings.simulation.domain.value(), pow(2, (1.0 / 6.0)) * settings.membrane.sigma.value_or(1.0),
+            settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0),
+            settings.simulation.t_initial, *thermostat, settings.membrane.r0.value(), settings.membrane.k.value(),
+            settings.membrane.f_zUp.value(), settings.membrane.upwardsParticles);
+
+      } break;
+      case 6: {
+        if (settings.useAlternateParallelisation) {
+          linkedCells = std::make_unique<LinkedCellsV2>(input_particles, settings.simulation.domain.value(),
+                                                        settings.simulation.cutoff_radius.value(),
+                                                        settings.simulation.is2D, settings.simulation.borders.value());
+        } else {
+          linkedCells = std::make_unique<LinkedCells>(input_particles, settings.simulation.domain.value(),
+                                                      settings.simulation.cutoff_radius.value(),
+                                                      settings.simulation.is2D, settings.simulation.borders.value());
+        }
+        thermostat = std::make_unique<NanoScaleThermostat>(
+            input_particles, settings.simulation.is2D,
+            settings.simulation.t_frequency.value_or(std::numeric_limits<int>::max()),
+            settings.simulation.t_final.value_or(settings.simulation.t_initial.value_or(0.0)),
+            settings.simulation.t_max_change.value_or(std::numeric_limits<double>::infinity()));
+        simulation = std::make_unique<NanoScaleSimulation>(
+            *linkedCells, settings.simulation.start_time, settings.simulation.end_time.value(),
+            settings.simulation.delta_t.value(), settings.simulation.brown_motion_avg_velocity,
+            settings.simulation.domain.value(), pow(2, (1.0 / 6.0)) * settings.membrane.sigma.value_or(1.0),
+            settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0),
+            settings.simulation.t_initial, *thermostat);
+      } break;
 
       default:
-        spdlog::error("Invalid worksheet number {}", settings.simulation.worksheet.value());
+        SPDLOG_ERROR("Invalid worksheet number {}", settings.simulation.worksheet.value());
         exit(EXIT_FAILURE);
     };
 
@@ -126,21 +192,30 @@ int main(int argc, char *argsv[]) {
     spdlog::set_level(settings.output.log_level);
 #else
   if (settings.output.directory.has_value()) {
-    spdlog::info("Writing files to {}", settings.output.directory.value().string());
-    simulation->run([&input_particles, &settings](const unsigned int iteration) {
+    SPDLOG_INFO("Writing files to {}", settings.output.directory.value().string());
+    simulation->run([&simulation, &input_particles, &settings](const unsigned int iteration) {
       if (iteration % settings.output.frequency == 0) {
         const auto filename = settings.output.directory.value() / settings.output.prefix;
         plotParticles(input_particles, static_cast<int>(iteration), filename);
       }
+
+      if (auto s = dynamic_cast<NanoScaleSimulation *>(simulation.get())) {
+        if (iteration % 10000 != 0) return;
+
+        std::ostringstream suffix;
+        suffix << "bin_" << iteration << ".csv";
+        const auto filename = settings.output.directory.value() / suffix.str();
+        s->calculateStatistics(filename);
+      }
     });
   } else {
-    spdlog::warn("No output folder set, running simulation without plotting");
+    SPDLOG_WARN("No output folder set, running simulation without plotting");
     simulation->run([](const unsigned int _) {});
   }
 #endif
 
     auto end_time_iteration = std::chrono::high_resolution_clock::now();
-    spdlog::info(
+    SPDLOG_INFO(
         "Program has been running for {} ms",
         std::chrono::duration_cast<std::chrono::milliseconds>(end_time_iteration - start_time_iteration).count());
 
@@ -151,6 +226,9 @@ int main(int argc, char *argsv[]) {
       input_particles.push_back(p);
     }
 
+    // Rebuild the linkedCells container
+    linkedCells->moveParticles();
+
     // add to total runtime
     total_runtime += std::chrono::duration_cast<std::chrono::milliseconds>(end_time_iteration - start_time_iteration);
   }
@@ -159,8 +237,8 @@ int main(int argc, char *argsv[]) {
   std::chrono::milliseconds average_runtime = total_runtime / ENABLE_TIME_MEASURE;
   double iterations = settings.simulation.end_time.value() / settings.simulation.delta_t.value();
   double mups = input_particles.size() * iterations / average_runtime.count();
-  spdlog::info("Benchmark finished: total={}ms, average={}ms, mups={:.0f}mol/s", total_runtime.count(),
-               average_runtime.count(), mups);
+  SPDLOG_INFO("Benchmark finished: total={}ms, average={}ms, mups={:.0f}mol/s", total_runtime.count(),
+              average_runtime.count(), mups);
 
 #endif
 

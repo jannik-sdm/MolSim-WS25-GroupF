@@ -73,6 +73,10 @@ class Particle {
    * σ-Value for Lorentz-Berthelot mixing rule
    */
   double sigma;
+  /**
+   * Neighbors of a Particle in a membrane
+   */
+  std::array<Particle *, 8> neighbors;
 
  public:
   /**
@@ -123,13 +127,14 @@ class Particle {
            const int type_arg = 0);
   // Ein Optional für sigma und epsilon hat den Vorteil, dass ich mir im Voraus nicht ewig den Kopf darüber zerbrechen
   // muss, ob ich den Wert schon habe oder nicht.
-  // In Kombination mit den optionalen Werten für f und old_f würde dies nur unnötig komplexe if-Verschachtelungen
+  // In Kombination mit on of the new particle
+  //   * @param v_arg Velocity of the new particle
+  //   * @param m_arg Mass of tden optionalen Werten für f und old_f würde dies nur unnötig komplexe
+  //   if-Verschachtelungen
   // verursachen
   /**
    * @brief Constructs a new particle with nullopts for sigma and epsilon
-   * @param x_arg Position of the new particle
-   * @param v_arg Velocity of the new particle
-   * @param m_arg Mass of the new particle
+   * @param x_arg Positihe new particle
    * @param type_arg Type of the new particle
    */
   Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_arg, const Vector3 &f_arg,
@@ -145,101 +150,128 @@ class Particle {
   /**
    * @brief Destroy the Particle object
    */
-  virtual ~Particle();
+  ~Particle() = default;
 
   /**
    * @return Position of the particle
    */
-  [[nodiscard]] const Vector3 &getX() const;
+  [[nodiscard]] const Vector3 &getX() const { return x; }
 
   /**
    * @return Velocity of the particle
    */
-  [[nodiscard]] const Vector3 &getV() const;
+  [[nodiscard]] const Vector3 &getV() const { return v; }
 
   /**
    * @return Force effective on this particle
    */
-  [[nodiscard]] const Vector3 &getF() const;
+  [[nodiscard]] const Vector3 &getF() const { return f; }
 
   /**
    * @return Force which was effective on this particle \f$ \Delta t \f$ ago
    */
-  [[nodiscard]] const Vector3 &getOldF() const;
+  [[nodiscard]] const Vector3 &getOldF() const { return old_f; }
 
   /**
    * @return Mass of this particle
    */
-  [[nodiscard]] double getM() const;
+  [[nodiscard]] double getM() const { return m; }
 
   /**
    * @return Type of this particle
    */
-  [[nodiscard]] int getType() const;
+  [[nodiscard]] int getType() const { return type; }
 
   /**
    *
    * @return State of this particle
    */
-  [[nodiscard]] int getState() const;
+  [[nodiscard]] int getState() const { return state; }
 
   /**
    *@return Epsilon of this particle
    */
-  [[nodiscard]] double getEpsilon() const;
+  [[nodiscard]] double getEpsilon() const { return epsilon; }
 
   /**
    *@return Sigma of this Particle
    */
-  [[nodiscard]] double getSigma() const;
+  [[nodiscard]] double getSigma() const { return sigma; }
+
+  /**
+   *
+   * @return a Reference of the Neighbors array
+   */
+  [[nodiscard]] std::array<Particle *, 8> &getNeighbors() { return neighbors; }
+  /**
+   *
+   * @param index index of the neighbor you wanna get
+   * @return Pointer to the Neighbor
+   */
+  [[nodiscard]] Particle *getNeighbor(int index) const { return neighbors[index]; }
 
   /**
    * @brief Sets new effective Force and updates Old Force to the current Force
    * @param new_f new Force - 3D-"Vector" (std::array<double, 3>)
    */
-  void setF(const Vector3 &new_f);
+  void setF(const Vector3 &new_f) {
+    this->old_f = this->f;
+    this->f = new_f;
+  }
 
   /**
    * @brief Adds the Parameter to the current Force and does NOT update old Force
    * @param partial_f \f$ \Delta F\f$ - 3D-"Vector" (std::array<double, 3>)
    */
-  void addF(const Vector3 &partial_f);
+  void addF(const Vector3 &partial_f) {
+#pragma omp simd
+    for (int i = 0; i < 3; i++) {
+#pragma omp atomic
+      this->f[i] += partial_f[i];
+    }
+  }
 
   /**
    * @brief Adds the Parameter to the current Force and does NOT update old Force
    * @param partial_f \f$ \Delta F\f$ - 3D-"Vector" (std::array<double, 3>)
    */
-  void subF(const Vector3 &partial_f);
+  void subF(const Vector3 &partial_f) {
+#pragma omp simd
+    for (int i = 0; i < 3; i++) {
+#pragma omp atomic
+      this->f[i] -= partial_f[i];
+    }
+  }
 
   /**
    * @brief Sets the Position
    * @param new_x new Position - 3D-"Vector" (std::array<double, 3>)
    */
-  void setX(const Vector3 &new_x);
+  void setX(const Vector3 &new_x) { this->x = new_x; }
 
   /**
    * @brief Sets the Velocity
    * @param new_v new Velocity - 3D-"Vector" (std::array<double, 3>)
    */
-  void setV(const Vector3 &new_v);
+  void setV(const Vector3 &new_v) { this->v = new_v; }
 
   /**
    * @brief Sets the Mass
    * @param new_m
    */
-  void setM(const double new_m);
+  void setM(const double new_m) { this->m = new_m; }
 
   /**
    * @brief Sets Sigma
    * @param new_sigma
    */
-  void setSigma(const double new_sigma);
+  void setSigma(const double new_sigma) { this->sigma = new_sigma; }
 
   /**
    * @brief sets Epsilon
    * @param new_epsilon
    */
-  void setEpsilon(const double new_epsilon);
+  void setEpsilon(const double new_epsilon) { this->epsilon = new_epsilon; }
 
   /**
    * @brief sets the type of a particle
@@ -251,6 +283,19 @@ class Particle {
    * @param new_state
    */
   void setState(int new_state) { state = new_state; }
+
+  /**
+   * @brief replaces the whole neighbor Array with a new one -> meight be useless
+   * @param new_neighbors Array with the new Neighbors
+   */
+  void setNeighbors(std::array<Particle *, 8> new_neighbors) { neighbors = new_neighbors; }
+
+  /**
+   * @brief replaces the neighbor at a given index, with a new one
+   * @param new_neighbour new neighbor
+   * @param index index (0 - 7) of the neighbor which should be replaced
+   */
+  void setNeighbour(Particle *new_neighbour, int index) { neighbors[index] = new_neighbour; }
 
   /**
    * @brief Comparte two particles
