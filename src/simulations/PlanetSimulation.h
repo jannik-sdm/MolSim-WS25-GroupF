@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "../ParticleContainer.h"
-#include "Simulation.h"
+#include "container/directSum/DirectSum.h"
+#include "simulations/Simulation.h"
 
 /**
  * @class PlanetSimulation
@@ -18,20 +18,25 @@
  * @see Physics::planetForce
  */
 class PlanetSimulation : public Simulation {
+ protected:
+  /** @brief Container for the particles */
+  DirectSum container;
+
  public:
-  PlanetSimulation(std::vector<Particle> &particles, double end_time, double delta_t);
+  /**
+   * Constructs a planet simulation
+   * @param particles reference to the particles array
+   * @param start_time start time of the simulation
+   * @param end_time end time of the simulation
+   * @param delta_t timestep of the simulation
+   */
+  PlanetSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
+                   const double delta_t)
+      : Simulation(start_time, end_time, delta_t), container(particles) {}
   /**
    * Calculates one timestep of the simulation and applies the changes to the particles.
    */
   void iteration() override;
-
- protected:
-  /** @brief Container for the particles */
-  ParticleContainer particleContainer;
-  /** @todo remove this variable, its unused */
-  const double end_time;
-  /** @brief timestep used in calculations */
-  const double delta_t;
 
   /**
    * @brief calculate the force for all particles

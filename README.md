@@ -11,7 +11,7 @@ $ cmake --build build/
 
 Run this worksheet’s simulation:
 ```sh
-$ build/Molsim -w 3 -y input/assignment3.yaml -o out/
+$ build/MolSim -y input/assignment4.3_drop.yaml 
 ```
 
 ## Usage
@@ -62,23 +62,35 @@ simulation:
   brown_motion_avg_velocity: 0.1 # Average velocity to use in brownian motion
   cutoff_radius: 3.0 # Cutoff radius for LinkedCells simulations
   domain: [180, 90, 1] # Domain for LinkedCells simulations
-  borders: [outflow,outflow,outflow,outflow,outflow,outflow] #Border Types for the 6 Borders of the Domain. Possible Border Types are: outflow, period, naive Reflection, reflection
+  #Border Types for the 6 Borders of the Domain.
+  #Possible Border Types are: outflow, periodic, naive Reflection, reflection
+  #order: x-negative(left), y-negative(bottom), z-negative(back), x-positive(right), y-positive(top), z-positive(front)
+  borders: [outflow,outflow,outflow,outflow,outflow,outflow]
   dimension: 2D #2D or 3D Domain
+  gravity: -9.81 #Factor of the acceleration of the gravity
+  temp_initial: 40 #initial Temperature of the whole system for simulation with thermostat
+  temp_final: 40 #Target Temperature for simulation with thermostat -> If not set, it is same to temp_initial
+  temp_max_change: 0.5 #maximum change of Temperature in one update step for simulation with thermostat -> If not set, ͩΔT_max = infinity
+  temp_frequency: 1000 #Frequency to apply the thermostat to the simulation. If you want to heat or cool the System this value should be small (<= 100) otherwise it can be high
 
 # Instructions to spawn particles
 particles:
   # Spawn a single particle
   - single: 
-      position: [0.0, 0.0, 0.0]
-      velocity: [0.0, 0.0, 0.0]
-      mass: 1
+      position: [0.0, 0.0, 0.0] #position of the particle  
+      velocity: [0.0, 0.0, 0.0] #initial velocity of a particle
+      mass: 1 #mass of the particle
+      epsilon: 1.0 #Material specific value to calculate Lennard Jones Forces Correctly
+      sigma: 1.0 #Material specific value to calculate Lennard Jones Forces Correctly
   # Spawn a cuboid
   - cuboid:
-      position: [20, 20, 0] # Lower left corner
+      position: [20, 20, 0] # Lower left corner of the cuboid
       size: [100, 20, 1] # Number of particles along each axis
       distance: 1.1225 # Distance between particles
       mass: 1 # Mass for each particle
       velocity: [0, 0, 0] # Initial velocity for each particle
+      epsilon: 1.0 #Material specific value to calculate Lennard Jones Forces Correctly
+      sigma: 1.0 #Material specific value to calculate Lennard Jones Forces Correctly
   # Spawn a 2D-disc on the (x, y) plane
   - disc: 
       position: [70, 60, 0] # Center of the disc
@@ -86,6 +98,8 @@ particles:
       distance: 1.1225 # Distance between particles
       mass: 1 # Mass for each particle
       velocity: [0, -10, 0] # Initial velocity for each particle
+      epsilon: 1.0 #Material specific value to calculate Lennard Jones Forces Correctly
+      sigma: 1.0 #Material specific value to calculate Lennard Jones Forces Correctly
 
 ```
 

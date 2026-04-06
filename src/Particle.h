@@ -8,6 +8,7 @@
 #pragma once
 
 #include <array>
+#include <optional>
 #include <string>
 
 /**
@@ -57,16 +58,32 @@ class Particle {
    */
   int type;
 
+  /**
+   * State of the particle.
+   * -1 := dead
+   * 0 := alive
+   */
+  int state;
+
+  /**
+   * ϵ-Value for Lorentz-Berthelot mixing rule
+   */
+  double epsilon;
+  /**
+   * σ-Value for Lorentz-Berthelot mixing rule
+   */
+  double sigma;
+
  public:
   /**
    * @brief Empty constructor
    *
    * Constructs a new particle with all values set to zero
    *
-   * @param type Type of the particle
-   * @see Particle::type
+   * @param state State of the particle
+   * @see Particle::state
    */
-  explicit Particle(int type = 0);
+  explicit Particle(int state = 0);
 
   /**
    * @brief Copy constructor
@@ -91,15 +108,40 @@ class Particle {
   Particle &operator=(Particle &&other) = default;
 
   /**
-   * @brief Construct a new Particle object
-   *
+  ** @brief Construct a new Particle object with explicit ϵ and σ
+  *
+  * @param x_arg Position of the new particle
+  * @param v_arg Velocity of the new particle
+  * @param m_arg Mass of the new particle
+  * @param type_arg Type of the new particle
+  * @param epsilon ϵ-Value of the new particle
+  * @param sigma σ-Value of the new particle
+  *
+  */
+  Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_arg, std::optional<double> epsilon,
+           std::optional<double> sigma, const Vector3 &f_arg = {0}, const Vector3 &old_f_arg = {0},
+           const int type_arg = 0);
+  // Ein Optional für sigma und epsilon hat den Vorteil, dass ich mir im Voraus nicht ewig den Kopf darüber zerbrechen
+  // muss, ob ich den Wert schon habe oder nicht.
+  // In Kombination mit den optionalen Werten für f und old_f würde dies nur unnötig komplexe if-Verschachtelungen
+  // verursachen
+  /**
+   * @brief Constructs a new particle with nullopts for sigma and epsilon
    * @param x_arg Position of the new particle
    * @param v_arg Velocity of the new particle
    * @param m_arg Mass of the new particle
    * @param type_arg Type of the new particle
    */
-  Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_arg, const int type_arg = 0);
-
+  Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_arg, const Vector3 &f_arg,
+           const Vector3 &old_f_arg, const int type_arg);
+  /**
+   * @brief Constructs a particle with all default values and all forces to 0
+   * @param x_arg Position of the new particle
+   * @param v_arg Velocity of the new particle
+   * @param m_arg Mass of the new particle
+   * @param type_arg Type of the new particle
+   */
+  Particle(const Vector3 &x_arg, const Vector3 &v_arg, const double m_arg, const int type_arg);
   /**
    * @brief Destroy the Particle object
    */
@@ -108,32 +150,48 @@ class Particle {
   /**
    * @return Position of the particle
    */
-  const Vector3 &getX() const;
+  [[nodiscard]] const Vector3 &getX() const;
 
   /**
    * @return Velocity of the particle
    */
-  const Vector3 &getV() const;
+  [[nodiscard]] const Vector3 &getV() const;
 
   /**
    * @return Force effective on this particle
    */
-  const Vector3 &getF() const;
+  [[nodiscard]] const Vector3 &getF() const;
 
   /**
    * @return Force which was effective on this particle \f$ \Delta t \f$ ago
    */
-  const Vector3 &getOldF() const;
+  [[nodiscard]] const Vector3 &getOldF() const;
 
   /**
    * @return Mass of this particle
    */
-  double getM() const;
+  [[nodiscard]] double getM() const;
 
   /**
    * @return Type of this particle
    */
-  int getType() const;
+  [[nodiscard]] int getType() const;
+
+  /**
+   *
+   * @return State of this particle
+   */
+  [[nodiscard]] int getState() const;
+
+  /**
+   *@return Epsilon of this particle
+   */
+  [[nodiscard]] double getEpsilon() const;
+
+  /**
+   *@return Sigma of this Particle
+   */
+  [[nodiscard]] double getSigma() const;
 
   /**
    * @brief Sets new effective Force and updates Old Force to the current Force
@@ -171,7 +229,28 @@ class Particle {
    */
   void setM(const double new_m);
 
+  /**
+   * @brief Sets Sigma
+   * @param new_sigma
+   */
+  void setSigma(const double new_sigma);
+
+  /**
+   * @brief sets Epsilon
+   * @param new_epsilon
+   */
+  void setEpsilon(const double new_epsilon);
+
+  /**
+   * @brief sets the type of a particle
+   * @param new_type
+   */
   void setType(int new_type) { type = new_type; }
+  /**
+   * @brief sets the state of a particle
+   * @param new_state
+   */
+  void setState(int new_state) { state = new_state; }
 
   /**
    * @brief Comparte two particles

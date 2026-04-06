@@ -12,7 +12,7 @@
  * A particle close to the left boundary (x=0) should create a ghost
  * with inverted X velocity and mirrored X position.
  */
-TEST_F(CutoffSimulationTest, CreatesGhostAtReflectiveBoundary) {
+TEST_F(TestCutoffSimulation, CreatesGhostAtReflectiveBoundary) {
   // Place particle at x=0.1 (very close to left border at x=0)
   // y=5.0, z=5.0 (center of face)
   // Velocity = (-1, 0, 0) moving towards the wall
@@ -20,9 +20,9 @@ TEST_F(CutoffSimulationTest, CreatesGhostAtReflectiveBoundary) {
   Vector3 vel = {-1.0, 0.0, 0.0};
   particles.emplace_back(pos, vel, 1.0, 0);
 
-  InitSimulation();
+  initSimulation();
 
-  sim->updateGhost();
+  callUpdateGhost();
 
   // Calculate where the ghost SHOULD be
   // Ghost X = 0.0 - 0.1 = -0.1
@@ -32,8 +32,7 @@ TEST_F(CutoffSimulationTest, CreatesGhostAtReflectiveBoundary) {
   Vector3 expectedVelocity = particles[0].getV();
 
   // B. Find the Ghost Cell Index
-  int ghostCellIndex = sim->getLinkedCells().coordinate3dToIndex1d(expectedGhostPos);
-
+  int ghostCellIndex = callCoordinate3dToIndex1d(expectedGhostPos);
   // C. Access that cell
   Cell &ghostCell = sim->getLinkedCells().cells[ghostCellIndex];
 
@@ -57,22 +56,21 @@ TEST_F(CutoffSimulationTest, CreatesGhostAtReflectiveBoundary) {
  * A particle inside a border cell, but NOT close enough to the wall
  * (distance > repulsing_distance) should NOT create a ghost.
  */
-TEST_F(CutoffSimulationTest, IgnoresParticlesTooFarFromBorder) {
+TEST_F(TestCutoffSimulation, IgnoresParticlesTooFarFromBorder) {
   // Sigma = 1.0 --> Repulsing distance is ~1.12.
   // Particle needs to be within 0.56 of the wall (2*dist < 1.12).
   // Let's place it at x=2.0 (Inside border cell [0, 2.5], but far from wall).
 
   Vector3 pos = {2.0, 5.0, 5.0};
   Vector3 vel = {0.0, 0.0, 0.0};
-  particles.emplace_back(pos, vel, 1.0, 0);
+  particles.emplace_back(pos, vel, 1.0, std::nullopt, std::nullopt);
 
-  InitSimulation();
-  sim->updateGhost();
+  initSimulation();
+  callUpdateGhost();
 
   // Calculate Ghost Cell Index (Left side)
   Vector3 ghostRegion = {-1.0, 5.0, 5.0};
-  int ghostCellIndex = sim->getLinkedCells().coordinate3dToIndex1d(ghostRegion);
-
+  int ghostCellIndex = callCoordinate3dToIndex1d(ghostRegion);
   Cell &ghostCell = sim->getLinkedCells().cells[ghostCellIndex];
 
   // Should be 0 because it's too far to exert force
@@ -82,26 +80,27 @@ TEST_F(CutoffSimulationTest, IgnoresParticlesTooFarFromBorder) {
 /**
  * A particle in a corner (close to x=0 AND y=0) should create TWO ghosts.
  */
-TEST_F(CutoffSimulationTest, CreatesGhostsInCorner) {
+TEST_F(TestCutoffSimulation, CreatesGhostsInCorner) {
   // Pos close to X=0 and Y=0
   Vector3 pos = {0.1, 0.1, 5.0};
-  particles.emplace_back(pos, Vector3{0, 0, 0}, 1.0, 0);
+  particles.emplace_back(pos, Vector3{0, 0, 0}, 1.0, std::nullopt, std::nullopt);
 
-  InitSimulation();
-  sim->updateGhost();
+  initSimulation();
+  callUpdateGhost();
 
   // Check Left Ghost Cell (-0.1, 0.1, 5.0)
-  int leftIndex = sim->getLinkedCells().coordinate3dToIndex1d(-0.1, 0.1, 5.0);
+  int leftIndex = callCoordinate3dToIndex1d(-0.1, 0.1, 5.0);
   EXPECT_EQ(sim->getLinkedCells().cells[leftIndex].size_ghost_particles, 1) << "Should have Left ghost";
 
   // Check Bottom Ghost Cell (0.1, -0.1, 5.0)
-  int bottomIndex = sim->getLinkedCells().coordinate3dToIndex1d(0.1, -0.1, 5.0);
+  int bottomIndex = callCoordinate3dToIndex1d(0.1, -0.1, 5.0);
   EXPECT_EQ(sim->getLinkedCells().cells[bottomIndex].size_ghost_particles, 1) << "Should have Bottom ghost";
 }
 
-TEST_F(CutoffSimulationTest, ReflectiveBoundaryGeneratesRepulsiveForce) {
+TEST_F(TestCutoffSimulation, ReflectiveBoundaryGeneratesRepulsiveForce) {
   // Configure REFLECTION boundaries
-  borders = {REFLECTION, REFLECTION, REFLECTION, REFLECTION, REFLECTION, REFLECTION};
+  borders = {BorderType::REFLECTION, BorderType::REFLECTION, BorderType::REFLECTION,
+             BorderType::REFLECTION, BorderType::REFLECTION, BorderType::REFLECTION};
 
   // Place a particle very close to the Left Wall (x=0)
   // repulsing_distance is usually approx 1.12 (for sigma=1).
@@ -109,14 +108,14 @@ TEST_F(CutoffSimulationTest, ReflectiveBoundaryGeneratesRepulsiveForce) {
   Vector3 pos = {0.1, 5.0, 5.0};
   particles.emplace_back(pos, Vector3{-1.0, 0, 0}, 1.0, 0);  // Moving towards wall
 
-  InitSimulation();
+  initSimulation();
   // Ensure force is zero
   Particle &p = sim->getLinkedCells().particles[0];
   p.setF({0.0, 0.0, 0.0});
 
   // Update Ghosts and Calculate Forces
   // This creates the ghost at x=-0.1 and calculates LJ force between Real(0.1) and Ghost(-0.1)
-  sim->updateGhost();
+  callUpdateGhost();
   sim->updateF();
 
   // Check for Repulsive Force
@@ -133,14 +132,15 @@ TEST_F(CutoffSimulationTest, ReflectiveBoundaryGeneratesRepulsiveForce) {
   spdlog::info("Repulsive Wall Force calculated: {}", f[0]);
 }
 
-TEST_F(CutoffSimulationTest, OutflowBoundaryKillsParticle) {
+TEST_F(TestCutoffSimulation, OutflowBoundaryKillsParticle) {
   // Configure OUTFLOW boundaries
-  borders = {OUTFLOW, OUTFLOW, OUTFLOW, OUTFLOW, OUTFLOW, OUTFLOW};
+  borders = {BorderType::OUTFLOW, BorderType::OUTFLOW, BorderType::OUTFLOW,
+             BorderType::OUTFLOW, BorderType::OUTFLOW, BorderType::OUTFLOW};
 
   // Create a particle inside the domain (e.g., x=0.5)
   Vector3 pos = {0.5, 5.0, 5.0};
-  particles.emplace_back(pos, Vector3{1.0, 0, 0}, 1.0, 0);  // Moving Right
-  InitSimulation();
+  particles.emplace_back(pos, Vector3{1.0, 0, 0}, 1.0, std::nullopt, std::nullopt);  // Moving Right
+  initSimulation();
 
   // Simulate the particle moving OUT of the domain
   // manually update the position to be in the Ghost Layer (x = -0.5)
@@ -149,8 +149,31 @@ TEST_F(CutoffSimulationTest, OutflowBoundaryKillsParticle) {
   p.setX({-0.5, 5.0, 5.0});
 
   // Trigger the move logic
-  sim->moveParticles();
+  callMoveParticles();
 
   // The particle should be marked as Dead (-1)
-  EXPECT_EQ(p.getType(), -1) << "Particle leaving the domain should be marked as dead (-1)";
+  EXPECT_EQ(p.getState(), -1) << "Particle leaving the domain should be marked as dead (-1)";
+}
+
+TEST_F(TestCutoffSimulation, GravityEffectsParticles) {
+  // Set gravity to the value on earth
+  gravity = -9.81;
+
+  // Create a particle inside the domain
+  Vector3 pos = {5.0, 5.0, 5.0};
+  Vector3 vel = {0.0, 0.0, 0.0};
+  particles.emplace_back(pos, vel, 1.0, std::nullopt, std::nullopt);
+  initSimulation();
+
+  // Ensure the force of the particle is 0 in the beginning
+  Particle &p = sim->getLinkedCells().particles[0];
+  p.setF({0.0, 0.0, 0.0});
+
+  // calculate the new force
+  sim->updateF();
+  Vector3 f = p.getOldF();
+
+  EXPECT_LT(f[1], 0.0) << "Particle should have negative force in y-dimension due to gravity";
+  EXPECT_NEAR(f[0], 0.0, 1e-5);
+  EXPECT_NEAR(f[2], 0.0, 1e-5);
 }

@@ -2,153 +2,178 @@
  * @file MolSim.cpp
  *
  */
+#include <spdlog/spdlog.h>
+
 #include <chrono>
 #include <iostream>
 #include <memory>
 
-#include "LinkedCells/LinkedCells.h"
-#include "ParticleContainer.h"
 #include "Settings.h"
+#include "container/directSum/ParticleContainer.h"
+#include "container/linkedCells/LinkedCells.h"
 #include "outputWriter/VTKWriter.h"
 #include "outputWriter/XYZWriter.h"
+#include "outputWriter/YAMLWriter.h"
 #include "simulations/CollisionSimulation.h"
 #include "simulations/CutoffSimulation.h"
 #include "simulations/PlanetSimulation.h"
-#include "spdlog/async.h"
-#include "spdlog/sinks/basic_file_sink.h"
-#include "spdlog/sinks/stdout_color_sinks-inl.h"
-#include "spdlog/spdlog.h"
+#include "simulations/ThermostatSimulation.h"
 
 /**
  * @brief plot the particles to a xyz-file or to a vtk-file.
  *
  * If ENABLE_VTK_OUTPUT is set, this function creates a vtk-file. Otherwise it creates a xyz-file
  */
-void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder);
-
-/**
- * @brief Initialize spdlog
- *
- * Sets some default options and enables async logging for spdlog
- * @see https://github.com/gabime/spdlog
- */
-void initializeLogging() {
-  spdlog::init_thread_pool(8192, 1);
-  // Create Sinks
-  auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-  auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(
-      "logs/log.txt", true);  // true: overrides already existing files instad of appending
-  // Create Logger
-  std::vector<spdlog::sink_ptr> sinks{stdout_sink, file_sink};
-  auto async_logger = std::make_shared<spdlog::async_logger>(
-      "async_logger", sinks.begin(), sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block);
-  // Set Defaults
-  spdlog::set_default_logger(async_logger);
-
-  spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
-}
+void plotParticles(std::vector<Particle> &particles, int iteration, const std::filesystem::path &filename);
 
 int main(int argc, char *argsv[]) {
   initializeLogging();
 
   std::vector<Particle> input_particles;
-  Settings settings = Settings(argc, argsv, input_particles);
-
-  if (settings.isHelp()) {
-    Settings::printHelp();
-    exit(EXIT_SUCCESS);
-  } else if (settings.isError()) {
-    Settings::printHelp();
-    exit(EXIT_FAILURE);
-  }
+  Settings settings = Settings(input_particles);
+  settings.parseArguments(argc, argsv);
+  spdlog::set_level(settings.output.log_level);
 
   if (input_particles.empty()) {
     spdlog::warn("No particles to simulate");
     exit(EXIT_SUCCESS);
   }
 
-  // use given parameters, or default endtime = 1000 delta_t = 0.014
-  spdlog::info("Parsed Arguments:");
-  spdlog::info("Starting simulation with parameters:");
-  spdlog::info("endtime = {}", settings.end_time);
-  spdlog::info("delta_t = {}", settings.delta_t);
-  spdlog::info("brown_motion_mean = {}", settings.brown_motion_avg_velocity);
-  spdlog::info("output path/name = {}", settings.outputFolder.string());
+  if (!settings.simulation.worksheet.has_value()) {
+    spdlog::warn("No simulation selected");
+    exit(EXIT_SUCCESS);
+  }
 
-#ifdef ENABLE_TIME_MEASURE
-  auto total_start_time_measure = std::chrono::high_resolution_clock::now();
+  if (!settings.simulation.end_time.has_value()) {
+    spdlog::error("Missing value for end_time");
+    exit(EXIT_SUCCESS);
+  }
+  if (!settings.simulation.delta_t.has_value()) {
+    spdlog::error("Missing value for delta_t");
+    exit(EXIT_SUCCESS);
+  }
 
-  for (int i = 0; i < ENABLE_TIME_MEASURE; i++) {
+#ifndef ENABLE_TIME_MEASURE
+  if (settings.output.directory.has_value()) {
+    Settings::createOutputDirectory(settings.output.directory.value());
+  }
 #endif
 
-    // Source for duration measurement- https://stackoverflow.com/a/19312610
-    auto start_time_measure = std::chrono::high_resolution_clock::now();
+  // select simulation
+  std::unique_ptr<Simulation> simulation = nullptr;
+  std::unique_ptr<Thermostat> thermostat = nullptr;
 
-    // select simulation
-    std::unique_ptr<Simulation> simulation = nullptr;
+#ifdef ENABLE_TIME_MEASURE
+  std::chrono::milliseconds total_runtime(0);
+  std::vector<Particle> original = input_particles;  // keep a copy of the starting particles
 
-    switch (settings.worksheet) {
+  for (int i = 0; i < ENABLE_TIME_MEASURE; i++) {
+    spdlog::info("Benchmark iteration {}/{}", i + 1, ENABLE_TIME_MEASURE);
+#endif
+
+    switch (settings.simulation.worksheet.value()) {
       case 1:
-        simulation = std::make_unique<PlanetSimulation>(input_particles, settings.end_time, settings.delta_t);
+        simulation = std::make_unique<PlanetSimulation>(input_particles, settings.simulation.start_time,
+                                                        settings.simulation.end_time.value(),
+                                                        settings.simulation.delta_t.value());
         break;
 
       case 2:
-        simulation = std::make_unique<CollisionSimulation>(input_particles, settings.end_time, settings.delta_t);
+        simulation = std::make_unique<CollisionSimulation>(
+            input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
+            settings.simulation.delta_t.value(), settings.simulation.brown_motion_avg_velocity);
         break;
 
       case 3:
+        simulation = std::make_unique<CutoffSimulation>(
+            input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
+            settings.simulation.delta_t.value(), settings.simulation.brown_motion_avg_velocity,
+            settings.simulation.domain.value(), settings.simulation.cutoff_radius.value(),
+            settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0));
+
+        /*(std::vector<Particle> &particles, const double start_time, const double end_time,
+                   const double delta_t, const Vector3 &dimension, const double cutoff_radius,
+                   const std::array<BorderType, 6> &border, const bool is2D, double g_grav)*/
+        break;
+      case 4: {
+        thermostat = std::make_unique<Thermostat>(
+            input_particles, settings.simulation.is2D, settings.simulation.t_frequency.value(),
+            settings.simulation.t_final.value_or(settings.simulation.t_initial.value()),
+            settings.simulation.t_max_change.value_or(std::numeric_limits<double>::infinity()));
+        simulation = std::make_unique<ThermostatSimulation>(
+            input_particles, settings.simulation.start_time, settings.simulation.end_time.value(),
+            settings.simulation.delta_t.value(), settings.simulation.brown_motion_avg_velocity,
+            settings.simulation.domain.value(), settings.simulation.cutoff_radius.value(),
+            settings.simulation.borders.value(), settings.simulation.is2D, settings.simulation.gravity.value_or(0.0),
+            settings.simulation.t_initial, *thermostat);
+      } break;
+
       default:
-        simulation =
-            std::make_unique<CutoffSimulation>(input_particles, settings.domain, settings.end_time, settings.delta_t,
-                                               settings.cutoff_radius, settings.borders, settings.is2D);
+        spdlog::error("Invalid worksheet number {}", settings.simulation.worksheet.value());
+        exit(EXIT_FAILURE);
     };
 
-    double current_time = settings.start_time;
-    int iteration = 0;
-
-    // for this loop, we assume: current x, current f and current v are known
-    while (current_time < settings.end_time) {
-      simulation->iteration();
-      iteration++;
-
-      if (iteration % settings.frequency == 0) {
-        plotParticles(input_particles, iteration, settings.outputFolder);
-      }
-      spdlog::info("Iteration {} finished.", iteration);
-
-      current_time += settings.delta_t;
-    }
-
-    spdlog::info("output written. Terminating...");
-    auto end_time_measure = std::chrono::high_resolution_clock::now();
-    spdlog::info("Program has been running for {} ms",
-                 std::chrono::duration_cast<std::chrono::milliseconds>(end_time_measure - start_time_measure).count());
+    // Source for duration measurement- https://stackoverflow.com/a/19312610
+    auto start_time_iteration = std::chrono::high_resolution_clock::now();
 
 #ifdef ENABLE_TIME_MEASURE
+    // Disable logging
+    spdlog::set_level(spdlog::level::off);
+
+    simulation->run([](const unsigned int _) {});
+
+    // Enable logging
+    spdlog::set_level(settings.output.log_level);
+#else
+  if (settings.output.directory.has_value()) {
+    spdlog::info("Writing files to {}", settings.output.directory.value().string());
+    simulation->run([&input_particles, &settings](const unsigned int iteration) {
+      if (iteration % settings.output.frequency == 0) {
+        const auto filename = settings.output.directory.value() / settings.output.prefix;
+        plotParticles(input_particles, static_cast<int>(iteration), filename);
+      }
+    });
+  } else {
+    spdlog::warn("No output folder set, running simulation without plotting");
+    simulation->run([](const unsigned int _) {});
+  }
+#endif
+
+    auto end_time_iteration = std::chrono::high_resolution_clock::now();
+    spdlog::info(
+        "Program has been running for {} ms",
+        std::chrono::duration_cast<std::chrono::milliseconds>(end_time_iteration - start_time_iteration).count());
+
+#ifdef ENABLE_TIME_MEASURE
+    // copy original particles to start simulation from scratch
+    input_particles.clear();
+    for (const auto &p : original) {
+      input_particles.push_back(p);
+    }
+
+    // add to total runtime
+    total_runtime += std::chrono::duration_cast<std::chrono::milliseconds>(end_time_iteration - start_time_iteration);
   }
 
-  auto total_end_time_measure = std::chrono::high_resolution_clock::now();
-  if (spdlog::get_level() <= spdlog::level::info) {
-    spdlog::info("Total runtime: {}ms", std::chrono::duration_cast<std::chrono::milliseconds>(total_end_time_measure -
-                                                                                              total_start_time_measure)
-                                            .count());
-  } else
-    std::cout << "Total Runtime: "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(total_end_time_measure -
-                                                                       total_start_time_measure)
-                     .count()
-              << "ms.\n";
+  // molecule updates per second = particles times iterations per second
+  std::chrono::milliseconds average_runtime = total_runtime / ENABLE_TIME_MEASURE;
+  double iterations = settings.simulation.end_time.value() / settings.simulation.delta_t.value();
+  double mups = input_particles.size() * iterations / average_runtime.count();
+  spdlog::info("Benchmark finished: total={}ms, average={}ms, mups={:.0f}mol/s", total_runtime.count(),
+               average_runtime.count(), mups);
 
 #endif
 
+  if (settings.output.export_filename.has_value())
+    outputWriter::exportYAML(input_particles, settings, settings.output.export_filename.value());
   return 0;
 }
 
-void plotParticles(std::vector<Particle> &particles, int iteration, std::filesystem::path outputFolder) {
+void plotParticles(std::vector<Particle> &particles, int iteration, const std::filesystem::path &filename) {
 #ifdef ENABLE_VTK_OUTPUT
   outputWriter::VTKWriter writer;
 #else
   outputWriter::XYZWriter writer;
 #endif
-  writer.plotParticles(particles, outputFolder, iteration);
+  writer.plotParticles(particles, filename.string(), iteration);
 }

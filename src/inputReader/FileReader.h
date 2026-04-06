@@ -1,12 +1,13 @@
 #pragma once
 
+#include <spdlog/spdlog.h>
+
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <vector>
 
-#include "../Particle.h"
-#include "spdlog/spdlog.h"
+#include "Particle.h"
 
 /**
  * @class FileReader

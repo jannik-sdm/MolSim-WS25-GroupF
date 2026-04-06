@@ -6,28 +6,68 @@
 #include <cmath>
 #include <memory>
 
-#include "../LinkedCells/LinkedCells.h"
-#include "Simulation.h"
+#include "container/linkedCells/LinkedCells.h"
+#include "simulations/Simulation.h"
+#include "simulations/Thermostat.h"
 
+/**
+ * @class CutoffSimulation
+ * @brief Simulation for Assignment 3
+ *
+ * This class calculates timesteps for a particle simulation with a cutoff radius
+ *
+ * @see Physics::calculateV
+ * @see Physics::calculateX
+ * @see Physics::LennardJones::Force
+ */
 class CutoffSimulation : public Simulation {
- private:
-  const double epsilon = 5;
-  const double sigma = 1;
-  const double brownian_motion_avg_velocity = 0.1;
-  const double end_time;
-  const double delta_t;
-  const double cutoffRadius = 3.0;
+ protected:
+  /**
+   * Stores if the simulation is 2D or 3D
+   */
   bool is2D;
   /**
-   * Distance for when two particles are repulsing
+   * Stores the gravity constant applied to the particles
    */
-  const double repulsing_distance;
+  const double g_grav;
+  /**
+   * Container for the particles, specifying how to modify the particles
+   */
   LinkedCells linkedCells;
+  /**
+   * reference to the particles vector
+   */
   std::vector<Particle> &particles;
 
  public:
-  CutoffSimulation(std::vector<Particle> &particles, Vector3 dimension, double end_time, double delta_t,
-                   double cutoffRadius, std::array<BorderType, 6> &border, bool is2D);
+  // TODO: bisschen scuffed mit der repulsing distance, weiß nicht ob das funktioniert aber versuche es mal so und
+  // später vlt fixen
+  /**
+   * CutoffSimulation Constructor
+   * @param particles
+   * @param start_time
+   * @param end_time
+   * @param delta_t
+   * @param brown_motion_avg_velocity
+   * @param dimension
+   * @param cutoff_radius
+   * @param border
+   * @param is2D
+   * @param g_grav
+   */
+  CutoffSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
+                   const double delta_t, const std::optional<double> brown_motion_avg_velocity,
+                   const Vector3 &dimension, const double cutoff_radius, const std::array<BorderType, 6> &border,
+                   const bool is2D, double g_grav)
+      : Simulation(start_time, end_time, delta_t),
+        is2D(is2D),
+        g_grav(g_grav),
+        linkedCells(particles, dimension, cutoff_radius, is2D, border),
+        particles(particles) {
+    if (brown_motion_avg_velocity.has_value()) {
+      initializeBrownianMotion(brown_motion_avg_velocity.value());
+    }
+  }
 
   /**
    * Performes one iteration of the simulation by updating the force, position and velocity of each particle
@@ -48,30 +88,12 @@ class CutoffSimulation : public Simulation {
   void updateV() override;
 
   /**
-   * @brief Adds ghost particles to the ghost cells adjacent to the reflective borders of the current border cell
-   * @param particle Particle for which we have to create ghost particles
-   * @param cell_index Index to the cell the particle is located in
-   * @param cell Reference of the cell the particle is located in
-   */
-  void createGhostParticles(Particle &particle, const int cell_index, Cell &cell);
-
-  /**
-   * @brief Creates ghost particles for all particles located in border cells and creates pointers to acces them
-   */
-  void updateGhost();
-
-  /**
-   * @brief Moves the particles that left a cell into their new cell
-   */
-  void moveParticles();
-
-  /**
-   * @brief Initializes the particles with the brownian motion
-   */
-  void initializeBrownianMotion();
-
-  /**
    * @brief getter for the tests
    */
   LinkedCells &getLinkedCells() { return linkedCells; }
+
+  /**
+   * Initializes the brownian motion
+   */
+  void initializeBrownianMotion(double brown_motion_avg_velocity);
 };

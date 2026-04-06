@@ -3,7 +3,7 @@
 #include <fstream>
 #include <vector>
 
-#include "FileReader.h"
+#include "inputReader/FileReader.h"
 
 /**
  * @class CuboidReader

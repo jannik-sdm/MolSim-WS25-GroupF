@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "../Particle.h"
-#include "PlanetSimulation.h"
+#include "Particle.h"
+#include "simulations/PlanetSimulation.h"
 
 /**
  * @class CollisionSimulation
@@ -19,7 +19,21 @@
  */
 class CollisionSimulation : public PlanetSimulation {
  public:
-  CollisionSimulation(std::vector<Particle> &particles, double end_time, double delta_t);
+  /**
+   * @brief Constructs a CollisionSimulation
+   * @param particles reference to the particles array
+   * @param start_time start time of the simulation
+   * @param end_time end time of the simulation
+   * @param delta_t timestep of the simulation
+   * @param brown_motion_avg_velocity avg velocity to initalize the brownian motion
+   */
+  CollisionSimulation(std::vector<Particle> &particles, const double start_time, const double end_time,
+                      const double delta_t, const std::optional<double> brown_motion_avg_velocity)
+      : PlanetSimulation(particles, start_time, end_time, delta_t) {
+    if (brown_motion_avg_velocity.has_value()) {
+      initializeBrownianMotion(brown_motion_avg_velocity.value());
+    }
+  }
   /**
    * @brief calculate the force for all particles
    *
@@ -28,11 +42,11 @@ class CollisionSimulation : public PlanetSimulation {
    */
   void updateF() override;
 
- private:
-  /** @brief Value used for epsilon durign force calculation, @see Physics::lennardJonesForce */
-  const double epsilon = 5;
-  /** @brief Value used for sigma during force calculation, @see Physics::lennardJonesForce */
-  const double sigma = 1;
-  /** @brief Average velocity used to initialize brownian motion */
-  const double brownian_motion_avg_velocity = 0.1;
+  /**
+   * @brief Add brownian motion
+   *
+   * Adds a brownian motion in the form of velocity to all particles
+   * @param brown_motion_avg_velocity
+   */
+  void initializeBrownianMotion(double brown_motion_avg_velocity);
 };

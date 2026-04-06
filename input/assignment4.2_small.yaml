@@ -1,0 +1,36 @@
+output:
+  directory: "../out/42_small"
+  frequency: 10
+simulation:
+  worksheet: 4
+  delta_t: 0.0005
+  end_time: 25
+  brown_motion_avg_velocity: 0.1
+  cutoff_radius: 2.5
+  domain: [63, 36, 1]
+  borders: [periodic,reflection,outflow,periodic,reflection,outflow]
+  dimension: 2D
+  gravity: -12.44
+  temp_initial: 40
+  temp_final: 40
+  temp_max_change: 0.5
+  temp_frequency: 1000
+
+
+particles:
+  - cuboid:
+      position: [0.6, 2, 0]
+      size: [50, 14, 1]
+      distance: 1.2
+      mass: 1.0
+      velocity: [0, 0, 0]
+      epsilon: 1.0
+      sigma: 1.0
+  - cuboid:
+       position: [ 0.6, 19, 0 ]
+       size: [ 50, 14, 1 ]
+       distance: 1.2
+       mass: 2.0
+       velocity: [ 0, 0, 0 ]
+       epsilon: 1.0
+       sigma: 0.9412
